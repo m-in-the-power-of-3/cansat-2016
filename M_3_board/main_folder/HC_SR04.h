@@ -9,7 +9,7 @@
 #define ULTRASONIC_HC_SR04_H_
 
 void HC_SR04_init ();
-float HC_SR04_read ();
+uint16_t HC_SR04_read ();
 void HC_SR04_trip_check ();
 
 #endif /* ULTRASONIC_HC_SR04_H_ */
