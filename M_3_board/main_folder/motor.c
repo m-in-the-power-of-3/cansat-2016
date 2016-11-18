@@ -8,34 +8,28 @@
 #include <avr/io.h>
 #include <stdbool.h>
 
-#define m_port PORTC
-#define m_ppin PINC
-#define m_ddr DDRC
-#define m_pin_1 1
-#define m_pin_2 2
-#define m_pin_3 3
-
+#include "hal/defines.h"
 #include "hal/structs.h"
 
 void motor_init() {
-	m_ddr |= (1 << m_pin_1);
-	m_ddr |= (1 << m_pin_2);
-	m_ddr |= (1 << m_pin_3);
-	m_port |= (1 << m_pin_1);
-	m_port |= (1 << m_pin_2);
-	m_port |= (1 << m_pin_3);
+	MOTOR_DDR |= (1 << MOTOR_1_PIN);
+	MOTOR_DDR |= (1 << MOTOR_2_PIN);
+	MOTOR_DDR |= (1 << MOTOR_3_PIN);
+	MOTOR_PORT |= (1 << MOTOR_1_PIN);
+	MOTOR_PORT |= (1 << MOTOR_2_PIN);
+	MOTOR_PORT |= (1 << MOTOR_3_PIN);
 }
 
 void motor_on (uint8_t motor_number){
 	switch (motor_number){
 	case 1:
-		m_port |= (1 << m_pin_1);
+		MOTOR_PORT |= (1 << MOTOR_1_PIN);
 		break;
 	case 2:
-		m_port |= (1 << m_pin_2);
+		MOTOR_PORT |= (1 << MOTOR_2_PIN);
 		break;
 	case 3:
-		m_port |= (1 << m_pin_3);
+		MOTOR_PORT |= (1 << MOTOR_3_PIN);
 		break;
 	}
 }
@@ -43,13 +37,13 @@ void motor_on (uint8_t motor_number){
 void motor_off (uint8_t motor_number){
 	switch (motor_number){
 	case 1:
-		m_port &= ~(1 << m_pin_1);
+		MOTOR_PORT &= ~(1 << MOTOR_1_PIN);
 		break;
 	case 2:
-		m_port &= ~(1 << m_pin_2);
+		MOTOR_PORT &= ~(1 << MOTOR_2_PIN);
 		break;
 	case 3:
-		m_port &= ~(1 << m_pin_3);
+		MOTOR_PORT &= ~(1 << MOTOR_3_PIN);
 		break;
 	}
 }
@@ -59,7 +53,7 @@ void porsh_check (porsh_state_t * state){
 		if(time_compare(time_service_get(),state->time_krit)){
 			motor_off(state->number);
 			state->end = false;
-			printf("motor %u off \n",state->number);
+			printf("motor %u off \n",state->number);//----------------------------------for the test
 		}
 	}
 }

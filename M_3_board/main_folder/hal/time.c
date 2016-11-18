@@ -12,8 +12,7 @@
 
 #include "structs.h"
 #include "time.h"
-
-#define MAX_SUBSECONDS 31250
+#include "defines.h"
 
 volatile uint16_t _seconds = 0;
 

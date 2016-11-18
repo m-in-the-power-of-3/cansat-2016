@@ -9,26 +9,24 @@
 #include <stdint.h>
 #include <util/delay.h>
 
-#define one_wire_port PORTC
-#define one_wire_ppin PINC
-#define one_wire_ddr DDRC
-#define one_wire_pin 0
+#include "defines.h"
 
 void one_wire_init() {
-	one_wire_ddr &= ~(1 << one_wire_pin);
-	one_wire_port &= ~(1 << one_wire_pin);
+	ONE_WIRE_DDR &= ~(1 << ONE_WIRE_PIN);
+	ONE_WIRE_PORT &= ~(1 << ONE_WIRE_PIN);
 }
 
+
 void one_wire_set_bus_zero() {
-	one_wire_port |= (1 << one_wire_pin);
+	ONE_WIRE_PORT |= (1 << ONE_WIRE_PIN);
 }
 
 void one_wire_set_bus_one() {
-	one_wire_port &= ~(1 << one_wire_pin);
+	ONE_WIRE_PORT &= ~(1 << ONE_WIRE_PIN);
 }
 
 int one_wire_read_bus() {
-	return one_wire_ppin & (1 << one_wire_pin);
+	return ONE_WIRE_PPIN & (1 << ONE_WIRE_PIN);
 }
 
 int one_wire_reset() {
