@@ -8,7 +8,6 @@
 
 #include "structs.h"
 
-
 void adc_init (){
     ADMUX = (1<<REFS0);
     ADCSRA = (1<<ADEN)| (1<<ADPS2) | (1<<ADPS1);
