@@ -5,35 +5,11 @@
  *      Author: developer
  */
 #include <stdio.h>
-#include <stdbool.h>
 #include <avr/io.h>
 
 #include "hal/twi.h"
 #include "hal/structs.h"
-
-#define ADRESS_SENSORS 0x77
-#define ADRESS_MODE 0xF4
-#define ADRESS_READ 0xF6
-#define PRESSURE_COD 0xB4/*См. таблицу
-Температура | OSS = 00 | CSO = 1 | 01110 | 00101110 = 0x2E | до 4,5 мс  | 3 мкА | 0,5 °C
-Давление    | OSS = 00 | CSO = 1 | 10100 | 00110100 = 0x34 | до 4,5 мс  | 3 мкА | 0,6 гПа
-Давление    | OSS = 01 | CSO = 1 | 10100 | 01110100 = 0x74 | до 7,5 мс  | 5 мкА | 0,5 гПа
-Давление    | OSS = 10 | CSO = 1 | 10100 | 10110100 = 0xB4 | до 13,5 мс | 7 мкА | 0,4 гПа
-Давление    | OSS = 11 | CSO = 1 | 10100 | 11110100 = 0xF4 | до 25,5 мс |12 мкА | 0,3 гПа*/
-#define TEMPERATURE_COD 0x2E
-#define OSS 2
-
-#define AC1 0xAA
-#define AC2 0xAC
-#define AC3 0xAE
-#define AC4 0xB0
-#define AC5 0xB2
-#define AC6 0xB4
-#define B1 0xB6
-#define B2 0xB8
-#define MB 0xBA
-#define MC 0xBC
-#define MD 0xBE
+#include "hal/defines.h"
 
 BMP180calibration_t calibration;
 
@@ -130,5 +106,4 @@ int32_t BMP180_count_pressure(){
 	X2 = (-7357 * p) >> 16;
 	p = p + ((X1 + X2 + (int32_t)3791)>>4);
 	return p;
-
 }

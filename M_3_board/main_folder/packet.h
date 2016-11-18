@@ -9,6 +9,6 @@
 
 uint16_t count_sum ();
 uint16_t count_state ();
-void make_packet ();
+//void make_packet ();
 
 #endif /* PAKET_H_ */

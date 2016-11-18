@@ -5,19 +5,7 @@
  *      Author: developer
  */
 #include <stddef.h>
-
-#include "hal/time.h"
-#include "hal/adc.h"
-#include "DS18B20.h"
-#include "sensor.h"
-#include "packet.h"
-
-#define position_porsh_1 4
-#define position_porsh_2 5
-#define position_porsh_3 6
-#define position_sensor_1 7
-#define position_sensor_2 8
-#define position_sensor_3 9
+#include <stdint.h>
 
 uint16_t count_sum (const void * value,size_t size){
 	uint16_t control_summ = 0;
@@ -28,7 +16,7 @@ uint16_t count_sum (const void * value,size_t size){
 }
 
 uint16_t count_state (int state_now){
-	//----------------------------------------------------------Написать функцию для вычисления состояния
+	//----------------------------------------------------------add function
 	return 0;
 }
 
