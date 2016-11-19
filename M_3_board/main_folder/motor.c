@@ -8,7 +8,7 @@
 #include <avr/io.h>
 #include <stdbool.h>
 
-#include "hal/defines.h"
+#include "hal/config.h"
 #include "hal/structs.h"
 
 void motor_init() {

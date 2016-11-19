@@ -9,7 +9,7 @@
 #include <stdint.h>
 #include <util/delay.h>
 
-#include "defines.h"
+#include "config.h"
 
 void one_wire_init() {
 	ONE_WIRE_DDR &= ~(1 << ONE_WIRE_PIN);

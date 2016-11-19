@@ -7,7 +7,7 @@
 #include <avr/io.h>
 #include <stdbool.h>
 
-#include "hal/defines.h"
+#include "hal/config.h"
 
 void sensor_init (){
 	SEPARATION_SENSOR_DDR &= ~(1<< SEPARATION_SENSOR_1_PIN);

@@ -9,7 +9,7 @@
 
 #include "hal/twi.h"
 #include "hal/structs.h"
-#include "hal/defines.h"
+#include "hal/config.h"
 
 BMP180calibration_t calibration;
 

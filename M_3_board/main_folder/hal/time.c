@@ -12,7 +12,7 @@
 
 #include "structs.h"
 #include "time.h"
-#include "defines.h"
+#include "config.h"
 
 volatile uint16_t _seconds = 0;
 
