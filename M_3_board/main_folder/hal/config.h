@@ -12,14 +12,16 @@
 #define ADRESS_SENSORS 0x77
 #define ADRESS_MODE 0xF4
 #define ADRESS_READ 0xF6
-#define PRESSURE_COD 0xB4/*look at the table
+#define PRESSURE_COD 0x74/*look at the table
 Temperature | OSS = 00 | CSO = 1 | 01110 | 00101110 = 0x2E | 4,5 mc  | 3 mA | 0,5 °C
 Pressure    | OSS = 00 | CSO = 1 | 10100 | 00110100 = 0x34 | 4,5 mc  | 3 mA | 0,6 GPa
 Pressure    | OSS = 01 | CSO = 1 | 10100 | 01110100 = 0x74 | 7,5 mc  | 5 mA | 0,5 GPa
 Pressure    | OSS = 10 | CSO = 1 | 10100 | 10110100 = 0xB4 | 13,5 mc | 7 mA | 0,4 GPa
 Pressure    | OSS = 11 | CSO = 1 | 10100 | 11110100 = 0xF4 | 25,5 mc |12 mA | 0,3 GPa*/
 #define TEMPERATURE_COD 0x2E
-#define OSS 2
+#define BMP180_TIME_TEMPERATURE 5
+#define BMP180_TIME_PRESSURE 8
+#define OSS 1
 #define AC1 0xAA
 #define AC2 0xAC
 #define AC3 0xAE

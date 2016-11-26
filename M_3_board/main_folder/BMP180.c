@@ -6,6 +6,7 @@
  */
 #include <stdio.h>
 #include <avr/io.h>
+#include <util/delay.h>
 
 #include "hal/twi.h"
 #include "hal/structs.h"
@@ -33,6 +34,7 @@ uint32_t BMP180_read_pressure (){
 	twi_write_byte(ADRESS_MODE);
 	twi_write_byte(PRESSURE_COD);
 	twi_stop();
+	_delay_ms (BMP180_TIME_PRESSURE);
 	twi_start();
 	twi_write_adress(ADRESS_SENSORS,0);
 	twi_write_byte(ADRESS_READ);
@@ -55,6 +57,7 @@ uint16_t BMP180_read_temperature (){
 	twi_write_byte(ADRESS_MODE);
 	twi_write_byte(TEMPERATURE_COD);
 	twi_stop();
+	_delay_ms (BMP180_TIME_TEMPERATURE);
 	twi_start();
 	twi_write_adress(ADRESS_SENSORS,0);
 	twi_write_byte(ADRESS_READ);
