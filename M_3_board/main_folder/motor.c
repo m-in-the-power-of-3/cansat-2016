@@ -7,9 +7,12 @@
 
 #include <avr/io.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 #include "hal/config.h"
 #include "hal/structs.h"
+#include "hal/time.h"
+#include "hal/uart.h"
 
 void motor_init() {
 	MOTOR_DDR |= (1 << MOTOR_1_PIN);
