@@ -13,6 +13,7 @@ void sensor_init (){
 	SEPARATION_SENSOR_DDR &= ~(1<< SEPARATION_SENSOR_1_PIN);
 	SEPARATION_SENSOR_DDR &= ~(1<< SEPARATION_SENSOR_2_PIN);
 	SEPARATION_SENSOR_DDR &= ~(1<< SEPARATION_SENSOR_3_PIN);
+	SELECTOR_SWITCH_DDR &= ~(1<<SELECTOR_SWITCH_PIN);
 }
 
 bool separation_sensor (uint8_t sensor_number){
@@ -35,3 +36,11 @@ bool separation_sensor (uint8_t sensor_number){
 	}
 	return false;
 }
+
+bool selector_switch (){
+	if ((SELECTOR_SWITCH_PPIN & (1<< SELECTOR_SWITCH_PIN)) == 0)
+		return true;
+	else return false;
+}
+
+

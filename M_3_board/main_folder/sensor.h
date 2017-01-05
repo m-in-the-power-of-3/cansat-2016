@@ -11,8 +11,7 @@
 #include <stdbool.h>
 
 void sensor_init ();
-bool porsh_sensor_1 ();
-bool porsh_sensor_2 ();
-bool porsh_sensor_3 ();
+bool separation_sensor (uint8_t sensor_number);
+bool selector_switch ();
 
 #endif /* SENSOR_H_ */

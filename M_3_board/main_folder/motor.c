@@ -17,9 +17,9 @@ void motor_init() {
 	MOTOR_DDR |= (1 << MOTOR_1_PIN);
 	MOTOR_DDR |= (1 << MOTOR_2_PIN);
 	MOTOR_DDR |= (1 << MOTOR_3_PIN);
-	MOTOR_PORT |= (1 << MOTOR_1_PIN);
-	MOTOR_PORT |= (1 << MOTOR_2_PIN);
-	MOTOR_PORT |= (1 << MOTOR_3_PIN);
+	MOTOR_PORT &= ~(1 << MOTOR_1_PIN);
+	MOTOR_PORT &= ~(1 << MOTOR_2_PIN);
+	MOTOR_PORT &= ~(1 << MOTOR_3_PIN);
 }
 
 void motor_on (uint8_t motor_number){
@@ -55,7 +55,6 @@ void porsh_check (porsh_state_t * state){
 		if(time_compare(time_service_get(),state->time_krit)){
 			motor_off(state->number);
 			state->end = false;
-			printf("motor %u off \n",state->number);//----------------------------------for the test
 		}
 	}
 }
