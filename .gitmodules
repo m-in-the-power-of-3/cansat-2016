@@ -1,0 +1,3 @@
+[submodule "M_3_board/librscs"]
+	path = M_3_board/librscs
+	url = ../../cansat-rsce/librscs.git
