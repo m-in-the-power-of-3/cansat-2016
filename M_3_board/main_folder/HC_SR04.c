@@ -66,25 +66,6 @@ void HC_SR04_trip_check (){
 	distance[1] = HC_SR04_read();
 	_delay_ms (5);
 	distance[2] = HC_SR04_read();
-/*//test
-	if ((distance[0] >= distance[1]) && (distance[1] >= distance[2])){
-		if(distance[0] <= TEST_DISTANCE_FOR_CHECK_1){
-			printf("motor 1 on");
-			motor_on (1);
-			return;
-		}
-		if(distance[0] <= TEST_DISTANCE_FOR_CHECK_2){
-			printf("motor 2 on");
-			motor_on (2);
-			return;
-		}
-		if(distance[0] <= TEST_DISTANCE_FOR_CHECK_3){
-			printf("motor 3 on");
-			motor_on (3);
-			return;
-		}
-	}
-//--------*/
 	if ((distance[0] >= distance[1]) && (distance[1] >= distance[2]) && (distance[0] <= DISTANCE_FOR_CHECK)){
 		//-----------------------------------------------------------дописать
 	}

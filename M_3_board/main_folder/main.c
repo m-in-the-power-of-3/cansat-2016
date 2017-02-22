@@ -9,6 +9,9 @@
 #include <stdio.h>
 #include <math.h>
 
+#include <rscs/onewire.h>
+#include <rscs/ds18b20.h>
+
 #include "hal/adc.h"
 #include "BMP180.h"
 #include "motor.h"
@@ -25,11 +28,12 @@
 
 int main() {
 //INIT
+	rscs_ow_init_bus();
+	rscs_ds18b20_t * ds18b20_1 = rscs_ds18b20_init(0);
 	DDRG |= (1<<3);
 	adc_init();
 	BMP180_init();
 	motor_init();
-	one_wire_init();
 	sensor_init();
 	spi_init();
 	time_service_init();

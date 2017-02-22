@@ -53,11 +53,11 @@
 // Настройки ONE_WIRE - модуля взаимодействия по ONEWIRE шине
 // ========================================================
 // Регистр PORT на котором расположен пин onewire шины
-#define RSCS_ONEWIRE_REG_PORT (PORTB)
+#define RSCS_ONEWIRE_REG_PORT (PORTC)
 // Регистр PIN на котором расположен пин onewire шины
-#define RSCS_ONEWIRE_REG_PIN  (PINB)
+#define RSCS_ONEWIRE_REG_PIN  (PINC)
 // Регистр DDR на котором расположен пин onewire шины
-#define RSCS_ONEWIRE_REG_DDR  (DDRB)
+#define RSCS_ONEWIRE_REG_DDR  (DDRC)
 // Битовая маска, задающая тот самый пин на порту
 #define RSCS_ONEWIRE_PIN_MASK (1 << 0)
 
