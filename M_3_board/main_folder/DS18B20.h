@@ -8,6 +8,6 @@
 #ifndef TEMPERATURE_H_
 #define TEMPERATURE_H_
 
-uint16_t temperature ();
+uint16_t DS18B20_read ();
 
 #endif /* TEMPERATURE_H_ */
