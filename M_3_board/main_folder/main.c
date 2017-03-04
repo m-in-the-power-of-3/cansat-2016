@@ -11,6 +11,9 @@
 
 #include <rscs/onewire.h>
 #include <rscs/ds18b20.h>
+#include <rscs/uart.h>
+#include <rscs/i2c.h>
+#include <rscs/stdext/stdio.h>
 
 #include "hal/adc.h"
 #include "BMP180.h"
@@ -28,8 +31,21 @@
 
 int main() {
 //INIT
+	//ONE WIRE
 	rscs_ow_init_bus();
 	rscs_ds18b20_t * ds18b20_1 = rscs_ds18b20_init(0);
+	//UART 1
+	rscs_uart_bus_t * uart = rscs_uart_init(RSCS_UART_ID_UART1, RSCS_UART_FLAG_ENABLE_TX);
+	rscs_uart_set_baudrate(uart, 9600);
+	rscs_uart_set_character_size(uart, 8);
+	rscs_uart_set_parity(uart, RSCS_UART_PARITY_NONE);
+	rscs_uart_set_stop_bits(uart, RSCS_UART_STOP_BITS_ONE);
+	FILE * f = rscs_make_uart_stream(uart);
+	stdout = f;
+	//TWI
+	rscs_i2c_init();
+	rscs_i2c_set_scl_rate(800);
+
 	DDRG |= (1<<3);
 	adc_init();
 	BMP180_init();
