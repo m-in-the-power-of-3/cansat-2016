@@ -30,7 +30,7 @@ typedef struct {
 	uint16_t ac4, ac5, ac6;
 	int16_t b1, b2;
 	int16_t mb, mc, md;
-} BMP180calibration_t;
+} bmp180_calibration_t;
 
 typedef struct {
 	uint16_t seconds;

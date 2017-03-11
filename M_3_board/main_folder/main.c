@@ -46,26 +46,21 @@ int main() {
 	rscs_i2c_init();
 	rscs_i2c_set_scl_rate(800);
 
-	DDRG |= (1<<3);
-	adc_init();
-	BMP180_init();
-	motor_init();
-	sensor_init();
-	spi_init();
-	time_service_init();
-	twi_init();
-	uart_init();
-	uart_stdio_init();
-	DDRG |= (1<<3);
+	int16_t temp;
+	uint32_t press;
 
-	BMP180_init();
+	DDRG |= (1<<3);
+	bmp180_init();
+	//bmp180_test();
+
 	while (1){
 	PORTG |= (1<<3);
 	_delay_ms (300);
 	PORTG &= ~(1<<3);
 	_delay_ms (300);
-		printf("pressure = %li Pa\n",BMP180_count_pressure());
-		printf("temperature = %f C\n", BMP180_count_temperature());
-		_delay_ms (100);
+	bmp180_count_pressure(&press);
+	bmp180_count_temperature(&temp);
+	printf("pressure = %lu Pa\n",press);
+	printf("temperature = %i C\n",temp);
 	}
 }
