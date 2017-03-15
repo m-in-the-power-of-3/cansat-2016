@@ -44,7 +44,7 @@ int main() {
 	stdout = f;
 	//TWI
 	rscs_i2c_init();
-	rscs_i2c_set_scl_rate(800);
+	rscs_i2c_set_scl_rate(400);
 
 	int16_t temp;
 	uint32_t press;
@@ -54,6 +54,7 @@ int main() {
 	//bmp180_test();
 
 	while (1){
+	//printf("test");
 	PORTG |= (1<<3);
 	_delay_ms (300);
 	PORTG &= ~(1<<3);

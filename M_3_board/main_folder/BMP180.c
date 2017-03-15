@@ -18,14 +18,16 @@
 
 bmp180_calibration_t bmp180_calibration;
 
-rscs_e bmp180_read_calibration_value (uint8_t adress, void * calibration_value, size_t size_of_calibration_value){
+rscs_e bmp180_read_calibration_value (uint8_t adress, void * calibration_value){
 	rscs_e error;
+	uint8_t * value_ptr = (uint8_t*)calibration_value;
 	OPERATION(rscs_i2c_start())
 	OPERATION(rscs_i2c_send_slaw(BMP180_ADRESS,rscs_i2c_slaw_write))
 	OPERATION(rscs_i2c_write_byte(adress))
 	OPERATION(rscs_i2c_start())
 	OPERATION(rscs_i2c_send_slaw(BMP180_ADRESS,rscs_i2c_slaw_read))
-	OPERATION(rscs_i2c_read(calibration_value,size_of_calibration_value,true))
+	OPERATION(rscs_i2c_read(&value_ptr[1],1,false))
+	OPERATION(rscs_i2c_read(&value_ptr[0],1,true))
 	end:
 	rscs_i2c_stop();
 	return error;
@@ -33,17 +35,17 @@ rscs_e bmp180_read_calibration_value (uint8_t adress, void * calibration_value, 
 
 rscs_e bmp180_init(){
 	rscs_e error; //uint8_t check;
-	OPERATION(bmp180_read_calibration_value(BMP180_AC1,&bmp180_calibration.ac1,sizeof bmp180_calibration.ac1))
-	OPERATION(bmp180_read_calibration_value(BMP180_AC2,&bmp180_calibration.ac2,sizeof bmp180_calibration.ac2))
-	OPERATION(bmp180_read_calibration_value(BMP180_AC3,&bmp180_calibration.ac3,sizeof bmp180_calibration.ac3))
-	OPERATION(bmp180_read_calibration_value(BMP180_AC4,&bmp180_calibration.ac4,sizeof bmp180_calibration.ac4))
-	OPERATION(bmp180_read_calibration_value(BMP180_AC5,&bmp180_calibration.ac5,sizeof bmp180_calibration.ac5))
-	OPERATION(bmp180_read_calibration_value(BMP180_AC6,&bmp180_calibration.ac6,sizeof bmp180_calibration.ac6))
-	OPERATION(bmp180_read_calibration_value(BMP180_B1,&bmp180_calibration.b1,sizeof bmp180_calibration.b1))
-	OPERATION(bmp180_read_calibration_value(BMP180_B2,&bmp180_calibration.b2,sizeof bmp180_calibration.b2))
-	OPERATION(bmp180_read_calibration_value(BMP180_MB,&bmp180_calibration.mb,sizeof bmp180_calibration.mb))
-	OPERATION(bmp180_read_calibration_value(BMP180_MC,&bmp180_calibration.mc,sizeof bmp180_calibration.mc))
-	OPERATION(bmp180_read_calibration_value(BMP180_MD,&bmp180_calibration.md,sizeof bmp180_calibration.md))
+	OPERATION(bmp180_read_calibration_value(BMP180_AC1,&bmp180_calibration.ac1))
+	OPERATION(bmp180_read_calibration_value(BMP180_AC2,&bmp180_calibration.ac2))
+	OPERATION(bmp180_read_calibration_value(BMP180_AC3,&bmp180_calibration.ac3))
+	OPERATION(bmp180_read_calibration_value(BMP180_AC4,&bmp180_calibration.ac4))
+	OPERATION(bmp180_read_calibration_value(BMP180_AC5,&bmp180_calibration.ac5))
+	OPERATION(bmp180_read_calibration_value(BMP180_AC6,&bmp180_calibration.ac6))
+	OPERATION(bmp180_read_calibration_value(BMP180_B1,&bmp180_calibration.b1))
+	OPERATION(bmp180_read_calibration_value(BMP180_B2,&bmp180_calibration.b2))
+	OPERATION(bmp180_read_calibration_value(BMP180_MB,&bmp180_calibration.mb))
+	OPERATION(bmp180_read_calibration_value(BMP180_MC,&bmp180_calibration.mc))
+	OPERATION(bmp180_read_calibration_value(BMP180_MD,&bmp180_calibration.md))
 	printf("%i\n",bmp180_calibration.ac1);
 	printf("%i\n",bmp180_calibration.ac2);
 	printf("%i\n",bmp180_calibration.ac3);
@@ -97,12 +99,13 @@ rscs_e bmp180_read_pressure (uint32_t * raw_pressure){
 	*raw_pressure = *raw_pressure >> (8-BMP180_OSS);
 	end:
 	rscs_i2c_stop();
-	//*raw_pressure = 23843;
 	return error;
 }
 
 rscs_e bmp180_read_temperature (uint16_t * raw_temperature){
 	rscs_e error;
+	uint8_t *raw_ptr = (uint8_t*)raw_temperature;
+
 	OPERATION(rscs_i2c_start())
 	OPERATION(rscs_i2c_send_slaw(BMP180_ADRESS,rscs_i2c_slaw_write))
 	OPERATION(rscs_i2c_write_byte(BMP180_MODE_ADRESS))
@@ -114,10 +117,10 @@ rscs_e bmp180_read_temperature (uint16_t * raw_temperature){
 	OPERATION(rscs_i2c_write_byte(BMP180_ADRESS_TO_READ))
 	OPERATION(rscs_i2c_start())
 	OPERATION(rscs_i2c_send_slaw(BMP180_ADRESS,rscs_i2c_slaw_read))
-	OPERATION(rscs_i2c_read(raw_temperature,sizeof * raw_temperature,true))
+	OPERATION(rscs_i2c_read(&raw_ptr[1],1, false));
+	OPERATION(rscs_i2c_read(&raw_ptr[0],1,true));
 	end:
 	rscs_i2c_stop();
-	//*raw_temperature = 27898;
 	return error;
 }
 
@@ -131,8 +134,8 @@ rscs_e bmp180_count_temperature(int16_t *temperature){
 	rscs_e error;
 	uint16_t raw_temperature;
 	OPERATION(bmp180_read_temperature(&raw_temperature));
-	int32_t B5 = bmp180_count_B5 (raw_temperature);
-	*temperature = (B5 + 8) >> 4;
+	int32_t B5 = bmp180_count_B5(raw_temperature);
+	*temperature = (B5 + 8)/16;
 	end:
 	return error;
 }
