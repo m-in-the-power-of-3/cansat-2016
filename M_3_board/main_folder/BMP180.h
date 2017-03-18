@@ -8,11 +8,14 @@
 #define ADDSENSORS_H_
 
 #include <stdio.h>
+#include "rscs/error.h"
 
-void BMP180_init();
-uint32_t BMP180_read_pressure();
-uint16_t BMP180_read_temperature();
-int32_t BMP180_count_pressure();
-float BMP180_count_temperature();
+rscs_e bmp180_init();
+
+rscs_e bmp180_read_pressure (uint32_t * raw_pressure);
+rscs_e bmp180_read_temperature (uint16_t * raw_temperature);
+
+rscs_e bmp180_count_temperature(int16_t *temperature);
+rscs_e bmp180_count_pressure(uint32_t * pressure);
 
 #endif /* ADDSENSORS_H_ */
