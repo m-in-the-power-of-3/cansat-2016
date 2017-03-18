@@ -48,7 +48,7 @@ int main() {
 
 	DDRG |= (1<<3);
 	adc_init();
-	BMP180_init();
+	bmp180_init();
 	motor_init();
 	sensor_init();
 	spi_init();
