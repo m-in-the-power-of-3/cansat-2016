@@ -33,8 +33,7 @@
 #define CHECK_PRESSURE_MAX 0
 #define CHECK_TEMPERATURE_MIN 0
 #define CHECK_TEMPERATURE_MAX 0
-#define ERROR_BMP180_PRESSURE 0x01
-#define ERROR_BMP180_TEMPERATURE 0x02
+#define ERROR_BMP180 (1 << 8)
 #define ALL_RIGHT  0x00
 
 int main() {
@@ -60,30 +59,18 @@ int main() {
 	sensor_init();
 	time_service_init();
 //VARIABLE
-	packet_t main_packet = {0,0,0,0,0,0,0,0,0,0};
+	packet_t main_packet = {0,0,0,0,0,0,0,0,0};
 //CHECK
-	uint8_t check_state;
-	main_packet.BMP180_temperature = BMP180_count_temperature();
-	if((main_packet.BMP180_temperature < CHECK_TEMPERATURE_MIN) && (main_packet.BMP180_temperature > CHECK_TEMPERATURE_MAX)){
-		check_state = ERROR_BMP180_TEMPERATURE;
+	uint8_t check_state = 0;
+	rscs_e error = 0;
+
+	error = bmp180_count_all(&main_packet.BMP180_pressure,&main_packet.BMP180_temperature);
+	if((error != 0) ||
+	((main_packet.BMP180_pressure < CHECK_PRESSURE_MIN) &&
+	(main_packet.BMP180_pressure > CHECK_PRESSURE_MAX))){
+		check_state |= ERROR_BMP180;
 	}
-	main_packet.BMP180_pressure = BMP180_count_pressure();
-	if((main_packet.BMP180_pressure < CHECK_PRESSURE_MIN) && (main_packet.BMP180_pressure > CHECK_PRESSURE_MAX)){
-		check_state = ERROR_BMP180_PRESSURE;
-	}
-	if(check_state != ALL_RIGHT){
-		PORTG |= (1<<3);
-		_delay_ms(250);
-		PORTG &= ~(1<<3);
-		_delay_ms(250);
-		PORTG |= (1<<3);
-		_delay_ms(500);
-		PORTG &= ~(1<<3);
-		_delay_ms(250);
-		PORTG |= (1<<3);
-		_delay_ms(250);
-		PORTG &= ~(1<<3);
-	} else PORTG |= (1<<3);
+
 //BEFORE SEPARATION
 	while(1){}
 }

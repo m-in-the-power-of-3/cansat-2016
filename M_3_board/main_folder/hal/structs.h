@@ -12,10 +12,9 @@
 typedef struct {
 	uint8_t control;
 	uint16_t number;
-	uint16_t MPX5100_pressure;
-	uint16_t DS18B20_temperature;
+	int16_t DS18B20_temperature;
 	uint32_t BMP180_pressure;
-	float BMP180_temperature;
+	int16_t BMP180_temperature;
 /*	float GPS_x;
  * 	float GPS_y;
  * 	float GPS_z;*/
