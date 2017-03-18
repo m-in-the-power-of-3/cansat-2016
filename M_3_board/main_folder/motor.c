@@ -55,7 +55,6 @@ void porsh_check (porsh_state_t * state){
 		if(time_compare(time_service_get(),state->time_krit)){
 			motor_off(state->number);
 			state->end = false;
-			printf("motor %u off \n",state->number);//----------------------------------for the test
 		}
 	}
 }
