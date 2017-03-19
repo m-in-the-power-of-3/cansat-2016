@@ -30,11 +30,13 @@
 #include "hal/structs.h"
 
 int main() {
+//============================================================================
 //INIT
-	//ONE WIRE
+//============================================================================
+  //ONE WIRE
 	rscs_ow_init_bus();
-	rscs_ds18b20_t * ds18b20_1 = rscs_ds18b20_init(0);
-	//UART 1
+
+  //UART 1
 	rscs_uart_bus_t * uart = rscs_uart_init(RSCS_UART_ID_UART1, RSCS_UART_FLAG_ENABLE_TX);
 	rscs_uart_set_baudrate(uart, 9600);
 	rscs_uart_set_character_size(uart, 8);
@@ -42,24 +44,34 @@ int main() {
 	rscs_uart_set_stop_bits(uart, RSCS_UART_STOP_BITS_ONE);
 	FILE * f = rscs_make_uart_stream(uart);
 	stdout = f;
-	//TWI
+
+  //TWI
 	rscs_i2c_init();
 	rscs_i2c_set_scl_rate(800);
 
+  //TIME
+	time_service_init();
+
+  //OTHER
 	DDRG |= (1<<3);
-	adc_init();
-	bmp180_init();
 	motor_init();
 	sensor_init();
-	spi_init();
-	time_service_init();
-	twi_init();
-	uart_init();
-	uart_stdio_init();
+
+  //DS18B20
+	rscs_ds18b20_t * ds18b20_1 = rscs_ds18b20_init(0);
+
+  //BMP180
+	bmp180_init();
+
+  //HC_SR04
 	HC_SR04_init();
+//============================================================================
 //CONST
+//============================================================================
 	const time_data_t time_porsh = {2,0};
+//============================================================================
 //VARIABLE
+//============================================================================
 	typedef enum {
 		STATE_IN_FIRST_MEASURE,
 		STATE_IN_SECOND_MEASURE,
@@ -73,27 +85,38 @@ int main() {
 	porsh_state_t porsh_3 = {{0,0},false,3};
 	float hight = 0;
 	uint32_t pressure_at_start;
+//============================================================================
 //CHECK
+//============================================================================
 	//-----------------------------------------------------------finish writing
+//============================================================================
 //BEFORE START
+//============================================================================
 	//pressure_at_start = //----------------------------- add function
+//============================================================================
 //BEFORE SEPARATION
+//============================================================================
 	//-----------------------------------------------------------finish writing
 	while(1){}
+//============================================================================
 //AFTER SEPARATION
+//============================================================================
 	const float hight_at_separation = 2;//----------------------------add function
 	const float hight_1 = (3 * hight_at_separation) / 4;
 	const float hight_2 = hight_at_separation / 2;
 	const float hight_3 = hight_at_separation / 4;
 	while (1){
-//MAKE DATA
-		//-----------------------------------------finish writing
-		HC_SR04_trip_check();
-		adc_read(&main_packet.MPX5100_pressure);
-//OTHER ACTIONS
-//PISTONS
+	//============================================================================
+	//MAKE DATA
+	//============================================================================
+	//============================================================================
+	//OTHER ACTIONS
+	//============================================================================
+	//============================================================================
+	//PISTONS
+	//============================================================================
 		switch (state_now) {
-		//FIRST PISTON
+	  //FIRST PISTON
 		case STATE_IN_FIRST_MEASURE:
 			if (hight >= hight_1){
 				motor_on (1);
@@ -102,7 +125,7 @@ int main() {
 				state_now = STATE_IN_SECOND_MEASURE;
 				}
 			break;
-		//SECOND PISTON
+	  //SECOND PISTON
 		case STATE_IN_SECOND_MEASURE:
 			if (hight >= hight_2){
 				motor_on (2);
@@ -110,7 +133,7 @@ int main() {
 				porsh_2.end = true;
 				state_now = STATE_IN_THIRD_MEASURE;
 			}
-	//THIRD PISTON
+	  //THIRD PISTON
 		break;
 			break;
 		case STATE_IN_THIRD_MEASURE:
@@ -124,9 +147,12 @@ int main() {
 		case STATE_AFTER_THIRD_MEASURE:
 			break;
 		};
+	  //DEACTIVATION
 		porsh_check(&porsh_1);
 		porsh_check(&porsh_2);
 		porsh_check(&porsh_3);
+//============================================================================
 //SEND DATA
+//============================================================================
 	}
 }
