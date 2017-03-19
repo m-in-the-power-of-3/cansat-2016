@@ -34,14 +34,17 @@
 #define CHECK_TEMPERATURE_MIN 0
 #define CHECK_TEMPERATURE_MAX 0
 #define ERROR_BMP180 (1 << 8)
+#define ERROR_DS18B20 (1 << 7)
 #define ALL_RIGHT  0x00
 
 int main() {
+//============================================================================
 //INIT
-	//ONE WIRE
+//============================================================================
+  //ONE WIRE
 	rscs_ow_init_bus();
-	rscs_ds18b20_t * ds18b20_1 = rscs_ds18b20_init(0);
-	//UART 1
+
+  //UART 1
 	rscs_uart_bus_t * uart = rscs_uart_init(RSCS_UART_ID_UART1, RSCS_UART_FLAG_ENABLE_TX);
 	rscs_uart_set_baudrate(uart, 9600);
 	rscs_uart_set_character_size(uart, 8);
@@ -49,28 +52,49 @@ int main() {
 	rscs_uart_set_stop_bits(uart, RSCS_UART_STOP_BITS_ONE);
 	FILE * f = rscs_make_uart_stream(uart);
 	stdout = f;
-	//TWI
+
+  //TWI
 	rscs_i2c_init();
 	rscs_i2c_set_scl_rate(800);
 
-	DDRG |= (1<<3);
+  //DS18B20
+	rscs_ds18b20_t * ds18b20_1 = rscs_ds18b20_init(0);
+
+  //BMP180
 	bmp180_init();
+
+  //TIME
+	time_service_init();
+
+  //OTHER
 	motor_init();
 	sensor_init();
-	time_service_init();
+	DDRG |= (1<<3);
+//============================================================================
 //VARIABLE
+//============================================================================
 	packet_t main_packet = {0,0,0,0,0,0,0,0,0};
-//CHECK
 	uint8_t check_state = 0;
-	rscs_e error = 0;
+//============================================================================
+//CHECK
+//============================================================================
+	//DS180B20
+	if(rscs_ds18b20_start_conversion(ds18b20_1) == 0){
+		_delay_ms (1100);
+		if(rscs_ds18b20_read_temperature(ds18b20_1,&main_packet.DS18B20_temperature) != 0)
+			check_state |= ERROR_DS18B20;
+	}
+	else
+		check_state |= ERROR_DS18B20;
 
-	error = bmp180_count_all(&main_packet.BMP180_pressure,&main_packet.BMP180_temperature);
-	if((error != 0) ||
+  //BMP180
+	if((bmp180_count_all(&main_packet.BMP180_pressure,&main_packet.BMP180_temperature) != 0) ||
 	((main_packet.BMP180_pressure < CHECK_PRESSURE_MIN) &&
 	(main_packet.BMP180_pressure > CHECK_PRESSURE_MAX))){
 		check_state |= ERROR_BMP180;
 	}
-
+//============================================================================
 //BEFORE SEPARATION
+//============================================================================
 	while(1){}
 }
