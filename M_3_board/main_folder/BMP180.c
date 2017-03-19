@@ -8,11 +8,11 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
+#include <rscs/error.h>
+#include <rscs/i2c.h>
+
 #include "hal/structs.h"
 #include "hal/config.h"
-
-#include "rscs/error.h"
-#include "rscs/i2c.h"
 
 #define OPERATION(OP) error = OP; if(error != RSCS_E_NONE) goto end;
 
@@ -46,20 +46,6 @@ rscs_e bmp180_init(){
 	OPERATION(bmp180_read_calibration_value(BMP180_MB,&bmp180_calibration.mb))
 	OPERATION(bmp180_read_calibration_value(BMP180_MC,&bmp180_calibration.mc))
 	OPERATION(bmp180_read_calibration_value(BMP180_MD,&bmp180_calibration.md))
-	printf("%i\n",bmp180_calibration.ac1);
-	printf("%i\n",bmp180_calibration.ac2);
-	printf("%i\n",bmp180_calibration.ac3);
-	printf("%u\n",bmp180_calibration.ac4);
-	printf("%u\n",bmp180_calibration.ac5);
-	printf("%u\n",bmp180_calibration.ac6);
-	printf("%i\n",bmp180_calibration.b1);
-	printf("%i\n",bmp180_calibration.b2);
-	printf("%i\n",bmp180_calibration.mb);
-	printf("%i\n",bmp180_calibration.mc);
-	printf("%i\n",bmp180_calibration.md);
-
-	/*OPERATION(bmp180_read_calibration_value(0xD0,&check,sizeof check))
-	printf("%u\n",check);*/
 	end:
 	return error;
 }
