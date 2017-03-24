@@ -8,7 +8,9 @@
 #ifndef DEFINES_H_
 #define DEFINES_H_
 
+// ========================================================
 //BMP180
+// ========================================================
 #define BMP180_ADRESS 0x77
 #define BMP180_MODE_ADRESS 0xF4
 #define BMP180_ADRESS_TO_READ 0xF6
@@ -34,6 +36,7 @@ Pressure    | OSS = 11 | CSO = 1 | 10100 | 11110100 = 0xF4 | 25,5 mc |12 mA | 0,
 #define BMP180_MC 0xBC
 #define BMP180_MD 0xBE
 
+/* Only for test
 #define BMP180_TEST_AC1 408
 #define BMP180_TEST_AC2 -71
 #define BMP180_TEST_AC3 -14383
@@ -45,28 +48,37 @@ Pressure    | OSS = 11 | CSO = 1 | 10100 | 11110100 = 0xF4 | 25,5 mc |12 mA | 0,
 #define BMP180_TEST_MB -32768
 #define BMP180_TEST_MC -8711
 #define BMP180_TEST_MD 2868
+*/
 
+// ========================================================
 //MOTOR
+// ========================================================
 #define MOTOR_PORT PORTC
 #define MOTOR_DDR DDRC
 #define MOTOR_1_PIN 1
 #define MOTOR_2_PIN 2
 #define MOTOR_3_PIN 3
 
+// ========================================================
 //ONE WIRE
+// ========================================================
 #define ONE_WIRE_PORT PORTC
 #define ONE_WIRE_PPIN PINC
 #define ONE_WIRE_DDR DDRC
 #define ONE_WIRE_PIN 0
 
+// ========================================================
 //SENSORS
+// ========================================================
 #define SEPARATION_SENSOR_PPIN PINA
 #define SEPARATION_SENSOR_DDR DDRA
 #define SEPARATION_SENSOR_1_PIN 3
 #define SEPARATION_SENSOR_2_PIN 4
 #define SEPARATION_SENSOR_3_PIN 5
 
+// ========================================================
 //TIME
+// ========================================================
 #define MAX_SUBSECONDS 31250
 
 #endif /* DEFINES_H_ */

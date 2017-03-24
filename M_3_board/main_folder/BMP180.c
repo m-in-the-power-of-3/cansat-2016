@@ -46,36 +46,8 @@ rscs_e bmp180_init(){
 	OPERATION(bmp180_read_calibration_value(BMP180_MB,&bmp180_calibration.mb))
 	OPERATION(bmp180_read_calibration_value(BMP180_MC,&bmp180_calibration.mc))
 	OPERATION(bmp180_read_calibration_value(BMP180_MD,&bmp180_calibration.md))
-	printf("%i\n",bmp180_calibration.ac1);
-	printf("%i\n",bmp180_calibration.ac2);
-	printf("%i\n",bmp180_calibration.ac3);
-	printf("%u\n",bmp180_calibration.ac4);
-	printf("%u\n",bmp180_calibration.ac5);
-	printf("%u\n",bmp180_calibration.ac6);
-	printf("%i\n",bmp180_calibration.b1);
-	printf("%i\n",bmp180_calibration.b2);
-	printf("%i\n",bmp180_calibration.mb);
-	printf("%i\n",bmp180_calibration.mc);
-	printf("%i\n",bmp180_calibration.md);
-
-	/*OPERATION(bmp180_read_calibration_value(0xD0,&check,sizeof check))
-	printf("%u\n",check);*/
 	end:
 	return error;
-}
-
-void bmp180_test(){
-	bmp180_calibration.ac1 = BMP180_TEST_AC1;
-	bmp180_calibration.ac2 = BMP180_TEST_AC2;
-	bmp180_calibration.ac3 = BMP180_TEST_AC3;
-	bmp180_calibration.ac4 = BMP180_TEST_AC4;
-	bmp180_calibration.ac5 = BMP180_TEST_AC5;
-	bmp180_calibration.ac6 = BMP180_TEST_AC6;
-	bmp180_calibration.b1 = BMP180_TEST_B1;
-	bmp180_calibration.b2 = BMP180_TEST_B2;
-	bmp180_calibration.mb = BMP180_TEST_MB;
-	bmp180_calibration.mc = BMP180_TEST_MC;
-	bmp180_calibration.md = BMP180_TEST_MD;
 }
 
 rscs_e bmp180_read_pressure (uint32_t * raw_pressure){
@@ -189,3 +161,17 @@ rscs_e bmp_180_count_all (uint32_t * pressure,int16_t * temperature){
 	return error;
 }
 
+/* Only for test
+void bmp180_test(){
+	bmp180_calibration.ac1 = BMP180_TEST_AC1;
+	bmp180_calibration.ac2 = BMP180_TEST_AC2;
+	bmp180_calibration.ac3 = BMP180_TEST_AC3;
+	bmp180_calibration.ac4 = BMP180_TEST_AC4;
+	bmp180_calibration.ac5 = BMP180_TEST_AC5;
+	bmp180_calibration.ac6 = BMP180_TEST_AC6;
+	bmp180_calibration.b1 = BMP180_TEST_B1;
+	bmp180_calibration.b2 = BMP180_TEST_B2;
+	bmp180_calibration.mb = BMP180_TEST_MB;
+	bmp180_calibration.mc = BMP180_TEST_MC;
+	bmp180_calibration.md = BMP180_TEST_MD;
+}*/
