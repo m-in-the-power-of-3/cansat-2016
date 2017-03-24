@@ -50,20 +50,6 @@ rscs_e bmp180_init(){
 	return error;
 }
 
-void bmp180_test(){
-	bmp180_calibration.ac1 = BMP180_TEST_AC1;
-	bmp180_calibration.ac2 = BMP180_TEST_AC2;
-	bmp180_calibration.ac3 = BMP180_TEST_AC3;
-	bmp180_calibration.ac4 = BMP180_TEST_AC4;
-	bmp180_calibration.ac5 = BMP180_TEST_AC5;
-	bmp180_calibration.ac6 = BMP180_TEST_AC6;
-	bmp180_calibration.b1 = BMP180_TEST_B1;
-	bmp180_calibration.b2 = BMP180_TEST_B2;
-	bmp180_calibration.mb = BMP180_TEST_MB;
-	bmp180_calibration.mc = BMP180_TEST_MC;
-	bmp180_calibration.md = BMP180_TEST_MD;
-}
-
 rscs_e bmp180_read_pressure (uint32_t * raw_pressure){
 	rscs_e error;
 	uint8_t buffer[3];
@@ -116,23 +102,7 @@ int32_t bmp180_count_B5 (int32_t UT){
   return X1 + X2;
 }
 
-rscs_e bmp180_count_temperature(int16_t *temperature){
-	rscs_e error;
-	uint16_t raw_temperature;
-	OPERATION(bmp180_read_temperature(&raw_temperature));
-	int32_t B5 = bmp180_count_B5(raw_temperature);
-	*temperature = (B5 + 8)/16;
-	end:
-	return error;
-}
-
-rscs_e bmp180_count_pressure(uint32_t * pressure){
-	rscs_e error;
-	uint16_t UT;
-	OPERATION(bmp180_read_temperature(&UT))
-	uint32_t UP;
-	OPERATION(bmp180_read_pressure(&UP))
-	int32_t B5 = bmp180_count_B5(UT);
+int32_t bmp180_count_p (int32_t B5,uint32_t UP){
 	int32_t B6 = B5 - 4000;
 	int32_t X1 = ((int32_t)bmp180_calibration.b2 * ( (B6 * B6)>>12 )) >> 11;
 	int32_t X2 = ((int32_t)bmp180_calibration.ac2 * B6) >> 11;
@@ -152,7 +122,56 @@ rscs_e bmp180_count_pressure(uint32_t * pressure){
 	X1 = (p >> 8) * (p >> 8);
 	X1 = (X1 * 3038) >> 16;
 	X2 = (-7357 * p) >> 16;
-	*pressure = p + ((X1 + X2 + (int32_t)3791)>>4);
+	p = p + ((X1 + X2 + (int32_t)3791)>>4);
+	return p;
+}
+
+rscs_e bmp180_count_temperature(int16_t * temperature){
+	rscs_e error;
+	uint16_t raw_temperature;
+	OPERATION(bmp180_read_temperature(&raw_temperature));
+	int32_t B5 = bmp180_count_B5(raw_temperature);
+	*temperature = (B5 + 8)/16;
 	end:
 	return error;
 }
+
+rscs_e bmp180_count_pressure(uint32_t * pressure){
+	rscs_e error;
+	uint16_t UT;
+	OPERATION(bmp180_read_temperature(&UT))
+	uint32_t UP;
+	OPERATION(bmp180_read_pressure(&UP))
+	int32_t B5 = bmp180_count_B5(UT);
+	*pressure = bmp180_count_p(B5,UP);
+	end:
+	return error;
+}
+
+rscs_e bmp_180_count_all (uint32_t * pressure,int16_t * temperature){
+	rscs_e error;
+	uint16_t UT;
+	OPERATION(bmp180_read_temperature(&UT))
+	uint32_t UP;
+	OPERATION(bmp180_read_pressure(&UP))
+	int32_t B5 = bmp180_count_B5(UT);
+	*temperature = (B5 + 8)/16;
+	*pressure = bmp180_count_p(B5,UP);
+	end:
+	return error;
+}
+
+/* Only for test
+void bmp180_test(){
+	bmp180_calibration.ac1 = BMP180_TEST_AC1;
+	bmp180_calibration.ac2 = BMP180_TEST_AC2;
+	bmp180_calibration.ac3 = BMP180_TEST_AC3;
+	bmp180_calibration.ac4 = BMP180_TEST_AC4;
+	bmp180_calibration.ac5 = BMP180_TEST_AC5;
+	bmp180_calibration.ac6 = BMP180_TEST_AC6;
+	bmp180_calibration.b1 = BMP180_TEST_B1;
+	bmp180_calibration.b2 = BMP180_TEST_B2;
+	bmp180_calibration.mb = BMP180_TEST_MB;
+	bmp180_calibration.mc = BMP180_TEST_MC;
+	bmp180_calibration.md = BMP180_TEST_MD;
+}*/
