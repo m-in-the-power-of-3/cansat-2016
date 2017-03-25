@@ -15,6 +15,8 @@ typedef struct {
 	int16_t DS18B20_temperature;
 	uint32_t BMP180_pressure;
 	int16_t BMP180_temperature;
+	int32_t BMP280_pressure;
+	int32_t BMP280_temperature;
 /*	float GPS_x;
  * 	float GPS_y;
  * 	float GPS_z;*/
