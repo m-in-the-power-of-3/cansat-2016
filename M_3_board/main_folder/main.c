@@ -22,7 +22,6 @@
 #include "motor.h"
 #include "packet.h"
 #include "sensor.h"
-#include "hal/spi.h"
 #include "hal/time.h"
 #include "HC_SR04.h"
 #include "hal/structs.h"
@@ -72,7 +71,9 @@ int main (){
   //HC_SR04
 	HC_SR04_init();
 
-  //BMP280
+	DDRC |= (1<<2);
+	PORTC |= (1<<2);
+
 	rscs_bmp280_descriptor_t * bmp280_descriptor = rscs_bmp280_init();
 	rscs_bmp280_parameters_t bmp280_parametrs = {RSCS_BMP280_OVERSAMPLING_X16,RSCS_BMP280_OVERSAMPLING_X2,RSCS_BMP280_STANDBYTIME_500MS,RSCS_BMP280_FILTER_X16};
 	rscs_bmp280_setup(bmp280_descriptor,&bmp280_parametrs);
@@ -81,11 +82,9 @@ int main (){
 
 	int32_t raw_press  = 19;
 	int32_t raw_temp = 19;
+
 	packet_t main_packet = {0,0,0,0,0,0,0,0,0,0,0};
 	rscs_ds18b20_start_conversion(ds18b20_1);
-
-	DDRC |= (1<<2);
-	PORTC |= (1<<2);
 
 	while(1){
 		if (rscs_ds18b20_check_ready()){
@@ -97,13 +96,14 @@ int main (){
 
 		rscs_bmp280_read(bmp280_descriptor,&raw_press,&raw_temp);
 		rscs_bmp280_calculate(bmp280_calibration_values,raw_press,raw_temp,&main_packet.BMP280_pressure,&main_packet.BMP280_temperature);
+
 		printf("========================================== \n");
 		printf("bmp180 - t = %f C\n",main_packet.BMP180_temperature/10.0);
-		printf("ds18b20 -t = %f C\n",main_packet.DS18B20_temperature/16.0);
-		printf("bmp280 - t = %f C\n",main_packet.BMP280_temperature/100.0);
+		printf("ds18b20 - t = %f C\n",main_packet.DS18B20_temperature/16.0);
+		printf("bmp280 - t = %f\n",main_packet.BMP280_temperature/100.0);
 		printf("------------------------------------------ \n");
 		printf("bmp180 - p = %lu P\n",main_packet.BMP180_pressure);
-		printf("bmp280 - p = %li P\n",main_packet.BMP280_pressure);
+		printf("bmp280 - p = %li\n",main_packet.BMP280_pressure);
 		printf("========================================== \n");
 	}
 }
