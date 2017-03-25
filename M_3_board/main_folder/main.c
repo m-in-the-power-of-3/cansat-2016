@@ -14,18 +14,19 @@
 #include <rscs/uart.h>
 #include <rscs/i2c.h>
 #include <rscs/stdext/stdio.h>
+#include <rscs/spi.h>
+#include <rscs/bmp280.h>
 
 #include "hal/adc.h"
 #include "BMP180.h"
 #include "motor.h"
 #include "packet.h"
 #include "sensor.h"
-#include "hal/spi.h"
 #include "hal/time.h"
 #include "HC_SR04.h"
 #include "hal/structs.h"
 
-int main() {
+int main (){
 //============================================================================
 //INIT
 //============================================================================
@@ -45,6 +46,10 @@ int main() {
 	rscs_i2c_init();
 	rscs_i2c_set_scl_rate(800);
 
+  //SPI
+	rscs_spi_init();
+	rscs_spi_set_clk(RSCS_BMP280_SPI_FREQ_kHz);
+
   //TIME
 	time_service_init();
 
@@ -61,10 +66,22 @@ int main() {
 
   //HC_SR04
 	HC_SR04_init();
+
+  //BMP280
+	DDRC |= (1<<2);//delete
+	PORTC |= (1<<2);//delete
+
+	rscs_bmp280_descriptor_t * bmp280_descriptor = rscs_bmp280_init();
+	rscs_bmp280_parameters_t bmp280_parametrs = {RSCS_BMP280_OVERSAMPLING_X16,RSCS_BMP280_OVERSAMPLING_X2,RSCS_BMP280_STANDBYTIME_500MS,RSCS_BMP280_FILTER_X16};
+	rscs_bmp280_setup(bmp280_descriptor,&bmp280_parametrs);
+	rscs_bmp280_changemode (bmp280_descriptor,RSCS_BMP280_MODE_NORMAL);
+
 //============================================================================
 //CONST
 //============================================================================
 	const time_data_t time_porsh = {2,0};
+
+	const rscs_bmp280_calibration_values_t * bmp280_calibration_values = rscs_bmp280_get_calibration_values (bmp280_descriptor);
 //============================================================================
 //VARIABLE
 //============================================================================
@@ -75,12 +92,18 @@ int main() {
 		STATE_AFTER_THIRD_MEASURE
 	} state;
 	state state_now = STATE_IN_FIRST_MEASURE;
+
 	packet_t main_packet = {0,0,0,0,0,0,0,0,0,0};
+
 	porsh_state_t porsh_1 = {{0,0},false,1};
 	porsh_state_t porsh_2 = {{0,0},false,2};
 	porsh_state_t porsh_3 = {{0,0},false,3};
+
 	float hight = 0;
-	uint32_t pressure_at_start;
+
+	uint32_t pressure_at_start = 0;
+	int32_t raw_press  = 0;
+	int32_t raw_temp = 0;
 //============================================================================
 //CHECK
 //============================================================================
@@ -101,6 +124,7 @@ int main() {
 	const float hight_1 = (3 * hight_at_separation) / 4;
 	const float hight_2 = hight_at_separation / 2;
 	const float hight_3 = hight_at_separation / 4;
+
 	while (1){
 	//============================================================================
 	//MAKE DATA
