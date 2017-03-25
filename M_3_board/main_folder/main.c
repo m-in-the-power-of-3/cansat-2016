@@ -51,9 +51,22 @@ int main() {
 	rscs_spi_init();
 	rscs_spi_set_clk(RSCS_BMP280_SPI_FREQ_kHz);
 	//BMP280
-	rscs_bmp280_descriptor_t * BMP280 = rscs_bmp280_init();
-
-
-
+	DDRC |= (1<<2);
+	PORTC |= (1<<2);
+	rscs_bmp280_descriptor_t * bmp280_descriptor = rscs_bmp280_init();
+	rscs_bmp280_parameters_t bmp280_parametrs = {RSCS_BMP280_OVERSAMPLING_X16,RSCS_BMP280_OVERSAMPLING_X2,RSCS_BMP280_STANDBYTIME_500MS,RSCS_BMP280_FILTER_X16};
+	rscs_bmp280_setup(bmp280_descriptor,&bmp280_parametrs);
+	const rscs_bmp280_calibration_values_t * bmp280_calibration_values = rscs_bmp280_get_calibration_values (bmp280_descriptor);
+	rscs_bmp280_changemode (bmp280_descriptor,RSCS_BMP280_MODE_NORMAL);
 	DDRG |= (1<<3);
+	int32_t raw_press  = 19;
+	int32_t raw_temp = 19;
+	int32_t pressure;
+	int32_t temperature;
+	while(1){
+		rscs_bmp280_read(bmp280_descriptor,&raw_press,&raw_temp);
+		rscs_bmp280_calculate(bmp280_calibration_values,raw_press,raw_temp,&pressure,&temperature);
+		printf("temperature = %li\n",temperature);
+		printf("pressure = %li\n",pressure);
+	}
 }
