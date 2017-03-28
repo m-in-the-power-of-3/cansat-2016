@@ -29,24 +29,45 @@
 #define CHECK_MAX_PRESSURE 105000
 #define CHECK_MIN_PRESSURE 80000
 
-uint32_t count_average_pressure(packet_t * ptr){
+typedef struct {
+	int32_t raw_press;
+	int32_t raw_temp;
+	rscs_bmp280_descriptor_t * descriptor;
+	const rscs_bmp280_calibration_values_t * calibration_values;
+} bmp280_t;
+
+uint32_t count_average_pressure(packet_t * ptr,bmp280_t * bmp280){
 	uint8_t n = 0;
 	rscs_e error = bmp_180_count_all(&ptr->BMP180_pressure,&ptr->BMP180_temperature);
-	if((error != 0 ) && (CHECK_MAX_PRESSURE < ptr->BMP180_pressure) && (CHECK_MIN_PRESSURE > ptr->BMP180_pressure))
+	if((error != 0 ) && (CHECK_MAX_PRESSURE < ptr->BMP180_pressure) && (CHECK_MIN_PRESSURE > ptr->BMP180_pressure)){
 		ptr->BMP180_pressure = 0;
-	else
+	}
+	else {
 		n += 1;
-	if((CHECK_MAX_PRESSURE < ptr->BMP280_pressure) && (CHECK_MIN_PRESSURE > ptr->BMP280_pressure))
+	}
+
+	rscs_bmp280_read(bmp280->descriptor,&bmp280->raw_press,&bmp280->raw_temp);
+	rscs_bmp280_calculate(bmp280->calibration_values,bmp280->raw_press,bmp280->raw_temp,&ptr->BMP280_pressure,&ptr->BMP280_temperature);
+
+	if((CHECK_MAX_PRESSURE < ptr->BMP280_pressure) && (CHECK_MIN_PRESSURE > ptr->BMP280_pressure)){
 		ptr->BMP280_pressure = 0;
-	else
+	}
+	else {
 		n += 1;
+	}
+
 	if (n != 0){
 		return (ptr->BMP180_pressure + ptr->BMP280_pressure)/n;
 	}
 	return 0;
 }
 
-void count_height (float * height, packet_t * ptr, uint32_t pressure_at_start){
+void count_height (float * height, packet_t * ptr,bmp280_t * bmp280, uint32_t pressure_at_start){
+	uint32_t average_pressure = count_average_pressure(ptr,bmp280);
+	if (average_pressure != 0){
+		float X = average_pressure /pressure_at_start;
+		*height = 44330 * (1.0 - pow(X,0.1903));
+	}
 	return;
 }
 
@@ -94,18 +115,23 @@ int main (){
 	DDRC |= (1<<2);
 	PORTC |= (1<<2);
 
-	rscs_bmp280_descriptor_t * bmp280_descriptor = rscs_bmp280_init();
-	rscs_bmp280_parameters_t bmp280_parametrs = {RSCS_BMP280_OVERSAMPLING_X16,RSCS_BMP280_OVERSAMPLING_X2,RSCS_BMP280_STANDBYTIME_500MS,RSCS_BMP280_FILTER_X16};
-	rscs_bmp280_setup(bmp280_descriptor,&bmp280_parametrs);
-	const rscs_bmp280_calibration_values_t * bmp280_calibration_values = rscs_bmp280_get_calibration_values (bmp280_descriptor);
-	rscs_bmp280_changemode (bmp280_descriptor,RSCS_BMP280_MODE_NORMAL);
+	bmp280_t bmp280;
 
-	int32_t raw_press  = 0;
-	int32_t raw_temp = 0;
+	bmp280.descriptor = rscs_bmp280_init();
+	rscs_bmp280_parameters_t bmp280_parametrs = {RSCS_BMP280_OVERSAMPLING_X16,RSCS_BMP280_OVERSAMPLING_X2,RSCS_BMP280_STANDBYTIME_500MS,RSCS_BMP280_FILTER_X16};
+	rscs_bmp280_setup(bmp280.descriptor,&bmp280_parametrs);
+	bmp280.calibration_values = rscs_bmp280_get_calibration_values (bmp280.descriptor);
+	rscs_bmp280_changemode (bmp280.descriptor,RSCS_BMP280_MODE_NORMAL);
+
+	bmp280.raw_press = 0;
+	bmp280.raw_temp = 0;
 
 	packet_t main_packet = {0,0,0,0,0,0,0,0,0,0,0};
 	rscs_ds18b20_start_conversion(ds18b20_1);
 
+	uint32_t pressure_at_start = count_average_pressure(&main_packet,&bmp280);
+	float height = 0;
+	printf ("pressure at start = %lu\n",pressure_at_start);
 	while(1){
 		if (rscs_ds18b20_check_ready()){
 			rscs_ds18b20_read_temperature(ds18b20_1,&main_packet.DS18B20_temperature);
@@ -114,9 +140,10 @@ int main (){
 
 		bmp_180_count_all(&main_packet.BMP180_pressure,&main_packet.BMP180_temperature);
 
-		rscs_bmp280_read(bmp280_descriptor,&raw_press,&raw_temp);
-		rscs_bmp280_calculate(bmp280_calibration_values,raw_press,raw_temp,&main_packet.BMP280_pressure,&main_packet.BMP280_temperature);
+		rscs_bmp280_read(bmp280.descriptor,&bmp280.raw_press,&bmp280.raw_temp);
+		rscs_bmp280_calculate(bmp280.calibration_values,bmp280.raw_press,bmp280.raw_temp,&main_packet.BMP280_pressure,&main_packet.BMP280_temperature);
 
+		count_height(&height,&main_packet,&bmp280,pressure_at_start);
 		printf("========================================== \n");
 		printf("bmp180 - t = %f C\n",main_packet.BMP180_temperature/10.0);
 		printf("ds18b20 - t = %f C\n",main_packet.DS18B20_temperature/16.0);
@@ -124,6 +151,8 @@ int main (){
 		printf("------------------------------------------ \n");
 		printf("bmp180 - p = %lu P\n",main_packet.BMP180_pressure);
 		printf("bmp280 - p = %li\n",main_packet.BMP280_pressure);
+		printf("------------------------------------------ \n");
+		printf("height = %f\n",height);
 		printf("========================================== \n");
 	}
 }
