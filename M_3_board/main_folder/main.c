@@ -25,11 +25,31 @@
 #include "hal/time.h"
 #include "HC_SR04.h"
 #include "hal/structs.h"
-/*uint32_t count_average_pressure(packet_t * ptr){
-	if(bmp_180_count_all(ptr->BMP180_pressure,ptr->BMP180_temperature) == 0){
 
+#define CHECK_MAX_PRESSURE 105000
+#define CHECK_MIN_PRESSURE 80000
+
+uint32_t count_average_pressure(packet_t * ptr){
+	uint8_t n = 0;
+	rscs_e error = bmp_180_count_all(&ptr->BMP180_pressure,&ptr->BMP180_temperature);
+	if((error != 0 ) && (CHECK_MAX_PRESSURE < ptr->BMP180_pressure) && (CHECK_MIN_PRESSURE > ptr->BMP180_pressure))
+		ptr->BMP180_pressure = 0;
+	else
+		n += 1;
+	if((CHECK_MAX_PRESSURE < ptr->BMP280_pressure) && (CHECK_MIN_PRESSURE > ptr->BMP280_pressure))
+		ptr->BMP280_pressure = 0;
+	else
+		n += 1;
+	if (n != 0){
+		return (ptr->BMP180_pressure + ptr->BMP280_pressure)/n;
 	}
-}*/
+	return 0;
+}
+
+void count_height (float * height, packet_t * ptr, uint32_t pressure_at_start){
+	return;
+}
+
 int main (){
 //============================================================================
 //INIT
@@ -80,8 +100,8 @@ int main (){
 	const rscs_bmp280_calibration_values_t * bmp280_calibration_values = rscs_bmp280_get_calibration_values (bmp280_descriptor);
 	rscs_bmp280_changemode (bmp280_descriptor,RSCS_BMP280_MODE_NORMAL);
 
-	int32_t raw_press  = 19;
-	int32_t raw_temp = 19;
+	int32_t raw_press  = 0;
+	int32_t raw_temp = 0;
 
 	packet_t main_packet = {0,0,0,0,0,0,0,0,0,0,0};
 	rscs_ds18b20_start_conversion(ds18b20_1);
