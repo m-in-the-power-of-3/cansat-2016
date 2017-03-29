@@ -8,6 +8,8 @@
 #ifndef DEFINES_H_
 #define DEFINES_H_
 
+#include <util/delay.h>
+
 //============================================================================
 //BMP180
 //============================================================================
@@ -84,5 +86,34 @@ Pressure    | OSS = 11 | CSO = 1 | 10100 | 11110100 = 0xF4 | 25,5 mc |12 mA | 0,
 //TIME
 // ========================================================
 #define MAX_SUBSECONDS 31250
+
+// ========================================================
+//HC_SR04
+// ========================================================
+#define MAX_SUBSECONDS 31250
+#define SONIC_SPEED 340
+
+#define US_PORT PORTA
+#define US_PPIN PINA
+#define US_DDR DDRA
+#define US_PIN_TRIG 1
+#define US_pin_ECHO 2
+
+// ========================================================
+//PORSH
+// ========================================================
+#define TIME_FOR_PORSH  2000
+
+// ========================================================
+//LED
+// ========================================================
+#define LED_INIT DDRG |= (1 << 3);
+#define LED_ON DDRG |= (1 << 3);
+#define LED_OFF DDRG &= ~(1 << 3);
+#define LED_BLINK(TIME) \
+	LED_ON\
+	_delay_ms (TIME)\
+	LED_ON\
+	_delay_ms (TIME)
 
 #endif /* DEFINES_H_ */
