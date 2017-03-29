@@ -29,13 +29,24 @@
 #include "HC_SR04.h"
 #include "hal/structs.h"
 
-#define CHECK_PRESSURE_MIN 0
-#define CHECK_PRESSURE_MAX 0
-#define CHECK_TEMPERATURE_MIN 0
-#define CHECK_TEMPERATURE_MAX 0
+#define CHECK_PRESSURE_MIN 75000
+#define CHECK_PRESSURE_MAX 120000
+#define CHECK_TEMPERATURE_MIN -25
+#define CHECK_TEMPERATURE_MAX 45
 #define ERROR_BMP180 (1 << 8)
 #define ERROR_DS18B20 (1 << 7)
 #define ALL_RIGHT  0x00
+
+#define CHECK_PRESSURE(PRESSURE,ERROR) \
+	if((PRESSURE > CHECK_PRESSURE_MAX) || (PRESSURE < CHECK_PRESSURE_MIN))\
+		ERROR = false;\
+	  else\
+		ERROR = true;
+#define CHECK_TEMPERATURE(TEMPERATURE,ERROR) \
+	if((TEMPERATURE > CHECK_TEMPERATURE_MAX) || (TEMPERATURE < CHECK_TEMPERATURE_MIN))\
+		ERROR = false;\
+	  else\
+		ERROR = true;
 
 int main() {
 //============================================================================
@@ -78,20 +89,30 @@ int main() {
 //============================================================================
 //CHECK
 //============================================================================
-	//DS180B20
-	if(rscs_ds18b20_start_conversion(ds18b20_1) == 0){
-		_delay_ms (1100);
-		if(rscs_ds18b20_read_temperature(ds18b20_1,&main_packet.DS18B20_temperature) != 0)
-			check_state |= ERROR_DS18B20;
-	}
-	else
-		check_state |= ERROR_DS18B20;
+	{
+		rscs_e error_function;
+		bool error_value;
 
-  //BMP180
-	if((bmp180_count_all(&main_packet.BMP180_pressure,&main_packet.BMP180_temperature) != 0) ||
-	((main_packet.BMP180_pressure < CHECK_PRESSURE_MIN) &&
-	(main_packet.BMP180_pressure > CHECK_PRESSURE_MAX))){
-		check_state |= ERROR_BMP180;
+	  //DS180B20
+		if(rscs_ds18b20_start_conversion(ds18b20_1) == 0){
+			_delay_ms (1100);
+
+			error_function = rscs_ds18b20_read_temperature(ds18b20_1,&main_packet.DS18B20_temperature) != 0;
+			CHECK_TEMPERATURE(main_packet.DS18B20_temperature,error_value)
+
+			if((error_function != 0) || !error_value)
+				check_state |= ERROR_DS18B20;
+		}
+		else
+			check_state |= ERROR_DS18B20;
+
+	  //BMP180
+		error_function = bmp180_count_all(&main_packet.BMP180_pressure,&main_packet.BMP180_temperature);
+		CHECK_PRESSURE(main_packet.BMP180_pressure,error_value)
+
+		if((error_function != 0) || !error_value)
+			check_state |= ERROR_BMP180;
+
 	}
 //============================================================================
 //BEFORE SEPARATION
