@@ -18,15 +18,13 @@
 #include <rscs/bmp280.h>
 #include <rscs/timeservice.h>
 
-#include "hal/adc.h"
 #include "BMP180.h"
 #include "motor.h"
 #include "packet.h"
 #include "sensor.h"
 #include "HC_SR04.h"
 #include "hal/structs.h"
-
-#define TIME_FOR_PORSH  2000
+#include "hal/config.h"
 
 int main (){
 //============================================================================
@@ -50,7 +48,7 @@ int main (){
 	rscs_uart_set_stop_bits(uart_0, RSCS_UART_STOP_BITS_ONE);
 
   //PRINTF
-	FILE * f = rscs_make_uart_stream(uart_0);
+	FILE * f = rscs_make_uart_stream(uart_1);
 	stdout = f;
 
   //TWI

@@ -11,14 +11,7 @@
 
 #include <rscs/timeservice.h>
 
-#define US_PORT PORTA
-#define US_PPIN PINA
-#define US_DDR DDRA
-#define US_PIN_TRIG 1
-#define US_pin_ECHO 2
-
-#define MAX_SUBSECONDS 31250
-#define SONIC_SPEED 340
+#include "hal/config.h"
 
 void HC_SR04_init (){
 	US_DDR &= ~(1 << US_pin_ECHO);

@@ -8,6 +8,8 @@
 #ifndef MOTOR_H_
 #define MOTOR_H_
 
+#include "hal/structs.h"
+
 void motor_init();
 
 void motor_on (uint8_t);
