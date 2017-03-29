@@ -34,12 +34,21 @@ int main (){
 	rscs_ow_init_bus();
 
   //UART 1
-	rscs_uart_bus_t * uart = rscs_uart_init(RSCS_UART_ID_UART1, RSCS_UART_FLAG_ENABLE_TX);
-	rscs_uart_set_baudrate(uart, 9600);
-	rscs_uart_set_character_size(uart, 8);
-	rscs_uart_set_parity(uart, RSCS_UART_PARITY_NONE);
-	rscs_uart_set_stop_bits(uart, RSCS_UART_STOP_BITS_ONE);
-	FILE * f = rscs_make_uart_stream(uart);
+	rscs_uart_bus_t * uart_1 = rscs_uart_init(RSCS_UART_ID_UART1, RSCS_UART_FLAG_ENABLE_TX);
+	rscs_uart_set_baudrate(uart_1, 9600);
+	rscs_uart_set_character_size(uart_1, 8);
+	rscs_uart_set_parity(uart_1, RSCS_UART_PARITY_NONE);
+	rscs_uart_set_stop_bits(uart_1, RSCS_UART_STOP_BITS_ONE);
+
+  //UART 0
+	rscs_uart_bus_t * uart_0 = rscs_uart_init(RSCS_UART_ID_UART0, RSCS_UART_FLAG_ENABLE_TX);
+	rscs_uart_set_baudrate(uart_0, 9600);
+	rscs_uart_set_character_size(uart_0, 8);
+	rscs_uart_set_parity(uart_0, RSCS_UART_PARITY_NONE);
+	rscs_uart_set_stop_bits(uart_0, RSCS_UART_STOP_BITS_ONE);
+
+  //PRINTF
+	FILE * f = rscs_make_uart_stream(uart_0);
 	stdout = f;
 
   //TWI
