@@ -9,7 +9,7 @@
 #include <util/delay.h>
 #include <stdint.h>
 
-#include "hal/time.h"
+#include <rscs/timeservice.h>
 
 #define US_PORT PORTA
 #define US_PPIN PINA
@@ -27,22 +27,20 @@ void HC_SR04_init (){
 }
 
 uint16_t HC_SR04_read (){
-	time_data_t start_time;
-	time_data_t stop_time;
+	uint32_t start_time;
+	uint32_t stop_time;
 
 	US_PORT |= (1 << US_PIN_TRIG);
 	_delay_us (12);
 	US_PORT &= ~(1 << US_PIN_TRIG);
 
 	while ((US_PPIN & (1 << US_pin_ECHO)) == 0){}
-	start_time = time_service_get();
+	start_time = rscs_time_get();
 
 	while ((US_PPIN & (1 << US_pin_ECHO)) != 0){}
-	stop_time = time_service_get();
+	stop_time = rscs_time_get();
 
-	float start_time_float = start_time.seconds + ((float)start_time.subseconds / MAX_SUBSECONDS);
-	float stop_time_float = stop_time.seconds + ((float)stop_time.subseconds / MAX_SUBSECONDS);
-	float distance = ((stop_time_float - start_time_float) * SONIC_SPEED)/2 ;
+	float distance = (((stop_time - start_time) * 1000) * SONIC_SPEED)/2 ;
 	distance *= 100;
 	return (uint16_t)distance;
 }

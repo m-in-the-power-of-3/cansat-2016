@@ -16,15 +16,17 @@
 #include <rscs/stdext/stdio.h>
 #include <rscs/spi.h>
 #include <rscs/bmp280.h>
+#include <rscs/timeservice.h>
 
 #include "hal/adc.h"
 #include "BMP180.h"
 #include "motor.h"
 #include "packet.h"
 #include "sensor.h"
-#include "hal/time.h"
 #include "HC_SR04.h"
 #include "hal/structs.h"
+
+#define TIME_FOR_PORSH  2000
 
 int main (){
 //============================================================================
@@ -60,7 +62,7 @@ int main (){
 	rscs_spi_set_clk(RSCS_BMP280_SPI_FREQ_kHz);
 
   //TIME
-	time_service_init();
+	rscs_time_init();
 
   //OTHER
 	DDRG |= (1<<3);
@@ -88,8 +90,6 @@ int main (){
 //============================================================================
 //CONST
 //============================================================================
-	const time_data_t time_porsh = {2,0};
-
 	const rscs_bmp280_calibration_values_t * bmp280_calibration_values = rscs_bmp280_get_calibration_values (bmp280_descriptor);
 //============================================================================
 //VARIABLE
@@ -102,11 +102,11 @@ int main (){
 	} state;
 	state state_now = STATE_IN_FIRST_MEASURE;
 
-	packet_t main_packet = {0,0,0,0,0,0,0,0,0,0};
+	packet_t main_packet = {0,0,0,0,0,0,0,0,0};
 
-	porsh_state_t porsh_1 = {{0,0},false,1};
-	porsh_state_t porsh_2 = {{0,0},false,2};
-	porsh_state_t porsh_3 = {{0,0},false,3};
+	porsh_state_t porsh_1 = {0,false,1};
+	porsh_state_t porsh_2 = {0,false,2};
+	porsh_state_t porsh_3 = {0,false,3};
 
 	float hight = 0;
 
@@ -149,7 +149,7 @@ int main (){
 		case STATE_IN_FIRST_MEASURE:
 			if (hight >= hight_1){
 				motor_on (1);
-				porsh_1.time_krit = time_sum(time_service_get(), time_porsh);
+				porsh_1.time_krit = rscs_time_get() + TIME_FOR_PORSH;
 				porsh_1.end = true;
 				state_now = STATE_IN_SECOND_MEASURE;
 				}
@@ -158,7 +158,7 @@ int main (){
 		case STATE_IN_SECOND_MEASURE:
 			if (hight >= hight_2){
 				motor_on (2);
-				porsh_2.time_krit = time_sum(time_service_get(), time_porsh);
+				porsh_2.time_krit = rscs_time_get() + TIME_FOR_PORSH;
 				porsh_2.end = true;
 				state_now = STATE_IN_THIRD_MEASURE;
 			}
@@ -168,7 +168,7 @@ int main (){
 		case STATE_IN_THIRD_MEASURE:
 			if (hight >= hight_3) {
 				motor_on (3);
-				porsh_3.time_krit = time_sum(time_service_get(), time_porsh);
+				porsh_3.time_krit = rscs_time_get() + TIME_FOR_PORSH;
 				porsh_3.end = true;
 				state_now = STATE_AFTER_THIRD_MEASURE;
 			}
