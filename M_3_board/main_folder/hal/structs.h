@@ -21,8 +21,7 @@ typedef struct {
  * 	float GPS_y;
  * 	float GPS_z;*/
 	uint16_t state;
-	uint16_t time_h;
-	uint16_t time_l;
+	uint32_t time;
 	uint16_t sum;
 } packet_t;
 
@@ -39,7 +38,7 @@ typedef struct {
 } time_data_t ;
 
 typedef struct {
-	time_data_t time_krit;
+	uint32_t time_krit;
 	bool end;
 	uint8_t number;
 } porsh_state_t;

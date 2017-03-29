@@ -9,9 +9,10 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+#include <rscs/timeservice.h>
+
 #include "hal/config.h"
 #include "hal/structs.h"
-#include "hal/time.h"
 
 void motor_init() {
 	MOTOR_DDR |= (1 << MOTOR_1_PIN);
@@ -52,7 +53,7 @@ void motor_off (uint8_t motor_number){
 
 void porsh_check (porsh_state_t * state){
 	if(state->end){
-		if(time_compare(time_service_get(),state->time_krit)){
+		if(rscs_time_get() > state->time_krit){
 			motor_off(state->number);
 			state->end = false;
 		}
