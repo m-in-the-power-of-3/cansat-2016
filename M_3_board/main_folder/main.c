@@ -25,6 +25,7 @@
 #include "HC_SR04.h"
 #include "hal/structs.h"
 #include "hal/config.h"
+#include "data.h"
 
 int main (){
 //============================================================================
@@ -104,7 +105,7 @@ int main (){
 			rscs_ds18b20_start_conversion(ds18b20_1);
 		}
 
-		bmp_180_count_all(&main_packet.BMP180_pressure,&main_packet.BMP180_temperature);
+		bmp180_count_all(&main_packet.BMP180_pressure,&main_packet.BMP180_temperature);
 
 		rscs_bmp280_read(bmp280.descriptor,&bmp280.raw_press,&bmp280.raw_temp);
 		rscs_bmp280_calculate(bmp280.calibration_values,bmp280.raw_press,bmp280.raw_temp,&main_packet.BMP280_pressure,&main_packet.BMP280_temperature);

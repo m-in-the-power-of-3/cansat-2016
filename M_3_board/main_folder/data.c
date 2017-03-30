@@ -15,7 +15,7 @@
 
 uint32_t count_average_pressure(packet_t * ptr,bmp280_t * bmp280){
 	uint8_t n = 0;
-	rscs_e error = bmp_180_count_all(&ptr->BMP180_pressure,&ptr->BMP180_temperature);
+	rscs_e error = bmp180_count_all(&ptr->BMP180_pressure,&ptr->BMP180_temperature);
 	if((error != 0 ) && (CHECK_MAX_PRESSURE < ptr->BMP180_pressure) && (CHECK_MIN_PRESSURE > ptr->BMP180_pressure)){
 		ptr->BMP180_pressure = 0;
 	}
