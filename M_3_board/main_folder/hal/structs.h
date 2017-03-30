@@ -15,12 +15,13 @@ typedef struct {
 	int16_t DS18B20_temperature;
 	uint32_t BMP180_pressure;
 	int16_t BMP180_temperature;
+	int32_t BMP280_pressure;
+	int32_t BMP280_temperature;
 /*	float GPS_x;
  * 	float GPS_y;
  * 	float GPS_z;*/
 	uint16_t state;
-	uint16_t time_h;
-	uint16_t time_l;
+	uint32_t time;
 	uint16_t sum;
 } packet_t;
 
@@ -32,12 +33,7 @@ typedef struct {
 } bmp180_calibration_t;
 
 typedef struct {
-	uint16_t seconds;
-	uint16_t subseconds;
-} time_data_t ;
-
-typedef struct {
-	time_data_t time_krit;
+	uint32_t time_krit;
 	bool end;
 	uint8_t number;
 } porsh_state_t;
