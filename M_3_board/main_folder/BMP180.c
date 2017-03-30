@@ -8,11 +8,11 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
+#include <rscs/error.h>
+#include <rscs/i2c.h>
+
 #include "hal/structs.h"
 #include "hal/config.h"
-
-#include "rscs/error.h"
-#include "rscs/i2c.h"
 
 #define OPERATION(OP) error = OP; if(error != RSCS_E_NONE) goto end;
 

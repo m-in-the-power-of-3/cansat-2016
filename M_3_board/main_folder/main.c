@@ -15,17 +15,10 @@
 #include <rscs/i2c.h>
 #include <rscs/stdext/stdio.h>
 
-#include "hal/adc.h"
 #include "BMP180.h"
 #include "motor.h"
-#include "hal/one_wire.h"
 #include "packet.h"
 #include "sensor.h"
-#include "hal/spi.h"
-#include "DS18B20.h"
-#include "hal/time.h"
-#include "hal/twi.h"
-#include "hal/uart.h"
 #include "HC_SR04.h"
 #include "hal/structs.h"
 
@@ -65,3 +58,5 @@ int main() {
 	printf("temperature = %i C\n",temp);
 	}
 }
+
+

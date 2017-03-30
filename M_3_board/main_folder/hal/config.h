@@ -8,12 +8,15 @@
 #ifndef DEFINES_H_
 #define DEFINES_H_
 
-// ========================================================
+#include <util/delay.h>
+
+//============================================================================
 //BMP180
-// ========================================================
+//============================================================================
 #define BMP180_ADRESS 0x77
 #define BMP180_MODE_ADRESS 0xF4
 #define BMP180_ADRESS_TO_READ 0xF6
+
 #define BMP180_PRESSURE_COD 0x74/*look at the table
 Temperature | OSS = 00 | CSO = 1 | 01110 | 00101110 = 0x2E | 4,5 mc  | 3 mA | 0,5 °C
 Pressure    | OSS = 00 | CSO = 1 | 10100 | 00110100 = 0x34 | 4,5 mc  | 3 mA | 0,6 GPa
@@ -21,9 +24,12 @@ Pressure    | OSS = 01 | CSO = 1 | 10100 | 01110100 = 0x74 | 7,5 mc  | 5 mA | 0,
 Pressure    | OSS = 10 | CSO = 1 | 10100 | 10110100 = 0xB4 | 13,5 mc | 7 mA | 0,4 GPa
 Pressure    | OSS = 11 | CSO = 1 | 10100 | 11110100 = 0xF4 | 25,5 mc |12 mA | 0,3 GPa*/
 #define BMP180_TEMPERATURE_COD 0x2E
+
 #define BMP180_TIME_TEMPERATURE 5
 #define BMP180_TIME_PRESSURE 8
+
 #define BMP180_OSS 1
+
 #define BMP180_AC1 0xAA
 #define BMP180_AC2 0xAC
 #define BMP180_AC3 0xAE
@@ -55,9 +61,9 @@ Pressure    | OSS = 11 | CSO = 1 | 10100 | 11110100 = 0xF4 | 25,5 mc |12 mA | 0,
 // ========================================================
 #define MOTOR_PORT PORTC
 #define MOTOR_DDR DDRC
-#define MOTOR_1_PIN 1
-#define MOTOR_2_PIN 2
-#define MOTOR_3_PIN 3
+#define MOTOR_1_PIN 3
+#define MOTOR_2_PIN 4
+#define MOTOR_3_PIN 5
 
 // ========================================================
 //ONE WIRE
@@ -80,5 +86,34 @@ Pressure    | OSS = 11 | CSO = 1 | 10100 | 11110100 = 0xF4 | 25,5 mc |12 mA | 0,
 //TIME
 // ========================================================
 #define MAX_SUBSECONDS 31250
+
+// ========================================================
+//HC_SR04
+// ========================================================
+#define MAX_SUBSECONDS 31250
+#define SONIC_SPEED 340
+
+#define US_PORT PORTA
+#define US_PPIN PINA
+#define US_DDR DDRA
+#define US_PIN_TRIG 1
+#define US_pin_ECHO 2
+
+// ========================================================
+//PORSH
+// ========================================================
+#define TIME_FOR_PORSH  2000
+
+// ========================================================
+//LED
+// ========================================================
+#define LED_INIT DDRG |= (1 << 3);
+#define LED_ON DDRG |= (1 << 3);
+#define LED_OFF DDRG &= ~(1 << 3);
+#define LED_BLINK(TIME) \
+	LED_ON\
+	_delay_ms (TIME)\
+	LED_ON\
+	_delay_ms (TIME)
 
 #endif /* DEFINES_H_ */
