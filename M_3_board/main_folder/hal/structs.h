@@ -33,11 +33,6 @@ typedef struct {
 } bmp180_calibration_t;
 
 typedef struct {
-	uint16_t seconds;
-	uint16_t subseconds;
-} time_data_t ;
-
-typedef struct {
 	uint32_t time_krit;
 	bool end;
 	uint8_t number;
