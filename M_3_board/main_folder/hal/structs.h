@@ -9,6 +9,8 @@
 
 #include <stdbool.h>
 
+#include <rscs/bmp280.h>
+
 typedef struct {
 	uint8_t control;
 	uint16_t number;
@@ -31,6 +33,13 @@ typedef struct {
 	int16_t b1, b2;
 	int16_t mb, mc, md;
 } bmp180_calibration_t;
+
+typedef struct {
+	int32_t raw_press;
+	int32_t raw_temp;
+	rscs_bmp280_descriptor_t * descriptor;
+	const rscs_bmp280_calibration_values_t * calibration_values;
+} bmp280_t;
 
 typedef struct {
 	uint16_t seconds;

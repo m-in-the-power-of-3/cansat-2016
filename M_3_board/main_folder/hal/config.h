@@ -116,4 +116,10 @@ Pressure    | OSS = 11 | CSO = 1 | 10100 | 11110100 = 0xF4 | 25,5 mc |12 mA | 0,
 	LED_ON\
 	_delay_ms (TIME)
 
+// ========================================================
+//CHECK
+// ========================================================
+#define CHECK_MAX_PRESSURE 105000
+#define CHECK_MIN_PRESSURE 80000
+
 #endif /* DEFINES_H_ */
