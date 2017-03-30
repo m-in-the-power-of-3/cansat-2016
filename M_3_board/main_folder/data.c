@@ -16,7 +16,7 @@
 uint32_t count_average_pressure(packet_t * ptr,bmp280_t * bmp280){
 	uint8_t n = 0;
 	rscs_e error = bmp180_count_all(&ptr->BMP180_pressure,&ptr->BMP180_temperature);
-	if((error != 0 ) && (CHECK_MAX_PRESSURE < ptr->BMP180_pressure) && (CHECK_MIN_PRESSURE > ptr->BMP180_pressure)){
+	if((error != 0 ) || (CHECK_MAX_PRESSURE < ptr->BMP180_pressure) || (CHECK_MIN_PRESSURE > ptr->BMP180_pressure)){
 		ptr->BMP180_pressure = 0;
 	}
 	else {
@@ -26,7 +26,7 @@ uint32_t count_average_pressure(packet_t * ptr,bmp280_t * bmp280){
 	rscs_bmp280_read(bmp280->descriptor,&bmp280->raw_press,&bmp280->raw_temp);
 	rscs_bmp280_calculate(bmp280->calibration_values,bmp280->raw_press,bmp280->raw_temp,&ptr->BMP280_pressure,&ptr->BMP280_temperature);
 
-	if((CHECK_MAX_PRESSURE < ptr->BMP280_pressure) && (CHECK_MIN_PRESSURE > ptr->BMP280_pressure)){
+	if((CHECK_MAX_PRESSURE < ptr->BMP280_pressure) || (CHECK_MIN_PRESSURE > ptr->BMP280_pressure)){
 		ptr->BMP280_pressure = 0;
 	}
 	else {
@@ -34,6 +34,7 @@ uint32_t count_average_pressure(packet_t * ptr,bmp280_t * bmp280){
 	}
 
 	if (n != 0){
+		printf("a_p = %lu)\n",(ptr->BMP180_pressure + ptr->BMP280_pressure));
 		return (ptr->BMP180_pressure + ptr->BMP280_pressure)/n;
 	}
 	return 0;
