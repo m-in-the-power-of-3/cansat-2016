@@ -148,7 +148,7 @@ rscs_e bmp180_count_pressure(uint32_t * pressure){
 	return error;
 }
 
-rscs_e bmp_180_count_all (uint32_t * pressure,int16_t * temperature){
+rscs_e bmp180_count_all (uint32_t * pressure,int16_t * temperature){
 	rscs_e error;
 	uint16_t UT;
 	OPERATION(bmp180_read_temperature(&UT))

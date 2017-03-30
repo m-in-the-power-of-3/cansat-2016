@@ -18,6 +18,6 @@ rscs_e bmp180_read_temperature (uint16_t * raw_temperature);
 rscs_e bmp180_count_temperature(int16_t *temperature);
 rscs_e bmp180_count_pressure(uint32_t * pressure);
 
-rscs_e bmp_180_count_all (uint32_t * pressure,int16_t * temperature);
+rscs_e bmp180_count_all (uint32_t * pressure,int16_t * temperature);
 
 #endif /* ADDSENSORS_H_ */
