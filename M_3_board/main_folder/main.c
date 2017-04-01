@@ -98,8 +98,9 @@ int main (){
 	uint32_t pressure_at_start = count_average_pressure(&main_packet,&bmp280);
 
 	float height = 0;
-
+	LED_INIT
 	while(1){
+		LED_BLINK(400);
 		if (rscs_ds18b20_check_ready()){
 			rscs_ds18b20_read_temperature(ds18b20_1,&main_packet.DS18B20_temperature);
 			rscs_ds18b20_start_conversion(ds18b20_1);
@@ -120,6 +121,7 @@ int main (){
 		printf("bmp280 - p = %li\n",main_packet.BMP280_pressure);
 		printf("------------------------------------------ \n");
 		printf("height = %f\n",height);
+		printf("height_hc = %u\n",HC_SR04_read());
 		printf("========================================== \n");
 	}
 }

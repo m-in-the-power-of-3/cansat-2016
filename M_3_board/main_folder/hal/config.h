@@ -97,7 +97,7 @@ Pressure    | OSS = 11 | CSO = 1 | 10100 | 11110100 = 0xF4 | 25,5 mc |12 mA | 0,
 #define US_PPIN PINA
 #define US_DDR DDRA
 #define US_PIN_TRIG 1
-#define US_pin_ECHO 2
+#define US_pin_ECHO 0
 
 // ========================================================
 //PORSH
@@ -112,9 +112,9 @@ Pressure    | OSS = 11 | CSO = 1 | 10100 | 11110100 = 0xF4 | 25,5 mc |12 mA | 0,
 #define LED_OFF DDRG &= ~(1 << 3);
 #define LED_BLINK(TIME) \
 	LED_ON\
-	_delay_ms (TIME)\
+	_delay_ms (TIME);\
 	LED_ON\
-	_delay_ms (TIME)
+	_delay_ms (TIME);
 
 // ========================================================
 //CHECK

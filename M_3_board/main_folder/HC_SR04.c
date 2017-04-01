@@ -8,6 +8,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #include <rscs/timeservice.h>
 
@@ -32,8 +33,8 @@ uint16_t HC_SR04_read (){
 
 	while ((US_PPIN & (1 << US_pin_ECHO)) != 0){}
 	stop_time = rscs_time_get();
-
-	float distance = (((stop_time - start_time) * 1000) * SONIC_SPEED)/2 ;
+	printf("stop time = %lu\n",stop_time);printf("start time = %lu\n",start_time);
+	float distance = (((stop_time - start_time) / 1000.0) * SONIC_SPEED)/2 ;
 	distance *= 100;
 	return (uint16_t)distance;
 }
