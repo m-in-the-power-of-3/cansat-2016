@@ -17,6 +17,7 @@
 #include <rscs/spi.h>
 #include <rscs/bmp280.h>
 #include <rscs/timeservice.h>
+#include <rscs/sdcard.h>
 
 #include "BMP180.h"
 #include "motor.h"
@@ -25,6 +26,10 @@
 #include "HC_SR04.h"
 #include "hal/structs.h"
 #include "hal/config.h"
+
+#define SD_DDR DDRA
+#define SD_PORT PORTA
+#define SD_PIN (1 << 5)
 
 int main (){
 //============================================================================
@@ -84,101 +89,19 @@ int main (){
 	rscs_bmp280_parameters_t bmp280_parametrs = {RSCS_BMP280_OVERSAMPLING_X16,RSCS_BMP280_OVERSAMPLING_X2,RSCS_BMP280_STANDBYTIME_500MS,RSCS_BMP280_FILTER_X16};
 	rscs_bmp280_setup(bmp280_descriptor,&bmp280_parametrs);
 	rscs_bmp280_changemode (bmp280_descriptor,RSCS_BMP280_MODE_NORMAL);
-
-//============================================================================
+  //SD
+	rscs_sdcard_t * sd = rscs_sd_init(&SD_DDR,&SD_PORT,SD_PIN);
+	rscs_sd_spi_setup_slow();
+	rscs_sd_startup(sd);
+	rscs_sd_spi_setup();
+	//============================================================================
 //CONST
 //============================================================================
 	const rscs_bmp280_calibration_values_t * bmp280_calibration_values = rscs_bmp280_get_calibration_values (bmp280_descriptor);
 //============================================================================
 //VARIABLE
 //============================================================================
-	typedef enum {
-		STATE_IN_FIRST_MEASURE,
-		STATE_IN_SECOND_MEASURE,
-		STATE_IN_THIRD_MEASURE,
-		STATE_AFTER_THIRD_MEASURE
-	} state;
-	state state_now = STATE_IN_FIRST_MEASURE;
+	while(1){
 
-	packet_t main_packet = {0,0,0,0,0,0,0,0,0};
-
-	porsh_state_t porsh_1 = {0,false,1};
-	porsh_state_t porsh_2 = {0,false,2};
-	porsh_state_t porsh_3 = {0,false,3};
-
-	float hight = 0;
-
-	uint32_t pressure_at_start = 0;//----------------------------- add function
-
-//============================================================================
-//CHECK
-//============================================================================
-	//-----------------------------------------------------------finish writing
-//============================================================================
-//BEFORE START
-//============================================================================
-	//pressure_at_start = //----------------------------- add function
-//============================================================================
-//BEFORE SEPARATION
-//============================================================================
-	//-----------------------------------------------------------finish writing
-	while(1){}
-//============================================================================
-//AFTER SEPARATION
-//============================================================================
-	const float hight_at_separation = 2;//----------------------------add function
-	const float hight_1 = (3 * hight_at_separation) / 4;
-	const float hight_2 = hight_at_separation / 2;
-	const float hight_3 = hight_at_separation / 4;
-
-	while (1){
-	//============================================================================
-	//MAKE DATA
-	//============================================================================
-	//============================================================================
-	//OTHER ACTIONS
-	//============================================================================
-	//============================================================================
-	//PISTONS
-	//============================================================================
-		switch (state_now) {
-	  //FIRST PISTON
-		case STATE_IN_FIRST_MEASURE:
-			if (hight >= hight_1){
-				motor_on (1);
-				porsh_1.time_krit = rscs_time_get() + TIME_FOR_PORSH;
-				porsh_1.end = true;
-				state_now = STATE_IN_SECOND_MEASURE;
-				}
-			break;
-	  //SECOND PISTON
-		case STATE_IN_SECOND_MEASURE:
-			if (hight >= hight_2){
-				motor_on (2);
-				porsh_2.time_krit = rscs_time_get() + TIME_FOR_PORSH;
-				porsh_2.end = true;
-				state_now = STATE_IN_THIRD_MEASURE;
-			}
-	  //THIRD PISTON
-		break;
-			break;
-		case STATE_IN_THIRD_MEASURE:
-			if (hight >= hight_3) {
-				motor_on (3);
-				porsh_3.time_krit = rscs_time_get() + TIME_FOR_PORSH;
-				porsh_3.end = true;
-				state_now = STATE_AFTER_THIRD_MEASURE;
-			}
-			break;
-		case STATE_AFTER_THIRD_MEASURE:
-			break;
-		};
-	  //DEACTIVATION
-		porsh_check(&porsh_1);
-		porsh_check(&porsh_2);
-		porsh_check(&porsh_3);
-	//============================================================================
-	//SEND DATA
-	//============================================================================
 	}
 }
