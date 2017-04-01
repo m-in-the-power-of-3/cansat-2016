@@ -34,17 +34,16 @@ uint32_t count_average_pressure(packet_t * ptr,bmp280_t * bmp280){
 	}
 
 	if (n != 0){
-		printf("a_p = %lu)\n",(ptr->BMP180_pressure + ptr->BMP280_pressure));
 		printf("av_pressure = %lu\n",((ptr->BMP180_pressure + ptr->BMP280_pressure)/n));
-		return (ptr->BMP180_pressure + ptr->BMP280_pressure)/n;
+		return (ptr->BMP180_pressure + (uint32_t)ptr->BMP280_pressure)/n;
 	}
 	return 0;
 }
 
-void count_height (float * height, packet_t * ptr,bmp280_t * bmp280, uint32_t pressure_at_start){
+void count_height (float * height, packet_t * ptr,bmp280_t * bmp280,const uint32_t pressure_at_start){
 	uint32_t average_pressure = count_average_pressure(ptr,bmp280);
-	if (average_pressure != 0){
-		float X = average_pressure /pressure_at_start;
+	if ((average_pressure != 0) && (pressure_at_start != 0)){
+		float X = (float)average_pressure/pressure_at_start;
 		*height = 44330 * (1.0 - pow(X,0.1903));
 	}
 	return;

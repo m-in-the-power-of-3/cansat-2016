@@ -119,7 +119,7 @@ Pressure    | OSS = 11 | CSO = 1 | 10100 | 11110100 = 0xF4 | 25,5 mc |12 mA | 0,
 #define LED_BLINK(TIME) \
 	LED_ON\
 	_delay_ms (TIME);\
-	LED_ON\
+	LED_OFF\
 	_delay_ms (TIME);
 
 // ========================================================

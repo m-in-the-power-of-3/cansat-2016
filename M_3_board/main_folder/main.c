@@ -6,8 +6,11 @@
  */
 #include <avr/io.h>
 #include <util/delay.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <math.h>
+
+#include <avr/interrupt.h>
 
 #include <rscs/onewire.h>
 #include <rscs/ds18b20.h>
@@ -95,7 +98,7 @@ int main (){
 
 	rscs_ds18b20_start_conversion(ds18b20_1);
 
-	uint32_t pressure_at_start = count_average_pressure(&main_packet,&bmp280);
+	const uint32_t pressure_at_start = count_average_pressure(&main_packet,&bmp280);
 
 	float height = 0;
 	LED_INIT
@@ -110,6 +113,7 @@ int main (){
 
 		rscs_bmp280_read(bmp280.descriptor,&bmp280.raw_press,&bmp280.raw_temp);
 		rscs_bmp280_calculate(bmp280.calibration_values,bmp280.raw_press,bmp280.raw_temp,&main_packet.BMP280_pressure,&main_packet.BMP280_temperature);
+		cli();
 
 		count_height(&height,&main_packet,&bmp280,pressure_at_start);
 		printf("========================================== \n");
@@ -121,7 +125,7 @@ int main (){
 		printf("bmp280 - p = %li\n",main_packet.BMP280_pressure);
 		printf("------------------------------------------ \n");
 		printf("height = %f\n",height);
-		printf("height_hc = %u\n",HC_SR04_read());
+		//printf("height_hc = %u\n",HC_SR04_read());
 		printf("========================================== \n");
 	}
 }
