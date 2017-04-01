@@ -10,5 +10,6 @@
 
 void HC_SR04_init ();
 uint16_t HC_SR04_read ();
+void HC_SR04_trip_check ();
 
 #endif /* ULTRASONIC_HC_SR04_H_ */

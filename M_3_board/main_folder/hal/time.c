@@ -44,10 +44,10 @@ time_data_t time_service_get (){
 	return retval;
 	}
 
-time_data_t time_sum (time_data_t aa, time_data_t b) {
+time_data_t time_sum (time_data_t aa, time_data_t bb) {
 	time_data_t summa;
-	summa.seconds = aa.seconds + b.seconds;
-	summa.subseconds = aa.subseconds + b.subseconds;
+	summa.seconds = aa.seconds + bb.seconds;
+	summa.subseconds = aa.subseconds + bb.subseconds;
 	if (summa.subseconds >= MAX_SUBSECONDS){
 		summa.seconds = summa.seconds + 1;
 		summa.subseconds = summa.subseconds - MAX_SUBSECONDS;
