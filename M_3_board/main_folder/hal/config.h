@@ -115,12 +115,12 @@ Pressure    | OSS = 11 | CSO = 1 | 10100 | 11110100 = 0xF4 | 25,5 mc |12 mA | 0,
 //LED
 // ========================================================
 #define LED_INIT DDRG |= (1 << 3);
-#define LED_ON DDRG |= (1 << 3);
-#define LED_OFF DDRG &= ~(1 << 3);
+#define LED_ON PORTG |= (1 << 3);
+#define LED_OFF PORTG &= ~(1 << 3);
 #define LED_BLINK(TIME) \
 	LED_ON\
-	_delay_ms (TIME)\
+	_delay_ms (TIME);\
 	LED_ON\
-	_delay_ms (TIME)
+	_delay_ms (TIME);
 
 #endif /* DEFINES_H_ */
