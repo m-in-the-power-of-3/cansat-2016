@@ -16,7 +16,6 @@
 #include <rscs/stdext/stdio.h>
 #include <rscs/spi.h>
 #include <rscs/bmp280.h>
-#include <rscs/timeservice.h>
 
 #include "BMP180.h"
 #include "motor.h"
@@ -26,6 +25,7 @@
 #include "hal/structs.h"
 #include "hal/config.h"
 #include "data.h"
+#include "hal/time.h"
 
 int main (){
 //============================================================================
@@ -61,7 +61,7 @@ int main (){
 	rscs_spi_set_clk(RSCS_BMP280_SPI_FREQ_kHz);
 
   //TIME
-	rscs_time_init();
+	time_service_init();
 
   //OTHER
 	DDRG |= (1<<3);

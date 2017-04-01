@@ -35,6 +35,7 @@ uint32_t count_average_pressure(packet_t * ptr,bmp280_t * bmp280){
 
 	if (n != 0){
 		printf("a_p = %lu)\n",(ptr->BMP180_pressure + ptr->BMP280_pressure));
+		printf("av_pressure = %lu\n",((ptr->BMP180_pressure + ptr->BMP280_pressure)/n));
 		return (ptr->BMP180_pressure + ptr->BMP280_pressure)/n;
 	}
 	return 0;

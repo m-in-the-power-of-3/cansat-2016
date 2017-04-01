@@ -9,7 +9,6 @@
 
 uint16_t count_sum ();
 uint16_t count_state ();
-
-void send_packet (rscs_uart_bus_t * bus,packet_t * packet,size_t size_of_packet);
+//void make_packet ();
 
 #endif /* PAKET_H_ */
