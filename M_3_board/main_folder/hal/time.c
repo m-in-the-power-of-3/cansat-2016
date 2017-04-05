@@ -28,7 +28,7 @@ void time_service_init (){
 	TCCR1B = (1<< WGM12)|(0<< WGM13);//| (1<< CS12);
 	//ICR1 = 31250;
 	OCR1A = MAX_SUBSECONDS;
-	TIMSK = (1<<OCIE1A);
+	//TIMSK = (1<<OCIE1A);
 	TCCR1B |= (1<< CS12);
 
 }

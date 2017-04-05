@@ -8,6 +8,17 @@
 #ifndef MQ7_H_
 #define MQ7_H_
 
+#include "stdbool.h"
+#include <stdint.h>
 
+// инициализация датчика
+// возвращает коээфициент, с которым в дальнейшем надо вызывать функцию readCO
+double calibrate();
+
+// возвращает true если в атмосфере есть газ и false если нет
+bool mq7_digital_read();
+
+// возвращает значение CO
+double readCO(double RO);
 
 #endif /* MQ7_H_ */

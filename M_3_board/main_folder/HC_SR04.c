@@ -11,9 +11,9 @@
 
 #include "hal/time.h"
 
-#define US_PORT PORTA
-#define US_PPIN PINA
-#define US_DDR DDRA
+#define US_PORT PORTC
+#define US_PPIN PINC
+#define US_DDR DDRC
 #define US_PIN_TRIG 1
 #define US_pin_ECHO 2
 
