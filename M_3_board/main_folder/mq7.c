@@ -24,7 +24,8 @@
 #define MQ_SAMPLE_TIMES 5
 #define MQ_SAMPLE_INTERVAL 20
 
-double calculateResistance(int rawAdc);
+double calculateResistance(int32_t rawAdc);
+int32_t analogRead();
 
 // калибровка и инициализация
 double calibrate(){
@@ -44,7 +45,7 @@ double calibrate(){
 // чтение с цифрового пина
 bool mq7_digital_read(){
 	if(MQ7_PORT & (1 << MQ7_PIN))
-	return true;
+		return true;
 	else
 		return false;
 }
@@ -63,7 +64,7 @@ int32_t analogRead(){
 	return result;
 }
 
-double calculateResistance(int rawAdc){
+double calculateResistance(int32_t rawAdc){
 	double vrl = rawAdc*(5.0 / 1023);
 	double rsAir = (5.0 - vrl)/vrl* nominal_resis;
 	return rsAir;
