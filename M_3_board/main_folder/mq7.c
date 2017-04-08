@@ -24,15 +24,15 @@
 #define MQ_SAMPLE_TIMES 5
 #define MQ_SAMPLE_INTERVAL 20
 
-double calculateResistance(int32_t rawAdc);
+float calculateResistance(int32_t rawAdc);
 int32_t analogRead();
 
 // калибровка и инициализация
-double calibrate(){
+float calibrate(){
 	// инициализация цифрового порта
 	MQ7_DDR |= (1 << MQ7_PIN);
 	// инициализация аналогово порта
-	double ro = 0;
+	float ro = 0;
 	for (int i = 0; i < MQ_SAMPLE_TIMES; i++) {
 		ro += calculateResistance(analogRead());
 		_delay_ms(MQ_SAMPLE_INTERVAL);
@@ -64,14 +64,14 @@ int32_t analogRead(){
 	return result;
 }
 
-double calculateResistance(int32_t rawAdc){
-	double vrl = rawAdc*(5.0 / 1023);
-	double rsAir = (5.0 - vrl)/vrl* nominal_resis;
+float calculateResistance(int32_t rawAdc){
+	float vrl = rawAdc*(5.0 / 1023);
+	float rsAir = (5.0 - vrl)/vrl* nominal_resis;
 	return rsAir;
 }
 
-double readRs(double RO){
-	double rs = 0.0;
+float readRs(float RO){
+	float rs = 0.0;
 	for (int i = 0; i < MQ_SAMPLE_TIMES; i++) {
 		rs += calculateResistance(analogRead());
 		_delay_ms(MQ_SAMPLE_INTERVAL);
@@ -80,7 +80,7 @@ double readRs(double RO){
 	return rs / RO;
 }
 
-double readCO(double RO){
+float readCO(float RO){
 	float a = -0.77, b =  3.38;
 	float ratio = readRs(RO);
 	return exp((log(ratio)-b)/a);
