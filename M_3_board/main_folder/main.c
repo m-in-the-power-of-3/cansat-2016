@@ -27,11 +27,8 @@
 #include "hal/config.h"
 
 int main (){
-//============================================================================
-//INIT
-//============================================================================
   //ONE WIRE
-	rscs_ow_init_bus();
+//	rscs_ow_init_bus();
 
   //UART 1
 	rscs_uart_bus_t * uart_1 = rscs_uart_init(RSCS_UART_ID_UART1, RSCS_UART_FLAG_ENABLE_TX);
@@ -41,11 +38,11 @@ int main (){
 	rscs_uart_set_stop_bits(uart_1, RSCS_UART_STOP_BITS_ONE);
 
   //UART 0
-	rscs_uart_bus_t * uart_0 = rscs_uart_init(RSCS_UART_ID_UART0, RSCS_UART_FLAG_ENABLE_TX);
-	rscs_uart_set_baudrate(uart_0, 9600);
-	rscs_uart_set_character_size(uart_0, 8);
-	rscs_uart_set_parity(uart_0, RSCS_UART_PARITY_NONE);
-	rscs_uart_set_stop_bits(uart_0, RSCS_UART_STOP_BITS_ONE);
+//	rscs_uart_bus_t * uart_0 = rscs_uart_init(RSCS_UART_ID_UART0, RSCS_UART_FLAG_ENABLE_TX);
+//	rscs_uart_set_baudrate(uart_0, 9600);
+//	rscs_uart_set_character_size(uart_0, 8);
+//	rscs_uart_set_parity(uart_0, RSCS_UART_PARITY_NONE);
+//	rscs_uart_set_stop_bits(uart_0, RSCS_UART_STOP_BITS_ONE);
 
   //PRINTF
 	FILE * f = rscs_make_uart_stream(uart_1);
@@ -53,32 +50,35 @@ int main (){
 
   //TWI
 	rscs_i2c_init();
-	rscs_i2c_set_scl_rate(16);
+	rscs_i2c_set_scl_rate(20);
+
   /*//SPI
 	rscs_spi_init();
 	rscs_spi_set_clk(RSCS_BMP280_SPI_FREQ_kHz);*/
 
   //TIME
-	rscs_time_init();
+//	rscs_time_init();
 
   //OTHER
-	DDRG |= (1<<3);
-	motor_init();
-	sensor_init();
+//	DDRG |= (1<<3);
+//	motor_init();
+//	sensor_init();
 
   //DS18B20
-	rscs_ds18b20_t * ds18b20_1 = rscs_ds18b20_init(0);
+//	rscs_ds18b20_t * ds18b20_1 = rscs_ds18b20_init(0);
 
   //BMP180
 	//bmp180_init();
 
   //HC_SR04
-	HC_SR04_init();
+//	HC_SR04_init();
 
   //BMP280
-	DDRC |= (1<<2);//delete
-	PORTC |= (1<<2);//delete
-	rscs_bmp280_descriptor_t * bmp280_descriptor = rscs_bmp280_initi2c(RSCS_BMP280_I2C_ADDR_HIGH);
+//	DDRC |= (1<<2);//delete
+//	PORTC |= (1<<2);//delete
+
+
+	rscs_bmp280_descriptor_t * bmp280_descriptor = rscs_bmp280_initi2c(RSCS_BMP280_I2C_ADDR_LOW);
 	rscs_bmp280_parameters_t bmp280_parametrs = {RSCS_BMP280_OVERSAMPLING_X16,RSCS_BMP280_OVERSAMPLING_X2,RSCS_BMP280_STANDBYTIME_500MS,RSCS_BMP280_FILTER_X16};
 	rscs_e error3 = -8;
 	while((error3 != 0)){
@@ -106,7 +106,9 @@ int main (){
 		error2 = rscs_bmp280_calculate(bmp280_calibration_values,raw_press,raw_temp,&pressure,&temperature);
 		printf("temperature = %li\n",temperature);
 		printf("pressure = %li\n",pressure);
-		printf("error 1 = %i \n",error1);
-		printf("error 2 = %i \n",error2);
+		printf("=============error read = %i \n",error1);
+		printf("=============error calculate = %i \n",error2);
+		temperature = 0;
+		pressure = 0;
 	}
 }
