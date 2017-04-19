@@ -62,7 +62,7 @@ int main (){
 
   //SPI
 	rscs_spi_init();
-	rscs_spi_set_clk(RSCS_BMP280_SPI_FREQ_kHz);
+	rscs_spi_set_clk(400);
 
   //TIME
 	rscs_time_init();
@@ -80,28 +80,26 @@ int main (){
 
   //HC_SR04
 	HC_SR04_init();
-
-  //BMP280
-	DDRC |= (1<<2);//delete
-	PORTC |= (1<<2);//delete
-
-	rscs_bmp280_descriptor_t * bmp280_descriptor = rscs_bmp280_init();
-	rscs_bmp280_parameters_t bmp280_parametrs = {RSCS_BMP280_OVERSAMPLING_X16,RSCS_BMP280_OVERSAMPLING_X2,RSCS_BMP280_STANDBYTIME_500MS,RSCS_BMP280_FILTER_X16};
-	rscs_bmp280_setup(bmp280_descriptor,&bmp280_parametrs);
-	rscs_bmp280_changemode (bmp280_descriptor,RSCS_BMP280_MODE_NORMAL);
+	printf("test\n");
   //SD
-	rscs_sdcard_t * sd = rscs_sd_init(&SD_DDR,&SD_PORT,SD_PIN);
-	rscs_sd_spi_setup_slow();
-	rscs_sd_startup(sd);
 	rscs_sd_spi_setup();
-	//============================================================================
-//CONST
-//============================================================================
-	const rscs_bmp280_calibration_values_t * bmp280_calibration_values = rscs_bmp280_get_calibration_values (bmp280_descriptor);
-//============================================================================
-//VARIABLE
-//============================================================================
-	while(1){
+	rscs_sdcard_t * sd = rscs_sd_init(&SD_DDR,&SD_PORT,SD_PIN);
+	rscs_sd_set_timeout(sd,2000);
+	rscs_sd_spi_setup_slow();
+	rscs_e error1 = rscs_sd_startup(sd);
+	rscs_sd_spi_setup();
+	uint8_t arr[512];
+	for (int i = 0; i < 128;i++){
+		arr[i*4] = 12;
+		arr[(i*4)+1] = 61;
+		arr[(i*4)+2] = 89;
+		arr[(i*4)+3] = 74;
+	}
 
+	rscs_e error =  rscs_sd_block_write(sd,0,&arr[0],512);
+
+	while(1){
+		printf("error = %i, error1 == %i\n",error, error1);
+		_delay_ms (100);
 	}
 }
