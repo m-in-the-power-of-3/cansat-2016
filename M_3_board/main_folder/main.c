@@ -65,8 +65,8 @@ int main (){
 	sensor_init();
 
   //ADXL345
-	rscs_adxl345_t * adxl345 = rscs_adxl345_initi2c (RSCS_ADXL345_ADDR_MAIN);
-	rscs_adxl345_set_range(adxl345,RSCS_ADXL345_RANGE_8G);
+	rscs_adxl345_t * adxl345 = rscs_adxl345_initi2c (RSCS_ADXL345_ADDR_ALT);
+	rscs_adxl345_set_range(adxl345,RSCS_ADXL345_RANGE_2G);
 	rscs_adxl345_set_rate(adxl345,RSCS_ADXL345_RATE_200HZ);
 	int16_t x = 0;
 	int16_t y = 0;
@@ -75,14 +75,16 @@ int main (){
 	float y_g = 0;
 	float z_g = 0;
 
+	rscs_e error = 123;
 	while (1){
-		rscs_adxl345_read (adxl345,&x,&y,&z);
+		error = rscs_adxl345_read (adxl345,&x,&y,&z);
+		printf("error_r = %i\n",error);
 		rscs_adxl345_cast_to_G (adxl345,x,y,z,&x_g,&y_g,&z_g);
 		printf("===========================================\n");
 		printf("x = %i\n",x);
 		printf("y = %i\n",y);
 		printf("z = %i\n",z);
-		printf("--------------------------------------------n");
+		printf("--------------------------------------------\n");
 		printf("x_g = %f\n",x_g);
 		printf("y_g = %f\n",y_g);
 		printf("z_g = %f\n",z_g);
