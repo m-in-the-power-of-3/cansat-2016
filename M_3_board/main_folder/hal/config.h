@@ -92,19 +92,13 @@ Pressure    | OSS = 11 | CSO = 1 | 10100 | 11110100 = 0xF4 | 25,5 mc |12 mA | 0,
 // ========================================================
 //HC_SR04
 // ========================================================
-#define MAX_SUBSECONDS 31250
 #define SONIC_SPEED 340
 
 #define US_PORT PORTA
 #define US_PPIN PINA
 #define US_DDR DDRA
 #define US_PIN_TRIG 1
-#define US_pin_ECHO 2
-
-// ========================================================
-//TIME
-// ========================================================
-#define MAX_SUBSECONDS 31250
+#define US_pin_ECHO 0
 
 // ========================================================
 //PORSH
@@ -120,7 +114,14 @@ Pressure    | OSS = 11 | CSO = 1 | 10100 | 11110100 = 0xF4 | 25,5 mc |12 mA | 0,
 #define LED_BLINK(TIME) \
 	LED_ON\
 	_delay_ms (TIME);\
-	LED_ON\
+	LED_OFF\
 	_delay_ms (TIME);
+
+// ========================================================
+//CHECK
+// ========================================================
+#define CHECK_MAX_PRESSURE 105000
+#define CHECK_MIN_PRESSURE 80000
+
 
 #endif /* DEFINES_H_ */

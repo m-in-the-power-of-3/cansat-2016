@@ -12,7 +12,6 @@
 #include "hal/structs.h"
 #include "hal/time.h"
 
-
 uint16_t count_sum (const void * value,size_t size){
 	uint16_t control_summ = 0;
 	const uint8_t * ptr = (const uint8_t *)value;
