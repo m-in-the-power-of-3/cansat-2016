@@ -29,6 +29,6 @@ uint16_t count_state (int state_now){
 void send_packet (rscs_uart_bus_t * bus,packet_t * packet,size_t size_of_packet){
 	packet->number++;
 	packet->sum = count_sum(packet,size_of_packet - 2);
-	packet->time = rscs_time_get();
+	//packet->time = rscs_time_get();
 	rscs_uart_write(bus,packet,size_of_packet);
 }
