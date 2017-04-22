@@ -81,15 +81,20 @@ int main (){
 	HC_SR04_init();
 
   //BMP280
-
 	bmp280_t bmp280;
 
-	bmp280.descriptor = rscs_bmp280_init();
+	bmp280.descriptor = rscs_bmp280_initi2c(RSCS_BMP280_I2C_ADDR_LOW);
 	rscs_bmp280_parameters_t bmp280_parametrs = {RSCS_BMP280_OVERSAMPLING_X16,RSCS_BMP280_OVERSAMPLING_X2,RSCS_BMP280_STANDBYTIME_500MS,RSCS_BMP280_FILTER_X16};
 	rscs_bmp280_setup(bmp280.descriptor,&bmp280_parametrs);
 	rscs_bmp280_changemode (bmp280.descriptor,RSCS_BMP280_MODE_NORMAL);
 
+	//============================================================================
+	//CONST
+	//============================================================================
 	bmp280.calibration_values = rscs_bmp280_get_calibration_values (bmp280.descriptor);
+	//============================================================================
+	//VARIABLE
+	//============================================================================
 	bmp280.raw_press = 0;
 	bmp280.raw_temp = 0;
 
