@@ -5,6 +5,8 @@
  *      Author: developer
  */
 #include <avr/io.h>
+#include <avr/interrupt.h>
+
 #include <util/delay.h>
 #include <stdio.h>
 #include <math.h>
@@ -28,6 +30,7 @@
 #include "hal/config.h"
 
 int main (){
+	sei();
 //============================================================================
 //INIT
 //============================================================================
@@ -42,11 +45,11 @@ int main (){
 	rscs_uart_set_stop_bits(uart_1, RSCS_UART_STOP_BITS_ONE);
 
   //UART 0
-	rscs_uart_bus_t * uart_0 = rscs_uart_init(RSCS_UART_ID_UART0, RSCS_UART_FLAG_ENABLE_TX);
-	rscs_uart_set_baudrate(uart_0, 9600);
-	rscs_uart_set_character_size(uart_0, 8);
-	rscs_uart_set_parity(uart_0, RSCS_UART_PARITY_NONE);
-	rscs_uart_set_stop_bits(uart_0, RSCS_UART_STOP_BITS_ONE);
+	//rscs_uart_bus_t * uart_0 = rscs_uart_init(RSCS_UART_ID_UART0, RSCS_UART_FLAG_ENABLE_TX);
+	//rscs_uart_set_baudrate(uart_0, 9600);
+	//rscs_uart_set_character_size(uart_0, 8);
+	//rscs_uart_set_parity(uart_0, RSCS_UART_PARITY_NONE);
+	//rscs_uart_set_stop_bits(uart_0, RSCS_UART_STOP_BITS_ONE);
 
   //PRINTF
 	FILE * f = rscs_make_uart_stream(uart_1);
@@ -58,7 +61,7 @@ int main (){
 
   //SPI
 	rscs_spi_init();
-	rscs_spi_set_clk(RSCS_BMP280_SPI_FREQ_kHz);
+	rscs_spi_set_clk(100);
 
   //TIME
 	rscs_time_init();
@@ -89,9 +92,11 @@ int main (){
 	packet_t main_packet = {0,0,0,0,0,0,0,0,0,0,0,0};
 
 	bool hasFix;
-
+	rscs_e error = 15;
 	while(1){
-		if (rscs_gps_read(gps,&main_packet.GPS_lon,&main_packet.GPS_lat,&main_packet.GPS_height,&hasFix) == 0){
+		_delay_ms(1500);
+		error = rscs_gps_read(gps,&main_packet.GPS_lon,&main_packet.GPS_lat,&main_packet.GPS_height,&hasFix);
+		if (error == 0){
 			if(hasFix){
 				printf("==========================================================\n");
 				printf("lon = %f\n",main_packet.GPS_lon);
@@ -103,7 +108,7 @@ int main (){
 				printf("Wait...\n");
 		}
 		else {
-			printf("Error");
+			printf("Error %i\n",error);
 		}
 	}
 }
