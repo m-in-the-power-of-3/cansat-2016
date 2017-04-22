@@ -57,17 +57,17 @@ int main (){
 
   //TWI
 	rscs_i2c_init();
-	rscs_i2c_set_scl_rate(800);
+	rscs_i2c_set_scl_rate(200);
 
   //SPI
 	rscs_spi_init();
-	rscs_spi_set_clk(RSCS_BMP280_SPI_FREQ_kHz);
+	rscs_spi_set_clk(100);
 
   //TIME
 	time_service_init();
 
   //OTHER
-	DDRG |= (1<<3);
+	LED_INIT
 	motor_init();
 	sensor_init();
 
@@ -80,17 +80,16 @@ int main (){
   //HC_SR04
 	HC_SR04_init();
 
-	DDRC |= (1<<2);
-	PORTC |= (1<<2);
+  //BMP280
 
 	bmp280_t bmp280;
 
 	bmp280.descriptor = rscs_bmp280_init();
 	rscs_bmp280_parameters_t bmp280_parametrs = {RSCS_BMP280_OVERSAMPLING_X16,RSCS_BMP280_OVERSAMPLING_X2,RSCS_BMP280_STANDBYTIME_500MS,RSCS_BMP280_FILTER_X16};
 	rscs_bmp280_setup(bmp280.descriptor,&bmp280_parametrs);
-	bmp280.calibration_values = rscs_bmp280_get_calibration_values (bmp280.descriptor);
 	rscs_bmp280_changemode (bmp280.descriptor,RSCS_BMP280_MODE_NORMAL);
 
+	bmp280.calibration_values = rscs_bmp280_get_calibration_values (bmp280.descriptor);
 	bmp280.raw_press = 0;
 	bmp280.raw_temp = 0;
 
@@ -101,7 +100,6 @@ int main (){
 	const uint32_t pressure_at_start = count_average_pressure(&main_packet,&bmp280);
 
 	float height = 0;
-	LED_INIT
 	while(1){
 		LED_BLINK(400);
 		if (rscs_ds18b20_check_ready()){
