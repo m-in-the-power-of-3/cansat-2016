@@ -19,6 +19,7 @@
 #include <rscs/stdext/stdio.h>
 #include <rscs/spi.h>
 #include <rscs/bmp280.h>
+#include <rscs/adxl345.h>
 
 #include "BMP180.h"
 #include "motor.h"
@@ -88,6 +89,11 @@ int main (){
 	rscs_bmp280_setup(bmp280.descriptor,&bmp280_parametrs);
 	rscs_bmp280_changemode (bmp280.descriptor,RSCS_BMP280_MODE_NORMAL);
 
+  //ADXL345
+	rscs_adxl345_t * adxl345 = rscs_adxl345_initi2c (RSCS_ADXL345_ADDR_ALT);
+	rscs_adxl345_set_range(adxl345,RSCS_ADXL345_RANGE_2G);
+	rscs_adxl345_set_rate(adxl345,RSCS_ADXL345_RATE_200HZ);
+
 	//============================================================================
 	//CONST
 	//============================================================================
@@ -95,6 +101,9 @@ int main (){
 	//============================================================================
 	//VARIABLE
 	//============================================================================
+	float x_g = 0;
+	float y_g = 0;
+	float z_g = 0;
 	bmp280.raw_press = 0;
 	bmp280.raw_temp = 0;
 
@@ -102,24 +111,33 @@ int main (){
 
 	rscs_ds18b20_start_conversion(ds18b20_1);
 
+	//============================================================================
+	//TEST
+	//============================================================================
+
 	const uint32_t pressure_at_start = count_average_pressure(&main_packet,&bmp280);
 	printf("pressure at start = %ld\n",pressure_at_start);
 
 	float height = 0;
 	while(1){
 		LED_BLINK(400);
+		//DS18b20
 		if (rscs_ds18b20_check_ready()){
 			rscs_ds18b20_read_temperature(ds18b20_1,&main_packet.DS18B20_temperature);
 			rscs_ds18b20_start_conversion(ds18b20_1);
 		}
-
+		//bmp180
 		bmp180_count_all(&main_packet.BMP180_pressure,&main_packet.BMP180_temperature);
-
+		//bmp280
 		rscs_bmp280_read(bmp280.descriptor,&bmp280.raw_press,&bmp280.raw_temp);
 		rscs_bmp280_calculate(bmp280.calibration_values,bmp280.raw_press,bmp280.raw_temp,&main_packet.BMP280_pressure,&main_packet.BMP280_temperature);
 		cli();
-
+		//heigt
 		count_height(&height,&main_packet,&bmp280,pressure_at_start);
+		//adxl345
+		rscs_adxl345_read(adxl345,&main_packet.adxl345_x,&main_packet.adxl345_y,&main_packet.adxl345_z);
+		rscs_adxl345_cast_to_G(adxl345,main_packet.adxl345_x,main_packet.adxl345_y,main_packet.adxl345_z,&x_g,&y_g,&z_g);
+
 		printf("========================================== \n");
 		printf("bmp180 - t = %f C\n",main_packet.BMP180_temperature/10.0);
 		printf("ds18b20 - t = %f C\n",main_packet.DS18B20_temperature/16.0);
@@ -128,7 +146,9 @@ int main (){
 		printf("bmp180 - p = %lu P\n",main_packet.BMP180_pressure);
 		printf("bmp280 - p = %li\n",main_packet.BMP280_pressure);
 		printf("------------------------------------------ \n");
-		printf("adxl345 =  \n");
+		printf("adxl345 =  %f\n",x_g);
+		printf("adxl345 =  %f\n",y_g);
+		printf("adxl345 =  %f\n",z_g);
 		printf("------------------------------------------ \n");
 		printf("height = %f\n",height);
 		printf("height_hc = %u\n",HC_SR04_read());

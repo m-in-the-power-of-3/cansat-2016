@@ -29,7 +29,7 @@ rscs_e HC_SR04_read (uint16_t * value){
 	US_PORT &= ~(1 << US_PIN_TRIG);
 
 	while ((US_PPIN & (1 << US_pin_ECHO)) == 0){
-		if (timeout == HC_SR04_TIME_OUT){
+		if (timeout >= HC_SR04_TIME_OUT){
 			error = RSCS_E_TIMEOUT;
 			goto end;
 		}
@@ -40,7 +40,7 @@ rscs_e HC_SR04_read (uint16_t * value){
 	start_time = time_service_get();
 
 	while ((US_PPIN & (1 << US_pin_ECHO)) != 0){
-		if (timeout == HC_SR04_TIME_OUT){
+		if (timeout >= HC_SR04_TIME_OUT){
 			error = RSCS_E_TIMEOUT;
 			goto end;
 		}
