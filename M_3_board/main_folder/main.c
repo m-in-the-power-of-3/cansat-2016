@@ -30,6 +30,7 @@
 #include "hal/config.h"
 #include "data.h"
 #include "hal/time.h"
+#include "mq7.h"
 
 int main (){
 //============================================================================
@@ -93,7 +94,8 @@ int main (){
 	rscs_adxl345_t * adxl345 = rscs_adxl345_initi2c (RSCS_ADXL345_ADDR_ALT);
 	rscs_adxl345_set_range(adxl345,RSCS_ADXL345_RANGE_2G);
 	rscs_adxl345_set_rate(adxl345,RSCS_ADXL345_RATE_200HZ);
-
+  //MQ7
+	float R0 = calibrate();
 	//============================================================================
 	//CONST
 	//============================================================================
@@ -104,6 +106,7 @@ int main (){
 	float x_g = 0;
 	float y_g = 0;
 	float z_g = 0;
+	float CO;
 	bmp280.raw_press = 0;
 	bmp280.raw_temp = 0;
 
@@ -137,7 +140,8 @@ int main (){
 		//adxl345
 		rscs_adxl345_read(adxl345,&main_packet.adxl345_x,&main_packet.adxl345_y,&main_packet.adxl345_z);
 		rscs_adxl345_cast_to_G(adxl345,main_packet.adxl345_x,main_packet.adxl345_y,main_packet.adxl345_z,&x_g,&y_g,&z_g);
-
+		//MQ7
+		CO = readCO(R0);
 		printf("========================================== \n");
 		printf("bmp180 - t = %f C\n",main_packet.BMP180_temperature/10.0);
 		printf("ds18b20 - t = %f C\n",main_packet.DS18B20_temperature/16.0);
@@ -149,6 +153,8 @@ int main (){
 		printf("adxl345 =  %f\n",x_g);
 		printf("adxl345 =  %f\n",y_g);
 		printf("adxl345 =  %f\n",z_g);
+		printf("------------------------------------------ \n");
+		printf("CO = %f\n",CO);
 		printf("------------------------------------------ \n");
 		printf("height = %f\n",height);
 		printf("height_hc = %u\n",HC_SR04_read());
