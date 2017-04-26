@@ -103,6 +103,7 @@ int main (){
 	rscs_ds18b20_start_conversion(ds18b20_1);
 
 	const uint32_t pressure_at_start = count_average_pressure(&main_packet,&bmp280);
+	printf("pressure at start = %ld\n",pressure_at_start);
 
 	float height = 0;
 	while(1){
@@ -127,8 +128,10 @@ int main (){
 		printf("bmp180 - p = %lu P\n",main_packet.BMP180_pressure);
 		printf("bmp280 - p = %li\n",main_packet.BMP280_pressure);
 		printf("------------------------------------------ \n");
+		printf("adxl345 =  \n");
+		printf("------------------------------------------ \n");
 		printf("height = %f\n",height);
-		//printf("height_hc = %u\n",HC_SR04_read());
+		printf("height_hc = %u\n",HC_SR04_read());
 		printf("========================================== \n");
 	}
 }
