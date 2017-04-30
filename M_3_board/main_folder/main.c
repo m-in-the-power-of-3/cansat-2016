@@ -109,7 +109,7 @@ int main (){
 	float CO;
 	bmp280.raw_press = 0;
 	bmp280.raw_temp = 0;
-
+	uint16_t state_now = 0;
 	packet_t main_packet = {0,0,0,0,0,0,0,0,0,0};
 
 	rscs_ds18b20_start_conversion(ds18b20_1);
@@ -123,6 +123,7 @@ int main (){
 
 	float height = 0;
 	while(1){
+		main_packet.state = state_now;
 		LED_BLINK(400);
 		//DS18b20
 		if (rscs_ds18b20_check_ready()){
@@ -159,5 +160,6 @@ int main (){
 		printf("height = %f\n",height);
 		printf("height_hc = %u\n",HC_SR04_read());
 		printf("========================================== \n");
+		send_packet (uart_1,&main_packet,sizeof(main_packet));
 	}
 }
