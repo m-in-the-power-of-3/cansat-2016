@@ -46,13 +46,6 @@ int main (){
 	rscs_uart_set_parity(uart_1, RSCS_UART_PARITY_NONE);
 	rscs_uart_set_stop_bits(uart_1, RSCS_UART_STOP_BITS_ONE);
 
-  //UART 0
-	rscs_uart_bus_t * uart_0 = rscs_uart_init(RSCS_UART_ID_UART0, RSCS_UART_FLAG_ENABLE_TX);
-	rscs_uart_set_baudrate(uart_0, 9600);
-	rscs_uart_set_character_size(uart_0, 8);
-	rscs_uart_set_parity(uart_0, RSCS_UART_PARITY_NONE);
-	rscs_uart_set_stop_bits(uart_0, RSCS_UART_STOP_BITS_ONE);
-
   //PRINTF
 	FILE * f = rscs_make_uart_stream(uart_1);
 	stdout = f;
@@ -96,27 +89,27 @@ int main (){
 	rscs_adxl345_set_rate(adxl345,RSCS_ADXL345_RATE_200HZ);
   //MQ7
 	float R0 = calibrate();
-	//============================================================================
-	//CONST
-	//============================================================================
+//============================================================================
+//CONST
+//============================================================================
 	bmp280.calibration_values = rscs_bmp280_get_calibration_values (bmp280.descriptor);
-	//============================================================================
-	//VARIABLE
-	//============================================================================
+//============================================================================
+//VARIABLE
+//============================================================================
 	float x_g = 0;
 	float y_g = 0;
 	float z_g = 0;
-	float CO;
 	bmp280.raw_press = 0;
 	bmp280.raw_temp = 0;
 	uint16_t state_now = 0;
-	packet_t main_packet = {0,0,0,0,0,0,0,0,0,0};
+	packet_t main_packet = {0xFF,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	packet_extra_t packet_extra = {0xFE,0,0,0,0,0};
 
 	rscs_ds18b20_start_conversion(ds18b20_1);
 
-	//============================================================================
-	//TEST
-	//============================================================================
+//============================================================================
+//TEST
+//============================================================================
 
 	const uint32_t pressure_at_start = count_average_pressure(&main_packet,&bmp280);
 	printf("pressure at start = %ld\n",pressure_at_start);
@@ -139,10 +132,12 @@ int main (){
 		//heigt
 		count_height(&height,&main_packet,&bmp280,pressure_at_start);
 		//adxl345
-		rscs_adxl345_read(adxl345,&main_packet.adxl345_x,&main_packet.adxl345_y,&main_packet.adxl345_z);
-		rscs_adxl345_cast_to_G(adxl345,main_packet.adxl345_x,main_packet.adxl345_y,main_packet.adxl345_z,&x_g,&y_g,&z_g);
+		rscs_adxl345_read(adxl345,&main_packet.ADXL345_x,&main_packet.ADXL345_y,&main_packet.ADXL345_z);
+		rscs_adxl345_cast_to_G(adxl345,main_packet.ADXL345_x,main_packet.ADXL345_y,main_packet.ADXL345_z,&x_g,&y_g,&z_g);
 		//MQ7
-		CO = readCO(R0);
+		main_packet.CO = readCO(R0);
+		//HC_SR04
+		packet_extra.HC_SR04 =  HC_SR04_read();
 		printf("========================================== \n");
 		printf("bmp180 - t = %f C\n",main_packet.BMP180_temperature/10.0);
 		printf("ds18b20 - t = %f C\n",main_packet.DS18B20_temperature/16.0);
@@ -155,10 +150,10 @@ int main (){
 		printf("adxl345 =  %f\n",y_g);
 		printf("adxl345 =  %f\n",z_g);
 		printf("------------------------------------------ \n");
-		printf("CO = %f\n",CO);
+		printf("CO = %f\n",main_packet.CO);
 		printf("------------------------------------------ \n");
 		printf("height = %f\n",height);
-		printf("height_hc = %u\n",HC_SR04_read());
+		printf("height_hc = %u\n",packet_extra.HC_SR04);
 		printf("========================================== \n");
 		send_packet (uart_1,&main_packet,sizeof(main_packet));
 	}
