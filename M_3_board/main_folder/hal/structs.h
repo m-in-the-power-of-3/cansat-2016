@@ -66,4 +66,11 @@ typedef struct {
 	uint8_t number;
 } porsh_state_t;
 
+typedef enum {
+	STATE_IN_FIRST_MEASURE,
+	STATE_IN_SECOND_MEASURE,
+	STATE_IN_THIRD_MEASURE,
+	STATE_AFTER_THIRD_MEASURE
+} state_t;
+
 #endif /* STRUCT_H_ */

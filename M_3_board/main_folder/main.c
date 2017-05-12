@@ -37,30 +37,31 @@
 #include <rscs/stdext/stdio.h>
 
 
-#define STATE_BMP180 1
-#define STATE_BMP280 2
-#define STATE_ADXL345 3
-#define STATE_DS18B20 4
-#define STATE_MOTOR_1 5
-#define STATE_MOTOR_2 6
-#define STATE_MOTOR_3 7
-#define STATE_CO_1 8
-#define STATE_CO_2 9
+#define STATUS_BMP180 1
+#define STATUS_BMP280 2
+#define STATUS_ADXL345 3
+#define STATUS_DS18B20 4
+#define STATUS_MOTOR_1 5
+#define STATUS_MOTOR_2 6
+#define STATUS_MOTOR_3 7
+#define STATUS_CO_1 8
+#define STATUS_CO_2 9
 #define BMP180_INIT_TRY 10
 #define ADXL345_INIT_TRY 10
 #define DS18B20_INIT_TRY 10
-#define ERROR_CHECK(ERROR,STATE)\
+#define ERROR_CHECK(ERROR,STATUS)\
 	error = ERROR; \
 	if (error == RSCS_E_NONE) \
-		state_now &= ~(1 << STATE); \
+		status_now &= ~(1 << STATUS); \
 	else \
-		state_now |= (1 << STATE);\
+		status_now |= (1 << STATUS);\
 
 int main (){
 //============================================================================
 //BEFORE INIT
 //============================================================================
-	uint16_t state_now = 0;
+	uint16_t status_now = 0;
+
 //============================================================================
 //INIT
 //============================================================================
@@ -101,11 +102,11 @@ int main (){
 		for (uint8_t i = 1;i <= DS18B20_INIT_TRY;i++){
 			error = rscs_ds18b20_start_conversion(ds18b20_1);
 			if (error == RSCS_E_NONE){
-				state_now &= ~(1 << STATE_DS18B20);
+				status_now &= ~(1 << STATUS_DS18B20);
 				break;
 			}
 			else
-				state_now |= (1 << STATE_DS18B20);
+				status_now |= (1 << STATUS_DS18B20);
 		}
 	}
 
@@ -115,11 +116,11 @@ int main (){
 		for (uint8_t i = 1;i <= BMP180_INIT_TRY;i++){
 			error = bmp180_init();
 			if (error == RSCS_E_NONE){
-				state_now &= ~(1 << STATE_BMP180);
+				status_now &= ~(1 << STATUS_BMP180);
 				break;
 			}
 			else
-				state_now |= (1 << STATE_BMP180);
+				status_now |= (1 << STATUS_BMP180);
 		}
 	}
   //HC_SR04
@@ -140,21 +141,21 @@ int main (){
 		for (uint8_t i = 1;i <= ADXL345_INIT_TRY;i++){
 			error = rscs_adxl345_set_range(adxl345,RSCS_ADXL345_RANGE_2G);
 			if (error == RSCS_E_NONE){
-				state_now &= ~(1 << STATE_ADXL345);
+				status_now &= ~(1 << STATUS_ADXL345);
 				break;
 			}
 			else
-				state_now |= (1 << STATE_ADXL345);
+				status_now |= (1 << STATUS_ADXL345);
 		}
 
 		for (uint8_t i = 1;i <= ADXL345_INIT_TRY;i++){
 			error = rscs_adxl345_set_rate(adxl345,RSCS_ADXL345_RATE_200HZ);
 			if (error == RSCS_E_NONE){
-				state_now &= ~(1 << STATE_ADXL345);
+				status_now &= ~(1 << STATUS_ADXL345);
 				break;
 			}
 			else
-				state_now |= (1 << STATE_ADXL345);
+				status_now |= (1 << STATUS_ADXL345);
 		}
 	}
   //MQ7
@@ -166,6 +167,13 @@ int main (){
 //============================================================================
 //VARIABLE
 //============================================================================
+
+	state_t state_now = STATE_IN_FIRST_MEASURE;
+
+	porsh_state_t porsh_1 = {{0,0},false,1};
+	porsh_state_t porsh_2 = {{0,0},false,2};
+	porsh_state_t porsh_3 = {{0,0},false,3};
+
 	float x_g = 0;
 	float y_g = 0;
 	float z_g = 0;
@@ -185,17 +193,17 @@ int main (){
 
 	//float height = 0;
 	while(1){
-		main_packet.state = state_now;
+		main_packet.state = status_now;
 		LED_BLINK(400);
 		//printf("test");
 		//DS18b20
 		{
 			rscs_e error;
 			if ((rscs_ds18b20_check_ready())){
-				if ((state_now &= (1 << STATE_DS18B20)) == 0){
+				if ((status_now &= (1 << STATUS_DS18B20)) == 0){
 					rscs_ds18b20_read_temperature(ds18b20_1,&main_packet.DS18B20_temperature);
 				}
-				ERROR_CHECK(rscs_ds18b20_start_conversion(ds18b20_1),STATE_DS18B20);
+				ERROR_CHECK(rscs_ds18b20_start_conversion(ds18b20_1),STATUS_DS18B20);
 			}
 		}
 		//bmp180
@@ -230,6 +238,43 @@ int main (){
 		printf("------------------------------------------ \n");
 		//printf("height = %f\n",height);
 		printf("height_hc = %u\n",packet_extra.HC_SR04);
+
+		switch (state_now) {
+	  //FIRST PISTON
+		case STATE_IN_FIRST_MEASURE:
+			if ((main_packet.DS18B20_temperature/16.0) >= 24.2){
+				motor_on (1);
+				porsh_1.time_krit = time_sum(time_service_get(),time_for_porsh);
+				porsh_1.end = true;
+				state_now = STATE_IN_SECOND_MEASURE;
+				}
+			break;
+	  //SECOND PISTON
+		case STATE_IN_SECOND_MEASURE:
+			if ((main_packet.DS18B20_temperature/16.0) >= 25.2){
+				motor_on (2);
+				porsh_2.time_krit = time_sum(time_service_get(),time_for_porsh);
+				porsh_2.end = true;
+				state_now = STATE_IN_THIRD_MEASURE;
+			}
+	  //THIRD PISTON
+		break;
+			break;
+		case STATE_IN_THIRD_MEASURE:
+			if ((main_packet.DS18B20_temperature/16.0) >= 26.0) {
+				motor_on (3);
+				porsh_3.time_krit = time_sum(time_service_get(),time_for_porsh);
+				porsh_3.end = true;
+				state_now = STATE_AFTER_THIRD_MEASURE;
+			}
+			break;
+		case STATE_AFTER_THIRD_MEASURE:
+			break;
+		};
+	  //DEACTIVATION
+		porsh_check(&porsh_1);
+		porsh_check(&porsh_2);
+		porsh_check(&porsh_3);
 
 		//send_packet (uart_1,&main_packet,sizeof(main_packet));
 	}
