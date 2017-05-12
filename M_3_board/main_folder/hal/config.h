@@ -63,17 +63,9 @@ Pressure    | OSS = 11 | CSO = 1 | 10100 | 11110100 = 0xF4 | 25,5 mc |12 mA | 0,
 // ========================================================
 #define MOTOR_PORT PORTC
 #define MOTOR_DDR DDRC
-#define MOTOR_1_PIN 3
+#define MOTOR_1_PIN 6
 #define MOTOR_2_PIN 4
 #define MOTOR_3_PIN 5
-
-// ========================================================
-//ONE WIRE
-// ========================================================
-#define ONE_WIRE_PORT PORTC
-#define ONE_WIRE_PPIN PINC
-#define ONE_WIRE_DDR DDRC
-#define ONE_WIRE_PIN 0
 
 // ========================================================
 //SENSORS

@@ -32,7 +32,35 @@
 #include "hal/time.h"
 #include "mq7.h"
 
+#include "hal/config.h"
+#include <rscs/uart.h>
+#include <rscs/stdext/stdio.h>
+
+
+#define STATE_BMP180 1
+#define STATE_BMP280 2
+#define STATE_ADXL345 3
+#define STATE_DS18B20 4
+#define STATE_MOTOR_1 5
+#define STATE_MOTOR_2 6
+#define STATE_MOTOR_3 7
+#define STATE_CO_1 8
+#define STATE_CO_2 9
+#define BMP180_INIT_TRY 10
+#define ADXL345_INIT_TRY 10
+#define DS18B20_INIT_TRY 10
+#define ERROR_CHECK(ERROR,STATE)\
+	error = ERROR; \
+	if (error == RSCS_E_NONE) \
+		state_now &= ~(1 << STATE); \
+	else \
+		state_now |= (1 << STATE);\
+
 int main (){
+//============================================================================
+//BEFORE INIT
+//============================================================================
+	uint16_t state_now = 0;
 //============================================================================
 //INIT
 //============================================================================
@@ -68,10 +96,32 @@ int main (){
 
   //DS18B20
 	rscs_ds18b20_t * ds18b20_1 = rscs_ds18b20_init(0);
+	{
+		rscs_e error;
+		for (uint8_t i = 1;i <= DS18B20_INIT_TRY;i++){
+			error = rscs_ds18b20_start_conversion(ds18b20_1);
+			if (error == RSCS_E_NONE){
+				state_now &= ~(1 << STATE_DS18B20);
+				break;
+			}
+			else
+				state_now |= (1 << STATE_DS18B20);
+		}
+	}
 
   //BMP180
-	bmp180_init();
-
+	{
+		rscs_e error;
+		for (uint8_t i = 1;i <= BMP180_INIT_TRY;i++){
+			error = bmp180_init();
+			if (error == RSCS_E_NONE){
+				state_now &= ~(1 << STATE_BMP180);
+				break;
+			}
+			else
+				state_now |= (1 << STATE_BMP180);
+		}
+	}
   //HC_SR04
 	HC_SR04_init();
 
@@ -85,8 +135,28 @@ int main (){
 
   //ADXL345
 	rscs_adxl345_t * adxl345 = rscs_adxl345_initi2c (RSCS_ADXL345_ADDR_ALT);
-	rscs_adxl345_set_range(adxl345,RSCS_ADXL345_RANGE_2G);
-	rscs_adxl345_set_rate(adxl345,RSCS_ADXL345_RATE_200HZ);
+	{
+		rscs_e error;
+		for (uint8_t i = 1;i <= ADXL345_INIT_TRY;i++){
+			error = rscs_adxl345_set_range(adxl345,RSCS_ADXL345_RANGE_2G);
+			if (error == RSCS_E_NONE){
+				state_now &= ~(1 << STATE_ADXL345);
+				break;
+			}
+			else
+				state_now |= (1 << STATE_ADXL345);
+		}
+
+		for (uint8_t i = 1;i <= ADXL345_INIT_TRY;i++){
+			error = rscs_adxl345_set_rate(adxl345,RSCS_ADXL345_RATE_200HZ);
+			if (error == RSCS_E_NONE){
+				state_now &= ~(1 << STATE_ADXL345);
+				break;
+			}
+			else
+				state_now |= (1 << STATE_ADXL345);
+		}
+	}
   //MQ7
 	float R0 = calibrate();
 //============================================================================
@@ -101,27 +171,32 @@ int main (){
 	float z_g = 0;
 	bmp280.raw_press = 0;
 	bmp280.raw_temp = 0;
-	uint16_t state_now = 0;
+
 	packet_t main_packet = {0xFF,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 	packet_extra_t packet_extra = {0xFE,0,0,0,0,0};
 
-	rscs_ds18b20_start_conversion(ds18b20_1);
 
 //============================================================================
 //TEST
 //============================================================================
 
-	const uint32_t pressure_at_start = count_average_pressure(&main_packet,&bmp280);
-	printf("pressure at start = %ld\n",pressure_at_start);
+	//const uint32_t pressure_at_start = count_average_pressure(&main_packet,&bmp280);
+	//printf("pressure at start = %ld\n",pressure_at_start);
 
-	float height = 0;
+	//float height = 0;
 	while(1){
 		main_packet.state = state_now;
 		LED_BLINK(400);
+		//printf("test");
 		//DS18b20
-		if (rscs_ds18b20_check_ready()){
-			rscs_ds18b20_read_temperature(ds18b20_1,&main_packet.DS18B20_temperature);
-			rscs_ds18b20_start_conversion(ds18b20_1);
+		{
+			rscs_e error;
+			if ((rscs_ds18b20_check_ready())){
+				if ((state_now &= (1 << STATE_DS18B20)) == 0){
+					rscs_ds18b20_read_temperature(ds18b20_1,&main_packet.DS18B20_temperature);
+				}
+				ERROR_CHECK(rscs_ds18b20_start_conversion(ds18b20_1),STATE_DS18B20);
+			}
 		}
 		//bmp180
 		bmp180_count_all(&main_packet.BMP180_pressure,&main_packet.BMP180_temperature);
@@ -130,7 +205,7 @@ int main (){
 		rscs_bmp280_calculate(bmp280.calibration_values,bmp280.raw_press,bmp280.raw_temp,&main_packet.BMP280_pressure,&main_packet.BMP280_temperature);
 		cli();
 		//heigt
-		count_height(&height,&main_packet,&bmp280,pressure_at_start);
+	//	count_height(&height,&main_packet,&bmp280,pressure_at_start);
 		//adxl345
 		rscs_adxl345_read(adxl345,&main_packet.ADXL345_x,&main_packet.ADXL345_y,&main_packet.ADXL345_z);
 		rscs_adxl345_cast_to_G(adxl345,main_packet.ADXL345_x,main_packet.ADXL345_y,main_packet.ADXL345_z,&x_g,&y_g,&z_g);
@@ -138,23 +213,24 @@ int main (){
 		main_packet.CO = readCO(R0);
 		//HC_SR04
 		packet_extra.HC_SR04 =  HC_SR04_read();
+		//printf("========================================== \n");
 		printf("========================================== \n");
-		printf("bmp180 - t = %f C\n",main_packet.BMP180_temperature/10.0);
+		//printf("bmp180 - t = %f C\n",main_packet.BMP180_temperature/10.0);
 		printf("ds18b20 - t = %f C\n",main_packet.DS18B20_temperature/16.0);
-		printf("bmp280 - t = %f\n",main_packet.BMP280_temperature/100.0);
+		//printf("bmp280 - t = %f\n",(main_packet.BMP280_temperature/100.0) * 0.85);
+		//printf("------------------------------------------ \n");
+		//printf("bmp180 - p = %lu P\n",main_packet.BMP180_pressure);
+		//printf("bmp280 - p = %li\n",main_packet.BMP280_pressure);
 		printf("------------------------------------------ \n");
-		printf("bmp180 - p = %lu P\n",main_packet.BMP180_pressure);
-		printf("bmp280 - p = %li\n",main_packet.BMP280_pressure);
-		printf("------------------------------------------ \n");
-		printf("adxl345 =  %f\n",x_g);
-		printf("adxl345 =  %f\n",y_g);
-		printf("adxl345 =  %f\n",z_g);
-		printf("------------------------------------------ \n");
+		//printf("adxl345 =  %f\n",x_g + 0.052);
+		//printf("adxl345 =  %f\n",y_g + 0.04);
+		//printf("adxl345 =  %f\n",z_g - 0.23);
+		//printf("------------------------------------------ \n");
 		printf("CO = %f\n",main_packet.CO);
 		printf("------------------------------------------ \n");
-		printf("height = %f\n",height);
+		//printf("height = %f\n",height);
 		printf("height_hc = %u\n",packet_extra.HC_SR04);
-		printf("========================================== \n");
-		send_packet (uart_1,&main_packet,sizeof(main_packet));
+
+		//send_packet (uart_1,&main_packet,sizeof(main_packet));
 	}
 }

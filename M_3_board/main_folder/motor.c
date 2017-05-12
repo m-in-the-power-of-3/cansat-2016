@@ -17,9 +17,9 @@ void motor_init() {
 	MOTOR_DDR |= (1 << MOTOR_1_PIN);
 	MOTOR_DDR |= (1 << MOTOR_2_PIN);
 	MOTOR_DDR |= (1 << MOTOR_3_PIN);
-	MOTOR_PORT |= (1 << MOTOR_1_PIN);
-	MOTOR_PORT |= (1 << MOTOR_2_PIN);
-	MOTOR_PORT |= (1 << MOTOR_3_PIN);
+	MOTOR_PORT &= ~(1 << MOTOR_1_PIN);
+	MOTOR_PORT &= ~(1 << MOTOR_2_PIN);
+	MOTOR_PORT &= ~(1 << MOTOR_3_PIN);
 }
 
 void motor_on (uint8_t motor_number){
