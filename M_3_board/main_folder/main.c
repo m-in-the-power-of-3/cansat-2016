@@ -20,6 +20,7 @@
 #include <rscs/spi.h>
 #include <rscs/bmp280.h>
 #include <rscs/adxl345.h>
+#include <rscs/adc.h>
 
 #include "BMP180.h"
 #include "motor.h"
@@ -87,6 +88,11 @@ int main (){
   //SPI
 	rscs_spi_init();
 	rscs_spi_set_clk(100);
+
+  //ADC
+	rscs_adc_init();
+	rscs_adc_set_refrence(RSCS_ADC_REF_EXTERNAL_VCC);
+	rscs_adc_set_prescaler(RSCS_ADC_PRESCALER_64);
 
   //TIME
 	time_service_init();
