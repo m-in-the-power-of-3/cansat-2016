@@ -12,6 +12,8 @@
 #define MQ7_PORT PORTA
 #define MQ7_PIN 0
 
+#define OPERATION(OP) error = OP; if(error != RSCS_E_NONE) goto end;
+
 // канал ацп на котором сидит датчик
 #define ADC_CHANNEL RSCS_ADC_SINGLE_0
 
@@ -25,21 +27,27 @@
 #define MQ_SAMPLE_INTERVAL 20
 
 float calculateResistance(int32_t rawAdc);
-int32_t analogRead();
+rscs_e analogRead(int32_t * result);
 
 // калибровка и инициализация
-float calibrate(){
+rscs_e mq7_calibrate(float * ro){
+	rscs_e error = RSCS_E_NONE;
 	// инициализация цифрового порта
-	MQ7_DDR |= (1 << MQ7_PIN);
+	//MQ7_DDR |= (1 << MQ7_PIN);
 	// инициализация аналогово порта
-	float ro = 0;
+
+	*ro = 0;
+	int32_t raw_adc;
 	for (int i = 0; i < MQ_SAMPLE_TIMES; i++) {
-		ro += calculateResistance(analogRead());
+		raw_adc = 0;
+		OPERATION(analogRead(&raw_adc))
+		*ro += calculateResistance(raw_adc);
 		_delay_ms(MQ_SAMPLE_INTERVAL);
 	}
-	ro = ro/MQ_SAMPLE_TIMES;
-	ro = ro/getRoInCleanAir;
-	return ro;
+	*ro = *ro/MQ_SAMPLE_TIMES;
+	*ro = *ro/getRoInCleanAir;
+	end:
+	return error;
 }
 
 // чтение с цифрового пина
@@ -52,16 +60,15 @@ bool mq7_digital_read(){
 
 // узнаем-ка значение СО
 
-int32_t analogRead(){
-	int32_t result = 0;
-	if(rscs_adc_start_single_conversion(ADC_CHANNEL) == RSCS_E_BUSY)
-		printf("ERROR_0\n");
+rscs_e analogRead(int32_t * result){
+	rscs_e error = RSCS_E_NONE;
+	OPERATION(rscs_adc_start_single_conversion(ADC_CHANNEL))
+
 	rscs_adc_wait_result();
-	if( rscs_adc_get_result(&result) == RSCS_E_BUSY){
-		printf("ERROR_1\n");
-		_delay_ms(MQ_SAMPLE_INTERVAL);
-	}
-	return result;
+	OPERATION(rscs_adc_get_result(result))
+	end:
+	rscs_adc_wait_result();
+	return error;
 }
 
 float calculateResistance(int32_t rawAdc){
@@ -70,19 +77,29 @@ float calculateResistance(int32_t rawAdc){
 	return rsAir;
 }
 
-float readRs(float RO){
-	float rs = 0.0;
+rscs_e readRs(float * rs, float RO){
+	rscs_e error = RSCS_E_NONE;
+	*rs = 0.0;
+	int32_t raw_adc;
 	for (int i = 0; i < MQ_SAMPLE_TIMES; i++) {
-		rs += calculateResistance(analogRead());
+		raw_adc = 0;
+		OPERATION(analogRead(&raw_adc))
+		*rs += calculateResistance(raw_adc);
 		_delay_ms(MQ_SAMPLE_INTERVAL);
 	}
-	rs = rs/MQ_SAMPLE_TIMES;
-	return rs / RO;
+	*rs = *rs / MQ_SAMPLE_TIMES;
+	*rs = *rs / RO;
+	end:
+	return error;
 }
 
-float readCO(float RO){
+rscs_e mq7_read_co(float * CO, float RO){
+	rscs_e error = RSCS_E_NONE;
 	float a = -0.77, b =  3.38;
-	float ratio = readRs(RO);
-	return exp((log(ratio)-b)/a);
+	float ratio;
+	OPERATION(readRs(&ratio, RO))
+	*CO = exp((log(ratio)-b)/a);
+	end:
+	return error;
 }
 

@@ -41,11 +41,13 @@
 #define STATUS_BMP280 2
 #define STATUS_ADXL345 3
 #define STATUS_DS18B20 4
-#define STATUS_MOTOR_1 5
-#define STATUS_MOTOR_2 6
-#define STATUS_MOTOR_3 7
-#define STATUS_CO_1 8
-#define STATUS_CO_2 9
+#define STATUS_CO 5
+#define STATUS_INTAKE_1 6
+#define STATUS_INTAKE_2 7
+#define STATUS_INTAKE_3 8
+#define STATUS_INTAKECO_1 9
+#define STATUS_INTAKECO_2 10
+
 #define BMP180_INIT_TRY 10
 #define ADXL345_INIT_TRY 10
 #define DS18B20_INIT_TRY 10
@@ -61,7 +63,6 @@ int main (){
 //BEFORE INIT
 //============================================================================
 	uint16_t status_now = 0;
-
 //============================================================================
 //INIT
 //============================================================================
@@ -159,11 +160,19 @@ int main (){
 		}
 	}
   //MQ7
-	float R0 = calibrate();
+	float RO;
+
+	if (mq7_calibrate(&RO) == RSCS_E_NONE){
+		status_now &= ~(1 << STATUS_CO);
+	}else{
+		status_now |= (1 << STATUS_CO);
+		printf("CO_calibrate_error");
+	}
 //============================================================================
 //CONST
 //============================================================================
 	bmp280.calibration_values = rscs_bmp280_get_calibration_values (bmp280.descriptor);
+	const time_data_t time_for_porsh = TIME_FOR_PORSH;
 //============================================================================
 //VARIABLE
 //============================================================================
@@ -194,8 +203,9 @@ int main (){
 	//float height = 0;
 	while(1){
 		main_packet.state = status_now;
-		LED_BLINK(400);
-		//printf("test");
+		LED_BLINK(600);
+		printf("test_s\n");
+
 		//DS18b20
 		{
 			rscs_e error;
@@ -218,9 +228,13 @@ int main (){
 		rscs_adxl345_read(adxl345,&main_packet.ADXL345_x,&main_packet.ADXL345_y,&main_packet.ADXL345_z);
 		rscs_adxl345_cast_to_G(adxl345,main_packet.ADXL345_x,main_packet.ADXL345_y,main_packet.ADXL345_z,&x_g,&y_g,&z_g);
 		//MQ7
-		main_packet.CO = readCO(R0);
+		if (mq7_read_co(&main_packet.CO, RO) == RSCS_E_NONE){
+			status_now &= ~(1 << STATUS_CO);
+		}else{
+			status_now |= (1 << STATUS_CO);
+		}
 		//HC_SR04
-		packet_extra.HC_SR04 =  HC_SR04_read();
+		 HC_SR04_read(&packet_extra.HC_SR04);
 		//printf("========================================== \n");
 		printf("========================================== \n");
 		//printf("bmp180 - t = %f C\n",main_packet.BMP180_temperature/10.0);
@@ -237,7 +251,7 @@ int main (){
 		printf("CO = %f\n",main_packet.CO);
 		printf("------------------------------------------ \n");
 		//printf("height = %f\n",height);
-		printf("height_hc = %u\n",packet_extra.HC_SR04);
+		printf("height_hc = %f\n",packet_extra.HC_SR04 / 100.0);
 
 		switch (state_now) {
 	  //FIRST PISTON

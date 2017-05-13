@@ -13,12 +13,12 @@
 
 // инициализация датчика
 // возвращает коээфициент, с которым в дальнейшем надо вызывать функцию readCO
-float calibrate();
+rscs_e mq7_calibrate(float * ro);
 
 // возвращает true если в атмосфере есть газ и false если нет
 bool mq7_digital_read();
 
 // возвращает значение CO
-float readCO(float RO);
+rscs_e mq7_read_co(float * CO, float RO);
 
 #endif /* MQ7_H_ */
