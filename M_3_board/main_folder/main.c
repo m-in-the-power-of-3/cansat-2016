@@ -82,7 +82,6 @@ int main (){
 	HC_SR04_init();
 	printf("test\n");
   //SD
-	rscs_sd_spi_setup();
 	rscs_sdcard_t * sd = rscs_sd_init(&SD_DDR,&SD_PORT,SD_PIN);
 	rscs_sd_set_timeout(sd,2000);
 	rscs_sd_spi_setup_slow();
