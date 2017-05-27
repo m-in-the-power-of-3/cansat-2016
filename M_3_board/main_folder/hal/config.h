@@ -63,17 +63,9 @@ Pressure    | OSS = 11 | CSO = 1 | 10100 | 11110100 = 0xF4 | 25,5 mc |12 mA | 0,
 // ========================================================
 #define MOTOR_PORT PORTC
 #define MOTOR_DDR DDRC
-#define MOTOR_1_PIN 3
+#define MOTOR_1_PIN 6
 #define MOTOR_2_PIN 4
 #define MOTOR_3_PIN 5
-
-// ========================================================
-//ONE WIRE
-// ========================================================
-#define ONE_WIRE_PORT PORTC
-#define ONE_WIRE_PPIN PINC
-#define ONE_WIRE_DDR DDRC
-#define ONE_WIRE_PIN 0
 
 // ========================================================
 //SENSORS
@@ -100,10 +92,11 @@ Pressure    | OSS = 11 | CSO = 1 | 10100 | 11110100 = 0xF4 | 25,5 mc |12 mA | 0,
 #define US_PIN_TRIG 1
 #define US_pin_ECHO 0
 
+#define HC_SR04_TIME_OUT 5000
 // ========================================================
 //PORSH
 // ========================================================
-#define TIME_FOR_PORSH {2,0}
+#define TIME_FOR_PORSH {5,0}
 
 // ========================================================
 //LED

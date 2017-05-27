@@ -14,9 +14,9 @@
 // Настройки модуля ADXL345
 // ========================================================
 // Настройка пина CS
-#define ADXL345_CS_DDR			DDRA	// регистр DDR порта, на котором расположен CS пин
-#define ADXL345_CS_PORT			PORTA	// регистр PORT порта, на котором расположен CS пин
-#define ADXL345_CS_PIN			7		// номер пина CS в порту
+#define ADXL345_CS_DDR			DDRB	// регистр DDR порта, на котором расположен CS пин
+#define ADXL345_CS_PORT			PORTB	// регистр PORT порта, на котором расположен CS пин
+#define ADXL345_CS_PIN			4		// номер пина CS в порту
 
 
 
@@ -126,9 +126,9 @@
 // Настройки модуля UART
 // ========================================================
 // Использовать ли буферизацию
-#define RSCS_UART_USEBUFFERS // Добавить код для поддержки циклических буферов в UART
-#define RSCS_UART_BUFSIZE_RX 50 // размер буфера на RX
-#define RSCS_UART_BUFSIZE_TX 50 // размер буфера на TX
+//#define RSCS_UART_USEBUFFERS // Добавить код для поддержки циклических буферов в UART
+//#define RSCS_UART_BUFSIZE_RX 50 // размер буфера на RX
+//#define RSCS_UART_BUFSIZE_TX 50 // размер буфера на TX
 
 
 
