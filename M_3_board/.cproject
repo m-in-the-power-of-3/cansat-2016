@@ -61,7 +61,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="librscs/rscs/_source/servo.c|main_folder" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="librscs/rscs/_source/bmp280.c|librscs/rscs/_source/servo.c|main_folder" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="main_folder"/>
 					</sourceEntries>
 				</configuration>

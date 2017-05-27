@@ -10,6 +10,8 @@
 
 #include <util/delay.h>
 
+#include "structs.h"
+
 //============================================================================
 //BMP180
 //============================================================================
@@ -61,17 +63,9 @@ Pressure    | OSS = 11 | CSO = 1 | 10100 | 11110100 = 0xF4 | 25,5 mc |12 mA | 0,
 // ========================================================
 #define MOTOR_PORT PORTC
 #define MOTOR_DDR DDRC
-#define MOTOR_1_PIN 3
+#define MOTOR_1_PIN 6
 #define MOTOR_2_PIN 4
 #define MOTOR_3_PIN 5
-
-// ========================================================
-//ONE WIRE
-// ========================================================
-#define ONE_WIRE_PORT PORTC
-#define ONE_WIRE_PPIN PINC
-#define ONE_WIRE_DDR DDRC
-#define ONE_WIRE_PIN 0
 
 // ========================================================
 //SENSORS
@@ -90,30 +84,37 @@ Pressure    | OSS = 11 | CSO = 1 | 10100 | 11110100 = 0xF4 | 25,5 mc |12 mA | 0,
 // ========================================================
 //HC_SR04
 // ========================================================
-#define MAX_SUBSECONDS 31250
 #define SONIC_SPEED 340
 
 #define US_PORT PORTA
 #define US_PPIN PINA
 #define US_DDR DDRA
 #define US_PIN_TRIG 1
-#define US_pin_ECHO 2
+#define US_pin_ECHO 0
 
+#define HC_SR04_TIME_OUT 5000
 // ========================================================
 //PORSH
 // ========================================================
-#define TIME_FOR_PORSH  2000
+#define TIME_FOR_PORSH {5,0}
 
 // ========================================================
 //LED
 // ========================================================
 #define LED_INIT DDRG |= (1 << 3);
-#define LED_ON DDRG |= (1 << 3);
-#define LED_OFF DDRG &= ~(1 << 3);
+#define LED_ON PORTG |= (1 << 3);
+#define LED_OFF PORTG &= ~(1 << 3);
 #define LED_BLINK(TIME) \
 	LED_ON\
-	_delay_ms (TIME)\
-	LED_ON\
-	_delay_ms (TIME)
+	_delay_ms (TIME);\
+	LED_OFF\
+	_delay_ms (TIME);
+
+// ========================================================
+//CHECK
+// ========================================================
+#define CHECK_MAX_PRESSURE 105000
+#define CHECK_MIN_PRESSURE 80000
+
 
 #endif /* DEFINES_H_ */

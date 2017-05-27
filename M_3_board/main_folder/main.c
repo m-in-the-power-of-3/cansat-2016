@@ -29,7 +29,7 @@
 
 #define SD_DDR DDRA
 #define SD_PORT PORTA
-#define SD_PIN (1 << 5)
+#define SD_PIN (1 << 6)
 
 int main (){
 //============================================================================
@@ -62,6 +62,7 @@ int main (){
 
   //SPI
 	rscs_spi_init();
+	rscs_spi_set_pol(RSCS_SPI_POL_SAMPLE_RISE_SETUP_FALL);
 	rscs_spi_set_clk(400);
 
   //TIME
@@ -80,12 +81,23 @@ int main (){
 
   //HC_SR04
 	HC_SR04_init();
-	printf("test\n");
   //SD
+	_delay_ms (100);
 	rscs_sdcard_t * sd = rscs_sd_init(&SD_DDR,&SD_PORT,SD_PIN);
-	rscs_sd_set_timeout(sd,2000);
+	rscs_sd_set_timeout(sd,50000);
 	rscs_sd_spi_setup_slow();
-	rscs_e error1 = rscs_sd_startup(sd);
+	rscs_e error1;
+	rscs_e error;
+	while(1){
+		error1 = rscs_sd_startup(sd);
+		if(error1 == RSCS_E_NONE){
+			break;
+		}
+		else {
+			printf("error1 == %i\n",error1);
+		}
+	}
+
 	rscs_sd_spi_setup();
 	uint8_t arr[512];
 	for (int i = 0; i < 128;i++){
@@ -95,10 +107,17 @@ int main (){
 		arr[(i*4)+3] = 74;
 	}
 
-	rscs_e error =  rscs_sd_block_write(sd,0,&arr[0],512);
-
 	while(1){
-		printf("error = %i, error1 == %i\n",error, error1);
+		error =  rscs_sd_block_write(sd,2,&arr[0],1);
+		if(error == RSCS_E_NONE){
+			break;
+		}
+		else {
+			printf("error == %i\n",error);
+		}
+	}
+	while(1){
+		printf("second:error = %i, error1 == %i\n",error, error1);
 		_delay_ms (100);
 	}
 }

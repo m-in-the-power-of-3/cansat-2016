@@ -14,13 +14,15 @@
 #include "hal/config.h"
 #include "hal/structs.h"
 
+void motor_off (uint8_t motor_number);
+
 void motor_init() {
 	MOTOR_DDR |= (1 << MOTOR_1_PIN);
 	MOTOR_DDR |= (1 << MOTOR_2_PIN);
 	MOTOR_DDR |= (1 << MOTOR_3_PIN);
-	MOTOR_PORT |= (1 << MOTOR_1_PIN);
-	MOTOR_PORT |= (1 << MOTOR_2_PIN);
-	MOTOR_PORT |= (1 << MOTOR_3_PIN);
+	motor_off(1);
+	motor_off(2);
+	motor_off(3);
 }
 
 void motor_on (uint8_t motor_number){
