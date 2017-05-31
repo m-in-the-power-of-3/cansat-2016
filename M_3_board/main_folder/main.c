@@ -21,6 +21,7 @@
 #include <rscs/bmp280.h>
 #include <rscs/adxl345.h>
 #include <rscs/adc.h>
+#include <rscs/sdcard.h>
 
 #include "BMP180.h"
 #include "motor.h"
@@ -58,6 +59,10 @@
 		status_now &= ~(1 << STATUS); \
 	else \
 		status_now |= (1 << STATUS);\
+
+#define SD_DDR DDRA
+#define SD_PORT PORTA
+#define SD_PIN (1 << 6)
 
 int main (){
 //============================================================================
@@ -183,6 +188,10 @@ int main (){
 //VARIABLE
 //============================================================================
 
+	buffer_for_sd_t buffer_for_sd;
+	buffer_for_sd.number = 0;
+	buffer_for_sd.busy_bytes = 0;
+	rscs_e error;
 	state_t state_now = STATE_IN_FIRST_MEASURE;
 
 	porsh_state_t porsh_1 = {{0,0},false,1};
@@ -198,7 +207,18 @@ int main (){
 	packet_t main_packet = {0xFF,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 	packet_extra_t packet_extra = {0xFE,0,0,0,0,0};
 
-
+	//SD
+	rscs_sdcard_t * sd = rscs_sd_init(&SD_DDR,&SD_PORT,SD_PIN);
+	rscs_sd_set_timeout(sd,4000);
+	rscs_sd_spi_setup_slow();
+	rscs_e error1;
+	while (1){
+		error1 = rscs_sd_startup(sd);
+		if (error1 == RSCS_E_NONE){
+			break;
+		}
+	}
+	rscs_sd_spi_setup();
 //============================================================================
 //TEST
 //============================================================================
@@ -210,18 +230,15 @@ int main (){
 	while(1){
 		main_packet.state = status_now;
 		LED_BLINK(600);
-		printf("test_s\n");
 
 		//DS18b20
-		{
-			rscs_e error;
-			if ((rscs_ds18b20_check_ready())){
-				if ((status_now &= (1 << STATUS_DS18B20)) == 0){
-					rscs_ds18b20_read_temperature(ds18b20_1,&main_packet.DS18B20_temperature);
-				}
-				ERROR_CHECK(rscs_ds18b20_start_conversion(ds18b20_1),STATUS_DS18B20);
+		if ((rscs_ds18b20_check_ready())){
+			if ((status_now &= (1 << STATUS_DS18B20)) == 0){
+				rscs_ds18b20_read_temperature(ds18b20_1,&main_packet.DS18B20_temperature);
 			}
+			ERROR_CHECK(rscs_ds18b20_start_conversion(ds18b20_1),STATUS_DS18B20);
 		}
+
 		//bmp180
 		bmp180_count_all(&main_packet.BMP180_pressure,&main_packet.BMP180_temperature);
 		//bmp280
@@ -260,43 +277,9 @@ int main (){
 		//printf("height = %f\n",height);
 		printf("height_hc = %f\n",packet_extra.HC_SR04 / 100.0);*/
 
-		/*switch (state_now) {
-	  //FIRST PISTON
-		case STATE_IN_FIRST_MEASURE:
-			if ((main_packet.DS18B20_temperature/16.0) >= 24.2){
-				motor_on (1);
-				porsh_1.time_krit = time_sum(time_service_get(),time_for_porsh);
-				porsh_1.end = true;
-				state_now = STATE_IN_SECOND_MEASURE;
-				}
-			break;
-	  //SECOND PISTON
-		case STATE_IN_SECOND_MEASURE:
-			if ((main_packet.DS18B20_temperature/16.0) >= 25.2){
-				motor_on (2);
-				porsh_2.time_krit = time_sum(time_service_get(),time_for_porsh);
-				porsh_2.end = true;
-				state_now = STATE_IN_THIRD_MEASURE;
-			}
-	  //THIRD PISTON
-		break;
-			break;
-		case STATE_IN_THIRD_MEASURE:
-			if ((main_packet.DS18B20_temperature/16.0) >= 26.0) {
-				motor_on (3);
-				porsh_3.time_krit = time_sum(time_service_get(),time_for_porsh);
-				porsh_3.end = true;
-				state_now = STATE_AFTER_THIRD_MEASURE;
-			}
-			break;
-		case STATE_AFTER_THIRD_MEASURE:
-			break;
-		};
-	  //DEACTIVATION
-		porsh_check(&porsh_1);
-		porsh_check(&porsh_2);
-		porsh_check(&porsh_3);*/
-
-		send_packet (uart_1,&main_packet,sizeof(main_packet));
+		 update_packet_extra(&packet_extra,sizeof(packet_extra));
+		 update_packet(&main_packet,sizeof(main_packet));
+		 send_packet_uart (uart_1,&main_packet,sizeof(main_packet));
+		 send_packet_sd (sd,&buffer_for_sd,&main_packet,sizeof(main_packet));
 	}
 }

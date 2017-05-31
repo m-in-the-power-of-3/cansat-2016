@@ -73,4 +73,10 @@ typedef enum {
 	STATE_AFTER_THIRD_MEASURE
 } state_t;
 
+typedef struct {
+	uint16_t number;
+	uint8_t buffer[512];
+	uint16_t busy_bytes;
+} buffer_for_sd_t;
+
 #endif /* STRUCT_H_ */
