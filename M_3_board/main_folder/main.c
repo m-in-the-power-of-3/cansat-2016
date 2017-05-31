@@ -241,7 +241,8 @@ int main (){
 		}
 		//HC_SR04
 		 HC_SR04_read(&packet_extra.HC_SR04);
-		//printf("========================================== \n");
+
+		/*//printf("========================================== \n");
 		printf("========================================== \n");
 		//printf("bmp180 - t = %f C\n",main_packet.BMP180_temperature/10.0);
 		printf("ds18b20 - t = %f C\n",main_packet.DS18B20_temperature/16.0);
@@ -257,9 +258,9 @@ int main (){
 		printf("CO = %f\n",main_packet.CO);
 		printf("------------------------------------------ \n");
 		//printf("height = %f\n",height);
-		printf("height_hc = %f\n",packet_extra.HC_SR04 / 100.0);
+		printf("height_hc = %f\n",packet_extra.HC_SR04 / 100.0);*/
 
-		switch (state_now) {
+		/*switch (state_now) {
 	  //FIRST PISTON
 		case STATE_IN_FIRST_MEASURE:
 			if ((main_packet.DS18B20_temperature/16.0) >= 24.2){
@@ -294,8 +295,8 @@ int main (){
 	  //DEACTIVATION
 		porsh_check(&porsh_1);
 		porsh_check(&porsh_2);
-		porsh_check(&porsh_3);
+		porsh_check(&porsh_3);*/
 
-		//send_packet (uart_1,&main_packet,sizeof(main_packet));
+		send_packet (uart_1,&main_packet,sizeof(main_packet));
 	}
 }
