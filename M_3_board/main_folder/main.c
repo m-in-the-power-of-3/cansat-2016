@@ -149,6 +149,7 @@ int main (){
   //ADXL345
 	rscs_adxl345_t * adxl345 = rscs_adxl345_initi2c (RSCS_ADXL345_ADDR_ALT);
 	{
+		// TODO: Теперь есть новая функция rscs_adxl344_setup();
 		rscs_e error;
 		for (uint8_t i = 1;i <= ADXL345_INIT_TRY;i++){
 			error = rscs_adxl345_set_range(adxl345,RSCS_ADXL345_RANGE_2G);
@@ -177,7 +178,7 @@ int main (){
 		status_now &= ~(1 << STATUS_CO);
 	}else{
 		status_now |= (1 << STATUS_CO);
-		printf("CO_calibrate_error");
+		printf("CO_calibrate_error"); // FIXME: Кто будет читать этот printf на стартовом столе?
 	}
 //============================================================================
 //CONST
