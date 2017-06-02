@@ -53,9 +53,11 @@
 #define STATUS_INTAKECO_2 11
 
 #define INIT_TRY_BMP180 10
+#define INIT_TRY_BMP280 10
 #define INIT_TRY_ADXL345 10
 #define INIT_TRY_DS18B20 10
 #define TRY_SD 10
+
 #define ERROR_CHECK(ERROR,STATUS)\
 	error = ERROR; \
 	if (error == RSCS_E_NONE) \
@@ -68,7 +70,26 @@ int main (){
 //============================================================================
 //BEFORE INIT
 //============================================================================
+  //CONST
+	const time_data_t time_for_porsh = TIME_FOR_PORSH;
+
+  //VARIABLE
+	state_mission_t state_mission_now = STATE_IN_FIRST_MEASURE;
+
 	uint16_t status_now = 0;
+
+	state_porsh_t porsh_1 = {{0,0},false,1};
+	state_porsh_t porsh_2 = {{0,0},false,2};
+	state_porsh_t porsh_3 = {{0,0},false,3};
+
+	packet_t main_packet = {0xFF,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	packet_extra_t packet_extra = {0xFE,0,0,0,0,0};
+
+	bmp280_t bmp280;
+	adxl345_t adxl345;
+
+	float RO;
+
 //============================================================================
 //INIT
 //============================================================================
@@ -86,7 +107,7 @@ int main (){
 	FILE * f = rscs_make_uart_stream(uart_1);
 	stdout = f;
 
-  //TWI
+  //I2C
 	rscs_i2c_init();
 	rscs_i2c_set_scl_rate(200);
 
@@ -105,14 +126,15 @@ int main (){
   //OTHER
 	LED_INIT
 	motor_init();
-	sensor_init();
+	separation_sensors_init();
+	trigger_init();
 
   //DS18B20
-	rscs_ds18b20_t * ds18b20_1 = rscs_ds18b20_init(0);
+	rscs_ds18b20_t * ds18b20 = rscs_ds18b20_init(0);
 	{
 		rscs_e error;
-		for (uint8_t i = 1;i <= DS18B20_INIT_TRY;i++){
-			error = rscs_ds18b20_start_conversion(ds18b20_1);
+		for (uint8_t i = 1;i <= INIT_TRY_DS18B20;i++){
+			error = rscs_ds18b20_start_conversion(ds18b20);
 			if (error == RSCS_E_NONE){
 				status_now &= ~(1 << STATUS_DS18B20);
 				break;
@@ -125,7 +147,7 @@ int main (){
   //BMP180
 	{
 		rscs_e error;
-		for (uint8_t i = 1;i <= BMP180_INIT_TRY;i++){
+		for (uint8_t i = 1;i <= INIT_TRY_BMP180;i++){
 			error = bmp180_init();
 			if (error == RSCS_E_NONE){
 				status_now &= ~(1 << STATUS_BMP180);
@@ -135,85 +157,56 @@ int main (){
 				status_now |= (1 << STATUS_BMP180);
 		}
 	}
+
+  //BMP280
+	bmp280.descriptor = rscs_bmp280_initi2c(RSCS_BMP280_I2C_ADDR_LOW);
+	bmp280.parameters.filter = RSCS_BMP280_FILTER_X16;
+	bmp280.parameters.pressure_oversampling = RSCS_BMP280_OVERSAMPLING_X16;
+	bmp280.parameters.standbytyme = RSCS_BMP280_STANDBYTIME_500MS;
+	bmp280.parameters.temperature_oversampling = RSCS_BMP280_OVERSAMPLING_X2;
+
+	{
+		rscs_e error_setup;
+		rscs_e error_changemode;
+		for (uint8_t i = 1;i <= INIT_TRY_BMP280;i++){
+			error_setup = rscs_bmp280_setup(bmp280.descriptor,&bmp280.parameters);
+			error_changemode = rscs_bmp280_changemode (bmp280.descriptor,RSCS_BMP280_MODE_NORMAL);
+			if ((error_setup == RSCS_E_NONE)&&(error_changemode == RSCS_E_NONE)){
+				status_now &= ~(1 << STATUS_BMP280);
+				break;
+			}
+			else
+				status_now |= (1 << STATUS_BMP280);
+		}
+	}
+
+  //ADXL345
+	adxl345.descriptor = rscs_adxl345_initi2c (RSCS_ADXL345_ADDR_ALT);
+	{
+		rscs_e error_range;
+		rscs_e error_rate;
+		for (uint8_t i = 1;i <= INIT_TRY_ADXL345;i++){
+			error_range = rscs_adxl345_set_range(adxl345.descriptor,RSCS_ADXL345_RANGE_2G);
+			error_rate = rscs_adxl345_set_rate(adxl345.descriptor,RSCS_ADXL345_RATE_200HZ);
+			if ((error_range == RSCS_E_NONE)&&(error_rate == RSCS_E_NONE)){
+				status_now &= ~(1 << STATUS_ADXL345);
+				break;
+			}
+			else
+				status_now |= (1 << STATUS_ADXL345);
+		}
+	}
+
   //HC_SR04
 	HC_SR04_init();
 
-  //BMP280
-	bmp280_t bmp280 = {0,0,0,0};
-
-	bmp280.descriptor = rscs_bmp280_initi2c(RSCS_BMP280_I2C_ADDR_LOW);
-	rscs_bmp280_parameters_t bmp280_parametrs = {RSCS_BMP280_OVERSAMPLING_X16,RSCS_BMP280_OVERSAMPLING_X2,RSCS_BMP280_STANDBYTIME_500MS,RSCS_BMP280_FILTER_X16};
-	rscs_bmp280_setup(bmp280.descriptor,&bmp280_parametrs);
-	rscs_bmp280_changemode (bmp280.descriptor,RSCS_BMP280_MODE_NORMAL);
-
-  //ADXL345
-	rscs_adxl345_t * adxl345 = rscs_adxl345_initi2c (RSCS_ADXL345_ADDR_ALT);
-	{
-		rscs_e error;
-		for (uint8_t i = 1;i <= ADXL345_INIT_TRY;i++){
-			error = rscs_adxl345_set_range(adxl345,RSCS_ADXL345_RANGE_2G);
-			if (error == RSCS_E_NONE){
-				status_now &= ~(1 << STATUS_ADXL345);
-				break;
-			}
-			else
-				status_now |= (1 << STATUS_ADXL345);
-		}
-
-		for (uint8_t i = 1;i <= ADXL345_INIT_TRY;i++){
-			error = rscs_adxl345_set_rate(adxl345,RSCS_ADXL345_RATE_200HZ);
-			if (error == RSCS_E_NONE){
-				status_now &= ~(1 << STATUS_ADXL345);
-				break;
-			}
-			else
-				status_now |= (1 << STATUS_ADXL345);
-		}
-	}
   //MQ7
-	float RO;
-
-	if (mq7_calibrate(&RO) == RSCS_E_NONE){
+	if (mq7_calibrate(&RO) == RSCS_E_NONE)
 		status_now &= ~(1 << STATUS_CO);
-	}else{
-		status_now |= (1 << STATUS_CO);
-		printf("CO_calibrate_error");
-	}
+	else status_now |= (1 << STATUS_CO);
+/* Недоделано
 //============================================================================
-//CONST
-//============================================================================
-	bmp280.calibration_values = rscs_bmp280_get_calibration_values (bmp280.descriptor);
-	const time_data_t time_for_porsh = TIME_FOR_PORSH;
-//============================================================================
-//VARIABLE
-//============================================================================
-	typedef enum {
-		STATE_IN_FIRST_MEASURE,
-		STATE_IN_SECOND_MEASURE,
-		STATE_IN_THIRD_MEASURE,
-		STATE_AFTER_THIRD_MEASURE
-	} state;
-	state state_now = STATE_IN_FIRST_MEASURE;
-
-	porsh_state_t porsh_1 = {{0,0},false,1};
-	porsh_state_t porsh_2 = {{0,0},false,2};
-	porsh_state_t porsh_3 = {{0,0},false,3};
-
-	float x_g = 0;
-	float y_g = 0;
-	float z_g = 0;
-	bmp280.raw_press = 0;
-	bmp280.raw_temp = 0;
-
-	packet_t main_packet = {0xFF,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-	packet_extra_t packet_extra = {0xFE,0,0,0,0,0};
-
-	float hight = 0;
-
-	uint32_t pressure_at_start = 0;//----------------------------- add function
-
-//============================================================================
-//CHECK
+//FIRST DATA
 //============================================================================
 	//-----------------------------------------------------------finish writing
 //============================================================================
@@ -283,5 +276,5 @@ int main (){
 	//SEND DATA
 	//============================================================================
 		//send_packet (uart_1,&main_packet,sizeof(main_packet));
-	}
+	}*/
 }
