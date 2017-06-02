@@ -11,6 +11,7 @@
 
 #include <rscs/bmp280.h>
 #include <rscs/adxl345.h>
+#include <rscs/gps_nmea.h>
 
 //============================================================================
 //PACKETS
@@ -70,6 +71,11 @@ typedef struct {
 	float y_g;
 	float z_g;
 } adxl345_t;
+
+typedef struct {
+	rscs_gps_t * descriptor;
+	bool hasFix;
+} gps_t;
 
 typedef struct {
 	uint16_t seconds;

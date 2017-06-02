@@ -46,11 +46,15 @@
 #define STATUS_DS18B20 4
 #define STATUS_CO 5
 #define STATUS_SD 6
-#define STATUS_INTAKE_1 7
-#define STATUS_INTAKE_2 8
-#define STATUS_INTAKE_3 9
-#define STATUS_INTAKECO_1 10
-#define STATUS_INTAKECO_2 11
+#define STATUS_GPS 7
+#define STATUS_INTAKE_1 8
+#define STATUS_INTAKE_2 9
+#define STATUS_INTAKE_3 10
+#define STATUS_INTAKECO_1 11
+#define STATUS_INTAKECO_2 12
+
+#define DS18B20_TIMEOUT 15000
+#define DS18B20_DEFECTIVE_VALUE -2200
 
 #define INIT_TRY_BMP180 10
 #define INIT_TRY_BMP280 10
@@ -58,13 +62,15 @@
 #define INIT_TRY_DS18B20 10
 #define TRY_SD 10
 
-#define ERROR_CHECK(ERROR,STATUS)\
-	error = ERROR; \
-	if (error == RSCS_E_NONE) \
-		status_now &= ~(1 << STATUS); \
-	else \
-		status_now |= (1 << STATUS);\
+#define ERROR_CHECK(ERROR,STATUS)        \
+	error = ERROR;                       \
+	if (error == RSCS_E_NONE)            \
+		STATUS_BECOME_ERROR_NONE(STATUS) \
+	else                                 \
+		STATUS_BECOME_ERROR(STATUS)
 
+#define STATUS_BECOME_ERROR(STATUS) status_now |= (1 << STATUS);
+#define STATUS_BECOME_ERROR_NONE(STATUS) status_now &= ~(1 << STATUS);
 
 int main (){
 //============================================================================
@@ -87,6 +93,8 @@ int main (){
 
 	bmp280_t bmp280;
 	adxl345_t adxl345;
+
+	gps_t gps;
 
 	float RO;
 
@@ -200,15 +208,51 @@ int main (){
   //HC_SR04
 	HC_SR04_init();
 
+  //GPS
+	gps.descriptor = rscs_gps_init(RSCS_UART_ID_UART0);
+
   //MQ7
 	if (mq7_calibrate(&RO) == RSCS_E_NONE)
 		status_now &= ~(1 << STATUS_CO);
 	else status_now |= (1 << STATUS_CO);
-/* Недоделано
+
 //============================================================================
 //FIRST DATA
 //============================================================================
-	//-----------------------------------------------------------finish writing
+  //BMP280
+	if ((status_now & (1 << STATUS_BMP280)) == 0){
+		if ((rscs_bmp280_read(bmp280.descriptor,&bmp280.raw_press,&bmp280.raw_temp)) != RSCS_E_NONE)
+			main_packet.BMP280_pressure = 0;
+		else {
+			if ((rscs_bmp280_calculate(bmp280.calibration_values,bmp280.raw_press,bmp280.raw_temp,&main_packet.BMP280_pressure,&main_packet.BMP280_temperature)) != RSCS_E_NONE)
+				main_packet.BMP280_pressure = 0;
+		}
+	}
+
+  //BMP180
+	if ((status_now & (1 << STATUS_BMP180)) == 0){
+		if (bmp180_count_all (&main_packet.BMP180_pressure,&main_packet.BMP180_temperature) != RSCS_E_NONE)
+			main_packet.BMP180_pressure = 0;
+	}
+  //DS18B20
+	{
+		if ((status_now & (1 << STATUS_DS18B20)) == 0) {
+			uint16_t timeout;
+			for (int i = 0;i < DS18B20_TIMEOUT;i++){
+				if (rscs_ds18b20_check_ready){
+					if (rscs_ds18b20_read_temperature(ds18b20,main_packet.DS18B20_temperature) != RSCS_E_NONE)
+						main_packet.DS18B20_temperature = DS18B20_DEFECTIVE_VALUE;
+					if (rscs_ds18b20_start_conversion(ds18b20) != RSCS_E_NONE)
+						STATUS_BECOME_ERROR(STATUS_DS18B20)
+				}
+				_delay_us (100);
+			}
+			if (timeout <= DS18B20_TIMEOUT)
+				STATUS_BECOME_ERROR(STATUS_DS18B20)
+		}
+	}
+  //ADXL345
+	/*
 //============================================================================
 //BEFORE START
 //============================================================================
