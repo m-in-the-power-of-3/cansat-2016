@@ -1,16 +1,15 @@
-#include <rscs/error.h>
-#include "mq7.h"
 #include <avr/io.h>
-#include <rscs/adc.h>
 #include <stdbool.h>
 #include <util/delay.h>
 #include <stdio.h>
 #include <math.h>
 #include <stdint.h>
 
-#define MQ7_DDR DDRA
-#define MQ7_PORT PORTA
-#define MQ7_PIN 0
+#include <rscs/error.h>
+#include <rscs/adc.h>
+
+#include "hal/config.h"
+#include "mq7.h"
 
 // канал ацп на котором сидит датчик
 #define ADC_CHANNEL RSCS_ADC_SINGLE_0
@@ -60,10 +59,10 @@ bool mq7_digital_read(){
 
 rscs_e analogRead(int32_t * result){
 	rscs_e error = RSCS_E_NONE;
-	GO_TO_END_IF_ERROR(rscs_adc_start_single_conversion(ADC_CHANNEL));
+	GO_TO_END_IF_ERROR(rscs_adc_start_single_conversion(ADC_CHANNEL))
 
 	rscs_adc_wait_result();
-	GO_TO_END_IF_ERROR(rscs_adc_get_result(result));
+	GO_TO_END_IF_ERROR(rscs_adc_get_result(result))
 	end:
 	rscs_adc_wait_result();
 	return error;
