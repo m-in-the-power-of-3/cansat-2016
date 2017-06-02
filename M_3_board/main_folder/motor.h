@@ -12,9 +12,10 @@
 
 void motor_init();
 
-void motor_on (uint8_t);
-void motor_off (uint8_t);
+void motor_on (uint8_t motor_number);
+void motor_off (uint8_t motor_number);
 
-void porsh_check (porsh_state_t * state);
+//TODO:?
+void porsh_check (state_porsh_t * state);
 
 #endif /* MOTOR_H_ */

@@ -13,13 +13,16 @@
 #include "hal/structs.h"
 #include "hal/time.h"
 
+void motor_off (uint8_t motor_number);
+
 void motor_init() {
 	MOTOR_DDR |= (1 << MOTOR_1_PIN);
 	MOTOR_DDR |= (1 << MOTOR_2_PIN);
 	MOTOR_DDR |= (1 << MOTOR_3_PIN);
-	MOTOR_PORT &= ~(1 << MOTOR_1_PIN);
-	MOTOR_PORT &= ~(1 << MOTOR_2_PIN);
-	MOTOR_PORT &= ~(1 << MOTOR_3_PIN);
+
+	motor_off(1);
+	motor_off(2);
+	motor_off(3);
 }
 
 void motor_on (uint8_t motor_number){
@@ -50,7 +53,7 @@ void motor_off (uint8_t motor_number){
 	}
 }
 
-void porsh_check (porsh_state_t * state){
+void porsh_check (state_porsh_t * state){
 	if(state->end){
 		if(time_compare(time_service_get(),state->time_krit)){
 			motor_off(state->number);
