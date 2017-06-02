@@ -13,6 +13,13 @@
 #include "hal/structs.h"
 #include "hal/time.h"
 
+buffer_for_sd_t buffer_for_sd;
+
+void buffer_for_sd_init (){
+	buffer_for_sd.number = 0;
+	buffer_for_sd.busy_bytes = 0;
+}
+
 uint16_t count_sum (const void * value,size_t size){
 	uint16_t control_summ = 0;
 	const uint8_t * ptr = (const uint8_t *)value;
@@ -44,31 +51,27 @@ void send_packet_uart (rscs_uart_bus_t * bus,uint8_t * packet,size_t size_of_pac
 	rscs_uart_write(bus,packet,size_of_packet);
 }
 
-// FIXME: Переменной buffer_for_sd_t явно не место в main-e. Это внутренняя переменная этого модуля
-// а её настройку (как и настройку sd и прочей радости следует проводить в функции init этого же модуля.
-// это сильно повысит читаемость кода
-
-rscs_e send_packet_sd (rscs_sdcard_t * sd, buffer_for_sd_t * buffer_for_sd,uint8_t * packet,size_t size_of_packet){
-	if ((512 - buffer_for_sd->busy_bytes) >= size_of_packet){
+rscs_e send_packet_sd (rscs_sdcard_t * sd,uint8_t * packet,size_t size_of_packet){
+	if ((512 - buffer_for_sd.busy_bytes) >= size_of_packet){
 		for (int i = 0; i < size_of_packet;i++)
-			buffer_for_sd->buffer[buffer_for_sd->busy_bytes + i] = *(packet + i);
+			buffer_for_sd.buffer[buffer_for_sd.busy_bytes + i] = *(packet + i);
 
-		buffer_for_sd->busy_bytes += size_of_packet;
+		buffer_for_sd.busy_bytes += size_of_packet;
 		return RSCS_E_NONE;
 	}
 	else {
 		rscs_e error;
-		error = rscs_sd_block_write(sd,buffer_for_sd->number,&buffer_for_sd->buffer,1);
+		error = rscs_sd_block_write(sd,buffer_for_sd.number,&buffer_for_sd.buffer,1);
 		if (error != RSCS_E_NONE)
 			return error;
 
-		buffer_for_sd->number += 1;
-		buffer_for_sd->busy_bytes = 0;
+		buffer_for_sd.number += 1;
+		buffer_for_sd.busy_bytes = 0;
 
 		for (int i = 0; i < size_of_packet;i++)
-			buffer_for_sd->buffer[buffer_for_sd->busy_bytes + i] = *(packet + i);
+			buffer_for_sd.buffer[buffer_for_sd.busy_bytes + i] = *(packet + i);
 
-		buffer_for_sd->busy_bytes += size_of_packet;
+		buffer_for_sd.busy_bytes += size_of_packet;
 
 		return RSCS_E_NONE;
 	}

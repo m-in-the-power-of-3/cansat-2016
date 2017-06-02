@@ -178,7 +178,6 @@ int main (){
 		status_now &= ~(1 << STATUS_CO);
 	}else{
 		status_now |= (1 << STATUS_CO);
-		printf("CO_calibrate_error"); // FIXME: Кто будет читать этот printf на стартовом столе?
 	}
 //============================================================================
 //CONST
@@ -188,10 +187,6 @@ int main (){
 //============================================================================
 //VARIABLE
 //============================================================================
-
-	buffer_for_sd_t buffer_for_sd;
-	buffer_for_sd.number = 0;
-	buffer_for_sd.busy_bytes = 0;
 	rscs_e error;
 	state_t state_now = STATE_IN_FIRST_MEASURE;
 
@@ -281,6 +276,6 @@ int main (){
 		 update_packet_extra(&packet_extra,sizeof(packet_extra));
 		 update_packet(&main_packet,sizeof(main_packet));
 		 send_packet_uart (uart_1,&main_packet,sizeof(main_packet));
-		 send_packet_sd (sd,&buffer_for_sd,&main_packet,sizeof(main_packet));
+		 send_packet_sd (sd,&main_packet,sizeof(main_packet));
 	}
 }
