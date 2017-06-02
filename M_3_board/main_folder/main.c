@@ -239,8 +239,8 @@ int main (){
 		if ((status_now & (1 << STATUS_DS18B20)) == 0) {
 			uint16_t timeout;
 			for (int i = 0;i < DS18B20_TIMEOUT;i++){
-				if (rscs_ds18b20_check_ready){
-					if (rscs_ds18b20_read_temperature(ds18b20,main_packet.DS18B20_temperature) != RSCS_E_NONE)
+				if (rscs_ds18b20_check_ready()){
+					if (rscs_ds18b20_read_temperature(ds18b20,&main_packet.DS18B20_temperature) != RSCS_E_NONE)
 						main_packet.DS18B20_temperature = DS18B20_DEFECTIVE_VALUE;
 					if (rscs_ds18b20_start_conversion(ds18b20) != RSCS_E_NONE)
 						STATUS_BECOME_ERROR(STATUS_DS18B20)
