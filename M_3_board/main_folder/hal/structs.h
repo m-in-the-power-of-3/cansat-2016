@@ -10,7 +10,11 @@
 #include <stdbool.h>
 
 #include <rscs/bmp280.h>
+#include <rscs/adxl345.h>
 
+//============================================================================
+//PACKETS
+//============================================================================
 typedef struct {
 	const uint8_t control;
 	uint16_t number;
@@ -41,37 +45,53 @@ typedef struct {
 	uint16_t sum;
 } packet_extra_t;
 
+//============================================================================
+//DATA
+//============================================================================
+
 typedef struct {
 	int16_t ac1, ac2, ac3;
 	uint16_t ac4, ac5, ac6;
 	int16_t b1, b2;
 	int16_t mb, mc, md;
-} bmp180_calibration_t;
+} bmp180_calibration_values_t;
 
 typedef struct {
+	rscs_bmp280_descriptor_t * descriptor;
+	rscs_bmp280_calibration_values_t * calibration_values;
+	rscs_bmp280_parameters_t parameters;
 	int32_t raw_press;
 	int32_t raw_temp;
-	rscs_bmp280_descriptor_t * descriptor;
-	const rscs_bmp280_calibration_values_t * calibration_values;
 } bmp280_t;
+
+typedef struct {
+	rscs_adxl345_t * descriptor;
+	float x_g;
+	float y_g;
+	float z_g;
+} adxl345_t;
 
 typedef struct {
 	uint16_t seconds;
 	uint16_t subseconds;
 } time_data_t ;
 
+//============================================================================
+//STATE
+//============================================================================
+
 typedef struct {
 	time_data_t time_krit;
 	bool end;
 	uint8_t number;
-} porsh_state_t;
+} state_porsh_t;
 
 typedef enum {
 	STATE_IN_FIRST_MEASURE,
 	STATE_IN_SECOND_MEASURE,
 	STATE_IN_THIRD_MEASURE,
 	STATE_AFTER_THIRD_MEASURE
-} state_porsh_t;
+} state_mission_t;
 
 typedef enum {
 	STATE_FIRST_DATA,

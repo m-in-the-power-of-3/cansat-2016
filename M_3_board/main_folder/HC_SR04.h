@@ -9,6 +9,7 @@
 #define ULTRASONIC_HC_SR04_H_
 
 void HC_SR04_init ();
+
 uint16_t HC_SR04_read ();
 
 #endif /* ULTRASONIC_HC_SR04_H_ */

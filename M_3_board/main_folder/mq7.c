@@ -12,8 +12,6 @@
 #define MQ7_PORT PORTA
 #define MQ7_PIN 0
 
-#define OPERATION(OP) error = OP; if(error != RSCS_E_NONE) goto end;
-
 // канал ацп на котором сидит датчик
 #define ADC_CHANNEL RSCS_ADC_SINGLE_0
 
@@ -40,7 +38,7 @@ rscs_e mq7_calibrate(float * ro){
 	int32_t raw_adc;
 	for (int i = 0; i < MQ_SAMPLE_TIMES; i++) {
 		raw_adc = 0;
-		OPERATION(analogRead(&raw_adc))
+		GO_TO_END_IF_ERROR(analogRead(&raw_adc))
 		*ro += calculateResistance(raw_adc);
 		_delay_ms(MQ_SAMPLE_INTERVAL);
 	}
@@ -62,10 +60,10 @@ bool mq7_digital_read(){
 
 rscs_e analogRead(int32_t * result){
 	rscs_e error = RSCS_E_NONE;
-	OPERATION(rscs_adc_start_single_conversion(ADC_CHANNEL))
+	GO_TO_END_IF_ERROR(rscs_adc_start_single_conversion(ADC_CHANNEL));
 
 	rscs_adc_wait_result();
-	OPERATION(rscs_adc_get_result(result))
+	GO_TO_END_IF_ERROR(rscs_adc_get_result(result));
 	end:
 	rscs_adc_wait_result();
 	return error;
@@ -83,7 +81,7 @@ rscs_e readRs(float * rs, float RO){
 	int32_t raw_adc;
 	for (int i = 0; i < MQ_SAMPLE_TIMES; i++) {
 		raw_adc = 0;
-		OPERATION(analogRead(&raw_adc))
+		GO_TO_END_IF_ERROR(analogRead(&raw_adc))
 		*rs += calculateResistance(raw_adc);
 		_delay_ms(MQ_SAMPLE_INTERVAL);
 	}
@@ -97,7 +95,7 @@ rscs_e mq7_read_co(float * CO, float RO){
 	rscs_e error = RSCS_E_NONE;
 	float a = -0.77, b =  3.38;
 	float ratio;
-	OPERATION(readRs(&ratio, RO))
+	GO_TO_END_IF_ERROR(readRs(&ratio, RO))
 	*CO = exp((log(ratio)-b)/a);
 	end:
 	return error;
