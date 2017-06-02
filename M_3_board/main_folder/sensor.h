@@ -10,10 +10,11 @@
 
 #include <stdbool.h>
 
-void sensor_init ();
+void separation_sensors_init ();
+void trigger_init ();
 
-bool porsh_sensor_1 ();
-bool porsh_sensor_2 ();
-bool porsh_sensor_3 ();
+bool trigger ();
+
+bool separation_sensor (uint8_t sensor_number);
 
 #endif /* SENSOR_H_ */

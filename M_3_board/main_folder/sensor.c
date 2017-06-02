@@ -9,10 +9,20 @@
 
 #include "hal/config.h"
 
-void sensor_init (){
+void separation_sensors_init (){
 	SEPARATION_SENSOR_DDR &= ~(1<< SEPARATION_SENSOR_1_PIN);
 	SEPARATION_SENSOR_DDR &= ~(1<< SEPARATION_SENSOR_2_PIN);
 	SEPARATION_SENSOR_DDR &= ~(1<< SEPARATION_SENSOR_3_PIN);
+}
+
+void trigger_init (){
+	TRIGGER_DDR &= ~(1<< TRIGGER_PIN);
+}
+
+bool trigger (){
+	if ((TRIGGER_PPIN & (1<< TRIGGER_PIN)) == 0)
+		return true;
+	else return false;
 }
 
 bool separation_sensor (uint8_t sensor_number){
