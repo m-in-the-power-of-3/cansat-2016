@@ -42,16 +42,18 @@
 
 #define STATUS_BMP180 1
 #define STATUS_BMP280 2
-#define STATUS_ADXL345 3
-#define STATUS_DS18B20 4
-#define STATUS_CO 5
-#define STATUS_SD 6
-#define STATUS_GPS 7
-#define STATUS_INTAKE_1 8
-#define STATUS_INTAKE_2 9
-#define STATUS_INTAKE_3 10
-#define STATUS_INTAKECO_1 11
-#define STATUS_INTAKECO_2 12
+#define STATUS_ADXL345_INIT 3
+#define STATUS_ADXL345_DATA 4
+#define STATUS_DS18B20 5
+#define STATUS_CO_INIT 6
+#define STATUS_CO_DATA 7
+#define STATUS_SD 8
+#define STATUS_GPS 9
+#define STATUS_INTAKE_1 10
+#define STATUS_INTAKE_2 11
+#define STATUS_INTAKE_3 12
+#define STATUS_INTAKECO_1 13
+#define STATUS_INTAKECO_2 14
 
 #define DS18B20_TIMEOUT 15000
 #define DS18B20_DEFECTIVE_VALUE -2200
@@ -62,15 +64,10 @@
 #define INIT_TRY_DS18B20 10
 #define TRY_SD 10
 
-#define ERROR_CHECK(ERROR,STATUS)        \
-	error = ERROR;                       \
-	if (error == RSCS_E_NONE)            \
-		STATUS_BECOME_ERROR_NONE(STATUS) \
-	else                                 \
-		STATUS_BECOME_ERROR(STATUS)
-
 #define STATUS_BECOME_ERROR(STATUS) status_now |= (1 << STATUS);
-#define STATUS_BECOME_ERROR_NONE(STATUS) status_now &= ~(1 << STATUS);
+#define STATUS_BECOME_ALL_RIGHT(STATUS) status_now &= ~(1 << STATUS);
+
+#define STATUS_IS_ALL_RIGHT(STATUS) ((status_now & (1 << STATUS)) == 0)
 
 int main (){
 //============================================================================
@@ -92,7 +89,6 @@ int main (){
 	packet_extra_t packet_extra = {0xFE,0,0,0,0,0};
 
 	bmp280_t bmp280;
-	adxl345_t adxl345;
 
 	gps_t gps;
 
@@ -144,11 +140,11 @@ int main (){
 		for (uint8_t i = 1;i <= INIT_TRY_DS18B20;i++){
 			error = rscs_ds18b20_start_conversion(ds18b20);
 			if (error == RSCS_E_NONE){
-				status_now &= ~(1 << STATUS_DS18B20);
+				STATUS_BECOME_ALL_RIGHT(STATUS_DS18B20)
 				break;
 			}
 			else
-				status_now |= (1 << STATUS_DS18B20);
+				STATUS_BECOME_ERROR(STATUS_DS18B20)
 		}
 	}
 
@@ -158,11 +154,11 @@ int main (){
 		for (uint8_t i = 1;i <= INIT_TRY_BMP180;i++){
 			error = bmp180_init();
 			if (error == RSCS_E_NONE){
-				status_now &= ~(1 << STATUS_BMP180);
+				STATUS_BECOME_ALL_RIGHT(STATUS_BMP180)
 				break;
 			}
 			else
-				status_now |= (1 << STATUS_BMP180);
+				STATUS_BECOME_ERROR(STATUS_BMP180)
 		}
 	}
 
@@ -180,28 +176,32 @@ int main (){
 			error_setup = rscs_bmp280_setup(bmp280.descriptor,&bmp280.parameters);
 			error_changemode = rscs_bmp280_changemode (bmp280.descriptor,RSCS_BMP280_MODE_NORMAL);
 			if ((error_setup == RSCS_E_NONE)&&(error_changemode == RSCS_E_NONE)){
-				status_now &= ~(1 << STATUS_BMP280);
+				STATUS_BECOME_ALL_RIGHT(STATUS_BMP280)
 				break;
 			}
 			else
-				status_now |= (1 << STATUS_BMP280);
+				STATUS_BECOME_ERROR(STATUS_BMP280)
 		}
 	}
 
   //ADXL345
-	adxl345.descriptor = rscs_adxl345_initi2c (RSCS_ADXL345_ADDR_ALT);
+	rscs_adxl345_t * adxl345 = rscs_adxl345_initi2c (RSCS_ADXL345_ADDR_ALT);
 	{
 		rscs_e error_range;
 		rscs_e error_rate;
 		for (uint8_t i = 1;i <= INIT_TRY_ADXL345;i++){
-			error_range = rscs_adxl345_set_range(adxl345.descriptor,RSCS_ADXL345_RANGE_2G);
-			error_rate = rscs_adxl345_set_rate(adxl345.descriptor,RSCS_ADXL345_RATE_200HZ);
-			if ((error_range == RSCS_E_NONE)&&(error_rate == RSCS_E_NONE)){
-				status_now &= ~(1 << STATUS_ADXL345);
-				break;
+			if (rscs_adxl345_startup(adxl345) == RSCS_E_NONE){
+				error_range = rscs_adxl345_set_range(adxl345,RSCS_ADXL345_RANGE_2G);
+				error_rate = rscs_adxl345_set_rate(adxl345,RSCS_ADXL345_RATE_200HZ);
+				if ((error_range == RSCS_E_NONE)&&(error_rate == RSCS_E_NONE)){
+					STATUS_BECOME_ALL_RIGHT(STATUS_ADXL345_INIT)
+					break;
+				}
+				else
+					STATUS_BECOME_ERROR(STATUS_ADXL345_INIT)
 			}
 			else
-				status_now |= (1 << STATUS_ADXL345);
+				STATUS_BECOME_ERROR(STATUS_ADXL345_INIT)
 		}
 	}
 
@@ -213,14 +213,15 @@ int main (){
 
   //MQ7
 	if (mq7_calibrate(&RO) == RSCS_E_NONE)
-		status_now &= ~(1 << STATUS_CO);
-	else status_now |= (1 << STATUS_CO);
+		STATUS_BECOME_ALL_RIGHT(STATUS_CO_INIT)
+	else
+		STATUS_BECOME_ERROR(STATUS_CO_INIT)
 
 //============================================================================
 //FIRST DATA
 //============================================================================
   //BMP280
-	if ((status_now & (1 << STATUS_BMP280)) == 0){
+	if (STATUS_IS_ALL_RIGHT(STATUS_BMP280)){
 		if ((rscs_bmp280_read(bmp280.descriptor,&bmp280.raw_press,&bmp280.raw_temp)) != RSCS_E_NONE)
 			main_packet.BMP280_pressure = 0;
 		else {
@@ -230,15 +231,15 @@ int main (){
 	}
 
   //BMP180
-	if ((status_now & (1 << STATUS_BMP180)) == 0){
+	if (STATUS_IS_ALL_RIGHT(STATUS_BMP180)){
 		if (bmp180_count_all (&main_packet.BMP180_pressure,&main_packet.BMP180_temperature) != RSCS_E_NONE)
 			main_packet.BMP180_pressure = 0;
 	}
   //DS18B20
 	{
-		if ((status_now & (1 << STATUS_DS18B20)) == 0) {
-			uint16_t timeout;
-			for (int i = 0;i < DS18B20_TIMEOUT;i++){
+		if (STATUS_IS_ALL_RIGHT(STATUS_DS18B20)) {
+			uint16_t timeout = 0;
+			while (timeout < DS18B20_TIMEOUT){
 				if (rscs_ds18b20_check_ready()){
 					if (rscs_ds18b20_read_temperature(ds18b20,&main_packet.DS18B20_temperature) != RSCS_E_NONE)
 						main_packet.DS18B20_temperature = DS18B20_DEFECTIVE_VALUE;
@@ -246,12 +247,35 @@ int main (){
 						STATUS_BECOME_ERROR(STATUS_DS18B20)
 				}
 				_delay_us (100);
+				timeout += 1;
 			}
 			if (timeout <= DS18B20_TIMEOUT)
 				STATUS_BECOME_ERROR(STATUS_DS18B20)
 		}
 	}
   //ADXL345
+	{
+		rscs_e error;
+		if (STATUS_IS_ALL_RIGHT(STATUS_ADXL345_INIT)){
+			error = rscs_adxl345_read(adxl345,&main_packet.ADXL345_x,&main_packet.ADXL345_y,&main_packet.ADXL345_z);
+			if (error != RSCS_E_NONE)
+				STATUS_BECOME_ERROR(STATUS_ADXL345_DATA)
+			else
+				STATUS_BECOME_ALL_RIGHT(STATUS_ADXL345_DATA)
+		}
+	}
+  //CO
+	{
+		rscs_e error;
+		if (STATUS_IS_ALL_RIGHT(STATUS_CO_INIT)){
+			error = mq7_read_co(main_packet.CO,RO);
+				if (error != RSCS_E_NONE)
+					STATUS_BECOME_ERROR(STATUS_CO_DATA)
+				else
+					STATUS_BECOME_ALL_RIGHT(STATUS_CO_DATA)
+		}
+	}
+  //GPS
 	/*
 //============================================================================
 //BEFORE START

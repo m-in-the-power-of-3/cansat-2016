@@ -66,13 +66,6 @@ typedef struct {
 } bmp280_t;
 
 typedef struct {
-	rscs_adxl345_t * descriptor;
-	float x_g;
-	float y_g;
-	float z_g;
-} adxl345_t;
-
-typedef struct {
 	rscs_gps_t * descriptor;
 	bool hasFix;
 } gps_t;
