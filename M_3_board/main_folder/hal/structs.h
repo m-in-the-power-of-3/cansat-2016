@@ -38,7 +38,7 @@ typedef struct {
 } packet_t;
 
 typedef struct {
-	uint8_t control;
+	const uint8_t control;
 	uint16_t number;
 	uint16_t HC_SR04;
 	uint16_t time_h;

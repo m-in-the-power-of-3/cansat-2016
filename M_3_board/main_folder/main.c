@@ -66,14 +66,6 @@ int main (){
 	init_hardware();
 	init_sensors();
 
-	/*typedef enum {
-	STATE_FIRST_DATA,
-	STATE_WAIT_SIGNAL,
-	STATE_WAIT_SEPARATION,
-	STATE_AFTER_SEPARATION,
-	STATE_MAIN_PART,
-	STATE_FATAL_ERROR
-} state_t;*/
 	state_now = STATE_FIRST_DATA;
 while (1){
 	switch(state_now) {

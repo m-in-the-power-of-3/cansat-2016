@@ -13,16 +13,16 @@
 
 #include "hal/structs.h"
 
-bmp280_t bmp280;
-gps_t gps;
+extern bmp280_t bmp280;
+extern gps_t gps;
 
-float RO;
+extern float RO;
 
-rscs_ds18b20_t * ds18b20;
-rscs_adxl345_t * adxl345;
+extern rscs_ds18b20_t * ds18b20;
+extern rscs_adxl345_t * adxl345;
 
-packet_t main_packet = {0xFF,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-packet_extra_t packet_extra = {0xFE,0,0,0,0,0};
+extern packet_t main_packet;
+extern packet_extra_t packet_extra;
 
 void init_low_hardware ();
 void init_hardware ();
