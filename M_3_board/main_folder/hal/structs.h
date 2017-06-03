@@ -31,7 +31,7 @@ typedef struct {
  	float GPS_lat;
  	float GPS_height;
  	float CO;
-	uint16_t state;
+	uint16_t status;
 	uint16_t time_h;
 	uint16_t time_l;
 	uint16_t sum;
@@ -98,6 +98,7 @@ typedef enum {
 	STATE_WAIT_SEPARATION,
 	STATE_AFTER_SEPARATION,
 	STATE_MAIN_PART,
+	STATE_FATAL_ERROR
 } state_t;
 
 #endif /* STRUCT_H_ */

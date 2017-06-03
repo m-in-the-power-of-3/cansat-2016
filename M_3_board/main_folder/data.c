@@ -6,45 +6,115 @@
  */
 #include <stdint.h>
 
+#include <rscs/ds18b20.h>
 #include <rscs/error.h>
+#include <rscs/gps_nmea.h>
 #include <rscs/bmp280.h>
 
 #include "BMP180.h"
+#include "HC_SR04.h"
+#include "init.h"
+#include "mq7.h"
 #include "hal/config.h"
 #include "hal/structs.h"
 
-uint32_t count_average_pressure(packet_t * ptr,bmp280_t * bmp280){
+void take_data_from_HC_SR04 (){
+	if (HC_SR04_read (&packet_extra.HC_SR04) != RSCS_E_NONE)
+		packet_extra.HC_SR04 = 0;
+
+	if ((packet_extra.HC_SR04 < HC_SR04_DATA_MIN) || (packet_extra.HC_SR04 > HC_SR04_DATA_MAX))
+		packet_extra.HC_SR04 = 0;
+}
+
+void take_data_from_gps () {
+	//TODO:take_data_from_gps:написать функцию.
+}
+
+void take_data_from_co () {
+	if (STATUS_IS_ALL_RIGHT(STATUS_CO_INIT)){
+		if (mq7_read_co(&main_packet.CO,RO) != RSCS_E_NONE)
+			STATUS_BECOME_ERROR(STATUS_CO_DATA)
+		else
+			STATUS_BECOME_ALL_RIGHT(STATUS_CO_DATA)
+	}
+}
+
+void take_data_from_adxl345 () {
+	if (STATUS_IS_ALL_RIGHT(STATUS_ADXL345_INIT)){
+		if (rscs_adxl345_read(adxl345,&main_packet.ADXL345_x,&main_packet.ADXL345_y,&main_packet.ADXL345_z) != RSCS_E_NONE)
+			STATUS_BECOME_ERROR(STATUS_ADXL345_DATA)
+		else
+			STATUS_BECOME_ALL_RIGHT(STATUS_ADXL345_DATA)
+	}
+}
+
+void take_data_from_ds18b20 () {
+	if (rscs_ds18b20_check_ready()) {
+		if(STATUS_IS_ALL_RIGHT(STATUS_DS18B20)) {
+			if (rscs_ds18b20_read_temperature(ds18b20,&main_packet.DS18B20_temperature) != RSCS_E_NONE) {
+				main_packet.DS18B20_temperature = DS18B20_DEFECTIVE_VALUE;
+			}
+		}
+		if (rscs_ds18b20_start_conversion(ds18b20) != RSCS_E_NONE)
+			STATUS_BECOME_ERROR(STATUS_DS18B20)
+	}
+}
+
+void take_data_from_bmp (){
+  //BMP280
+	if (STATUS_IS_ALL_RIGHT(STATUS_BMP280)){
+		if ((rscs_bmp280_read(bmp280.descriptor,&bmp280.raw_press,&bmp280.raw_temp)) != RSCS_E_NONE)
+			main_packet.BMP280_pressure = 0;
+		else {
+			if ((rscs_bmp280_calculate(bmp280.calibration_values,bmp280.raw_press,bmp280.raw_temp,&main_packet.BMP280_pressure,&main_packet.BMP280_temperature)) != RSCS_E_NONE)
+				main_packet.BMP280_pressure = 0;
+		}
+	}
+
+  //BMP180
+	if (STATUS_IS_ALL_RIGHT(STATUS_BMP180)){
+		if (bmp180_count_all (&main_packet.BMP180_pressure,&main_packet.BMP180_temperature) != RSCS_E_NONE)
+			main_packet.BMP180_pressure = 0;
+	}
+}
+
+void take_data_for_packet (){
+	take_data_from_adxl345();
+	take_data_from_co();
+	take_data_from_ds18b20();
+	take_data_from_gps();
+	take_data_from_bmp();
+}
+
+void take_data_for_packet_extra (){
+	take_data_from_HC_SR04();
+}
+
+uint32_t count_average_pressure(){
 	uint8_t n = 0;
-	rscs_e error = bmp180_count_all(&ptr->BMP180_pressure,&ptr->BMP180_temperature);
-	if((error != 0 ) || (CHECK_MAX_PRESSURE < ptr->BMP180_pressure) || (CHECK_MIN_PRESSURE > ptr->BMP180_pressure)){
-		ptr->BMP180_pressure = 0;
-	}
-	else {
+	if((CHECK_MAX_PRESSURE < main_packet.BMP180_pressure) || (CHECK_MIN_PRESSURE > main_packet.BMP180_pressure))
+		main_packet.BMP180_pressure = 0;
+	else
 		n += 1;
-	}
 
-	rscs_bmp280_read(bmp280->descriptor,&bmp280->raw_press,&bmp280->raw_temp);
-	rscs_bmp280_calculate(bmp280->calibration_values,bmp280->raw_press,bmp280->raw_temp,&ptr->BMP280_pressure,&ptr->BMP280_temperature);
-
-	if((CHECK_MAX_PRESSURE < ptr->BMP280_pressure) || (CHECK_MIN_PRESSURE > ptr->BMP280_pressure)){
-		ptr->BMP280_pressure = 0;
-	}
-	else {
+	if((CHECK_MAX_PRESSURE < main_packet.BMP280_pressure) || (CHECK_MIN_PRESSURE > main_packet.BMP280_pressure))
+		main_packet.BMP280_pressure = 0;
+	else
 		n += 1;
-	}
 
-	if (n != 0){
-		return (ptr->BMP180_pressure + (uint32_t)ptr->BMP280_pressure)/n;
-	}
+	if (n != 0)
+		return (main_packet.BMP180_pressure + (uint32_t)main_packet.BMP280_pressure)/n;
+
 	return 0;
 }
 
-void count_height (float * height, packet_t * ptr,bmp280_t * bmp280,const uint32_t pressure_at_start){
-	uint32_t average_pressure = count_average_pressure(ptr,bmp280);
+rscs_e count_height (float * height,const uint32_t pressure_at_start){
+	uint32_t average_pressure = count_average_pressure();
 	if ((average_pressure != 0) && (pressure_at_start != 0)){
 		float X = (float)average_pressure/pressure_at_start;
 		*height = 44330 * (1.0 - pow(X,0.1903));
+		return RSCS_E_NONE;
 	}
-	return;
+	return RSCS_E_NULL;
 }
 

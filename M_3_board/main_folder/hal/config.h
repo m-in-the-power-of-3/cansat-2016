@@ -11,6 +11,7 @@
 #include <util/delay.h>
 
 #include "structs.h"
+#include "../init.h"
 
 //============================================================================
 //ACTIONS
@@ -110,12 +111,31 @@ Pressure    | OSS = 11 | CSO = 1 | 10100 | 11110100 = 0xF4 | 25,5 mc |12 mA | 0,
 
 #define HC_SR04_TIME_OUT 5000
 
+#define HC_SR04_DATA_MIN 5
+#define HC_SR04_DATA_MAX 2000
+
 // ========================================================
 //MQ7
 // ========================================================
 #define MQ7_DDR DDRA
 #define MQ7_PORT PORTA
 #define MQ7_PIN 0
+
+// ========================================================
+//DS18B20
+// ========================================================
+#define DS18B20_TIMEOUT 15000
+#define DS18B20_DEFECTIVE_VALUE -2200
+
+// ========================================================
+//INIT_TRY
+// ========================================================
+#define INIT_TRY_BMP180 10
+#define INIT_TRY_BMP280 10
+#define INIT_TRY_ADXL345 10
+#define INIT_TRY_DS18B20 10
+#define INIT_TRY_CO 5
+#define TRY_SD 10
 
 // ========================================================
 //PORSH
@@ -127,6 +147,29 @@ Pressure    | OSS = 11 | CSO = 1 | 10100 | 11110100 = 0xF4 | 25,5 mc |12 mA | 0,
 // ========================================================
 #define CHECK_MAX_PRESSURE 105000
 #define CHECK_MIN_PRESSURE 80000
+
+// ========================================================
+//STATUS
+// ========================================================
+#define STATUS_BMP180 1
+#define STATUS_BMP280 2
+#define STATUS_ADXL345_INIT 3
+#define STATUS_ADXL345_DATA 4
+#define STATUS_DS18B20 5
+#define STATUS_CO_INIT 6
+#define STATUS_CO_DATA 7
+#define STATUS_SD 8
+#define STATUS_GPS 9
+#define STATUS_INTAKE_1 10
+#define STATUS_INTAKE_2 11
+#define STATUS_INTAKE_3 12
+#define STATUS_INTAKECO_1 13
+#define STATUS_INTAKECO_2 14
+
+#define STATUS_BECOME_ERROR(STATUS) main_packet.status |= (1 << STATUS);
+#define STATUS_BECOME_ALL_RIGHT(STATUS) main_packet.status &= ~(1 << STATUS);
+
+#define STATUS_IS_ALL_RIGHT(STATUS) ((main_packet.status & (1 << STATUS)) == 0)
 
 // ========================================================
 //LED
