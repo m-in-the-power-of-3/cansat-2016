@@ -28,20 +28,34 @@ bool trigger (){
 bool separation_sensor (uint8_t sensor_number){
 	switch (sensor_number){
 	case 1:
-		if ((SEPARATION_SENSOR_PPIN & (1<< SEPARATION_SENSOR_1_PIN)) == 0)
+		if ((SEPARATION_SENSOR_PPIN & (1 << SEPARATION_SENSOR_1_PIN)) == 0)
 			return true;
 		else return false;
 		break;
 	case 2:
-		if ((SEPARATION_SENSOR_PPIN & (1<< SEPARATION_SENSOR_2_PIN)) == 0)
+		if ((SEPARATION_SENSOR_PPIN & (1 << SEPARATION_SENSOR_2_PIN)) == 0)
 			return true;
 		else return false;
 		break;
 	case 3:
-		if ((SEPARATION_SENSOR_PPIN & (1<< SEPARATION_SENSOR_3_PIN)) == 0)
+		if ((SEPARATION_SENSOR_PPIN & (1 << SEPARATION_SENSOR_3_PIN)) == 0)
 			return true;
 		else return false;
 		break;
 	}
 	return false;
+}
+
+bool separation_sensors_state (){
+	bool separation_sensor_1 = separation_sensor(1);
+	bool separation_sensor_2 = separation_sensor(2);
+	bool separation_sensor_3 = separation_sensor(3);
+
+	if ((separation_sensor_1 && separation_sensor_2) ||
+		(separation_sensor_2 && separation_sensor_3) ||
+		(separation_sensor_3 && separation_sensor_1))
+
+		return true;
+	else
+		return false;
 }

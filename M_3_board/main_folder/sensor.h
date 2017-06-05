@@ -16,5 +16,6 @@ void trigger_init ();
 bool trigger ();
 
 bool separation_sensor (uint8_t sensor_number);
+bool separation_sensors_state();
 
 #endif /* SENSOR_H_ */
