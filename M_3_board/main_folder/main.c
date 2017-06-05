@@ -51,13 +51,15 @@ int main (){
 
   //VARIABLE
 	state_mission_t state_mission_now = STATE_IN_FIRST_MEASURE;
-	state_t state_now;
+	state_t state_now = STATE_FATAL_ERROR;
 
 	state_porsh_t porsh_1 = {{0,0},false,1};
 	state_porsh_t porsh_2 = {{0,0},false,2};
 	state_porsh_t porsh_3 = {{0,0},false,3};
 
-	uint32_t pressure_at_start;
+	uint32_t pressure_at_start = 0;
+
+	important_heights_t heights = {0,0,0,0};
 
 //============================================================================
 //INIT
@@ -65,42 +67,70 @@ int main (){
 	init_low_hardware();
 	init_hardware();
 	init_sensors();
+//============================================================================
+//FIRST DATA
+//============================================================================
+	take_data_for_packet();
+	take_data_for_packet_extra();
+	pressure_at_start = count_average_pressure();
+	if (pressure_at_start == 0)
+		state_now = STATE_FATAL_ERROR;
+	else
+		state_now = STATE_WAIT_SIGNAL;
 
-	state_now = STATE_FIRST_DATA;
 while (1){
 	switch(state_now) {
 	//============================================================================
-	//FIRST DATA
-	//============================================================================
-	case STATE_FIRST_DATA:
-		take_data_for_packet();
-		take_data_for_packet_extra();
-		pressure_at_start = count_average_pressure();
-		if (pressure_at_start == 0)
-			state_now = STATE_FATAL_ERROR;
-		else
-			state_now = STATE_WAIT_SIGNAL;
-		break;
-	//============================================================================
-	//FIRST DATA
+	//WAIT SIGNAL
 	//============================================================================
 	case STATE_WAIT_SIGNAL:
+		if (!trigger()){
+			take_data_for_packet();
+			//TODO: Добавить функцию для отправки пакета по uart.
+			//TODO: Добавить функцию для отправки пакета на sd.
+			//TODO: Чем-нибуть помигать. Показать, что мы ждем.
+		}
+		else state_now = STATE_WAIT_SEPARATION;
+		break;
+	//============================================================================
+	//WAIT SEPARATION
+	//============================================================================
 	case STATE_WAIT_SEPARATION:
+		if (!separation_sensors_state()){
+			take_data_for_packet();
+			//TODO: Добавить функцию для отправки пакета по uart.
+			//TODO: Добавить функцию для отправки пакета на sd.
+			//TODO: Чем-нибуть помигать. Показать, что мы ждем, но подругому.
+		}
+		else state_now = STATE_AFTER_SEPARATION;
+	//============================================================================
+	//AFTER SEPARATION
+	//============================================================================
 	case STATE_AFTER_SEPARATION:
+		if (count_height(&heights.height_separation,pressure_at_start) == RSCS_E_NONE){
+			count_height_points(&heights);
+			state_now = STATE_MAIN_PART;
+		}
+		else state_now = STATE_FATAL_ERROR;
+	//============================================================================
+	//MAIN PART
+	//============================================================================
 	case STATE_MAIN_PART:
+		//TODO: Собрать всю волю в кулак и доделать.
+	//============================================================================
+	//FTAL ERROR
+	//============================================================================
 	case STATE_FATAL_ERROR:
+		take_data_for_packet();
+		//TODO: Добавить функцию для отправки пакета по uart.
+		//TODO: Добавить функцию для отправки пакета на sd.
+		//TODO: Чем-нибуть помигать. В общем, показать, что все плохо.
 		break;
 	};
 }
 
 	/*
-//============================================================================
-//AFTER SEPARATION
-//============================================================================
-	const float hight_at_separation = 2;//----------------------------add function
-	const float hight_1 = (3 * hight_at_separation) / 4;
-	const float hight_2 = hight_at_separation / 2;
-	const float hight_3 = hight_at_separation / 4;
+
 
 	while (1){
 	//============================================================================

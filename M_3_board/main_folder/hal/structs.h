@@ -75,6 +75,13 @@ typedef struct {
 	uint16_t subseconds;
 } time_data_t ;
 
+typedef struct {
+	float height_separation;
+	float height_1;
+	float height_2;
+	float height_3;
+} important_heights_t ;
+
 //============================================================================
 //STATE
 //============================================================================
@@ -93,7 +100,6 @@ typedef enum {
 } state_mission_t;
 
 typedef enum {
-	STATE_FIRST_DATA,
 	STATE_WAIT_SIGNAL,
 	STATE_WAIT_SEPARATION,
 	STATE_AFTER_SEPARATION,
