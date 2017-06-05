@@ -5,11 +5,11 @@
  *      Author: developer
  */
 
-#ifndef ULTRASONIC_HC_SR04_H_
-#define ULTRASONIC_HC_SR04_H_
+#ifndef HC_SR04_H_
+#define HC_SR04_H_
 
 void HC_SR04_init ();
 
 uint16_t HC_SR04_read ();
 
-#endif /* ULTRASONIC_HC_SR04_H_ */
+#endif /* HC_SR04_H_ */

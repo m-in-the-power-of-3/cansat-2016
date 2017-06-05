@@ -19,9 +19,8 @@
 #include "BMP180.h"
 #include "HC_SR04.h"
 #include "init.h"
-#include "motor.h"
+#include "mechanics.h"
 #include "mq7.h"
-#include "sensor.h"
 #include "hal/time.h"
 #include "hal/config.h"
 #include "hal/structs.h"
@@ -83,7 +82,7 @@ void init_hardware (){
 	trigger_init();
 }
 
-void init_exstra_sensors (){
+void init_extra_sensors (){
   //BMP180
 	for (uint8_t i = 1;i <= INIT_TRY_BMP180;i++){
 		if (bmp180_init() == RSCS_E_NONE){
@@ -158,6 +157,6 @@ void init_standart_sensors (){
 }
 
 void init_sensors() {
-	init_exstra_sensors();
+	init_extra_sensors();
 	init_standart_sensors();
 }

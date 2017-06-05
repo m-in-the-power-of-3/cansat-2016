@@ -31,10 +31,9 @@
 #include "data.h"
 #include "HC_SR04.h"
 #include "init.h"
-#include "motor.h"
+#include "mechanics.h"
 #include "mq7.h"
-#include "packet.h"
-#include "sensor.h"
+#include "send_packets.h"
 
 #include "hal/structs.h"
 #include "hal/config.h"

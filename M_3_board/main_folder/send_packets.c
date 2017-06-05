@@ -1,5 +1,5 @@
 /*
- * paket.c
+ * send_packets.c
  *
  *  Created on: 22 мая 2016 г.
  *      Author: developer
@@ -29,3 +29,4 @@ void send_packet (rscs_uart_bus_t * bus,packet_t * packet,size_t size_of_packet)
 	packet->time_l = time_now.subseconds;
 	rscs_uart_write(bus,packet,size_of_packet);
 }
+//TODO: Добавить функций для отправки пакетов.
