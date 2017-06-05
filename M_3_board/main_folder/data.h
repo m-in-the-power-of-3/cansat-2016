@@ -8,8 +8,13 @@
 #ifndef DATA_H_
 #define DATA_H_
 
-uint32_t count_average_pressure(packet_t * ptr,bmp280_t * bmp280);
+#include "hal/structs.h"
 
-void count_height (float * height, packet_t * ptr,bmp280_t * bmp280, const uint32_t pressure_at_start);
+void take_data_for_packet ();
+void take_data_for_packet_extra ();
+
+uint32_t count_average_pressure();
+rscs_e count_height (float * height,const uint32_t pressure_at_start);
+void count_height_points (important_heights_t * heights);
 
 #endif /* DATA_H_ */

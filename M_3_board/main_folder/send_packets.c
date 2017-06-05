@@ -1,5 +1,5 @@
 /*
- * paket.c
+ * send_packets.c
  *
  *  Created on: 22 мая 2016 г.
  *      Author: developer
@@ -9,6 +9,10 @@
 
 #include <rscs/uart.h>
 #include <rscs/sdcard.h>
+
+#include "init.h"
+
+#include <rscs/stdext/stdio.h>
 
 #include "hal/structs.h"
 #include "hal/time.h"
@@ -24,27 +28,25 @@ uint16_t count_sum (const void * value,size_t size){
 	uint16_t control_summ = 0;
 	const uint8_t * ptr = (const uint8_t *)value;
 	for (uint8_t i = 0; i < size; i++) {
-		control_summ = control_summ + *(ptr + i);
+		control_summ = control_summ +  (uint16_t)*(ptr + i);
 	}
 	return control_summ;
 }
 
-void update_packet (packet_t * packet, size_t size_of_packet){
-	packet->number++;
+void update_packet (){
+	main_packet.number++;
 	time_data_t time_now = time_service_get();
-	packet->time_h = time_now.seconds;
-	packet->time_l = time_now.subseconds;
-	packet->sum = count_sum(packet,size_of_packet - 2);
+	main_packet.time_h = time_now.seconds;
+	main_packet.time_l = time_now.subseconds;
+	main_packet.sum = count_sum(&main_packet,sizeof(main_packet) - 2);
 }
 
-// FIXME: в чем разница между update_packet_extra и update_packet?
-
-void update_packet_extra (packet_extra_t * packet, size_t size_of_packet){
-	packet->number++;
+void update_packet_extra (){
+	packet_extra.number++;
 	time_data_t time_now = time_service_get();
-	packet->time_h = time_now.seconds;
-	packet->time_l = time_now.subseconds;
-	packet->sum = count_sum(packet,size_of_packet - 2);
+	packet_extra.time_h = time_now.seconds;
+	packet_extra.time_l = time_now.subseconds;
+	packet_extra.sum = count_sum(&packet_extra,sizeof(packet_extra) - 2);
 }
 
 void send_packet_uart (rscs_uart_bus_t * bus,uint8_t * packet,size_t size_of_packet){
@@ -60,6 +62,7 @@ rscs_e send_packet_sd (rscs_sdcard_t * sd,uint8_t * packet,size_t size_of_packet
 		return RSCS_E_NONE;
 	}
 	else {
+		//printf("packet sd = %u",buffer_for_sd.number);
 		rscs_e error;
 		error = rscs_sd_block_write(sd,buffer_for_sd.number,&buffer_for_sd.buffer,1);
 		if (error != RSCS_E_NONE)
@@ -75,4 +78,11 @@ rscs_e send_packet_sd (rscs_sdcard_t * sd,uint8_t * packet,size_t size_of_packet
 
 		return RSCS_E_NONE;
 	}
+}
+
+rscs_e send_packet (rscs_uart_bus_t * bus,rscs_sdcard_t * sd,uint8_t * packet_ptr,size_t size_of_packet){
+	rscs_e error;
+	send_packet_uart(bus,packet_ptr,size_of_packet);
+	error = send_packet_sd(sd,packet_ptr,size_of_packet);
+	return error;
 }
