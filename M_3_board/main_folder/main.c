@@ -45,8 +45,17 @@ int main (){
 	init_low_hardware();
 	init_hardware();
 	init_sensors();
+	DDRC |= (1 << 2);
+	DDRC |= (1 << 1);
+
+	PORTC |= (1 << 2);
+	PORTC |= (1 << 1);
+
+//============================================================================
+//TEST
+//============================================================================
 	while(1){
-		LED_BLINK(600);
+		LED_BLINK(100);
 		take_data_for_packet();
 		take_data_for_packet_extra();
 		update_packet_extra();
