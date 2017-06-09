@@ -38,6 +38,8 @@ packet_extra_t packet_extra = {0xFE,0,0,0,0,0};
 
 rscs_uart_bus_t * uart_1;
 
+rscs_sdcard_t * sd;
+
 void init_low_hardware (){
   //ONE WIRE
 	rscs_ow_init_bus();
@@ -82,6 +84,21 @@ void init_hardware (){
 
   //TRIGER
 	trigger_init();
+
+  //SD
+	sd = rscs_sd_init(&SD_DDR,&SD_PORT,SD_PIN);
+	rscs_sd_set_timeout(sd,4000);
+	rscs_sd_spi_setup_slow();
+
+	for (uint8_t i = 1;i <= INIT_TRY_SD;i++) {
+		if (rscs_sd_startup(sd) == RSCS_E_NONE) {
+			STATUS_BECOME_ALL_RIGHT(STATUS_SD)
+			break;
+		}
+		else STATUS_BECOME_ERROR(STATUS_SD)
+	}
+
+	rscs_sd_spi_setup();
 }
 
 void init_extra_sensors (){

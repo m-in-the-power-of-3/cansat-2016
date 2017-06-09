@@ -27,7 +27,11 @@ void take_data_from_HC_SR04 (){
 }
 
 void take_data_from_gps () {
-	//TODO:take_data_from_gps:написать функцию.
+	rscs_e error = rscs_gps_read(gps.descriptor,&main_packet.GPS_lon,&main_packet.GPS_lat,&main_packet.GPS_height,&gps.hasFix);
+	if ((gps.hasFix == false) || (error != RSCS_E_NONE))
+		STATUS_BECOME_ERROR(STATUS_GPS)
+	else
+		STATUS_BECOME_ALL_RIGHT(STATUS_GPS)
 }
 
 void take_data_from_co () {

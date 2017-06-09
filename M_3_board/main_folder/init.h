@@ -10,6 +10,7 @@
 
 #include <rscs/adxl345.h>
 #include <rscs/ds18b20.h>
+#include <rscs/sdcard.h>
 
 #include "hal/structs.h"
 
@@ -25,6 +26,8 @@ extern packet_t main_packet;
 extern packet_extra_t packet_extra;
 
 extern rscs_uart_bus_t * uart_1;
+
+extern 	rscs_sdcard_t * sd;
 
 void init_low_hardware ();
 void init_hardware ();
