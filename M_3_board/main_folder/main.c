@@ -37,10 +37,6 @@
 #include <rscs/uart.h>
 #include <rscs/stdext/stdio.h>
 
-#define SD_DDR DDRA
-#define SD_PORT PORTA
-#define SD_PIN (1 << 6)
-
 int main (){
 //============================================================================
 //INIT
@@ -49,34 +45,13 @@ int main (){
 	init_low_hardware();
 	init_hardware();
 	init_sensors();
-	//printf("%u\n",main_packet.status);
-//============================================================================
-//VARIABLE
-//============================================================================
-	//SD
-	rscs_sdcard_t * sd = rscs_sd_init(&SD_DDR,&SD_PORT,SD_PIN);
-	rscs_sd_set_timeout(sd,4000);
-	rscs_sd_spi_setup_slow();
-
-	for (uint8_t i = 1;i <= INIT_TRY_SD;i++) {
-		if (rscs_sd_startup(sd) == RSCS_E_NONE) {
-			STATUS_BECOME_ALL_RIGHT(STATUS_SD)
-			break;
-		}
-		else STATUS_BECOME_ERROR(STATUS_SD)
-	}
-
-	rscs_sd_spi_setup();
-	rscs_e error;
 	while(1){
 		LED_BLINK(600);
 		take_data_for_packet();
 		take_data_for_packet_extra();
-		//printf("test\n");
 		update_packet_extra();
 		update_packet();
 		send_packet_uart (uart_1,&main_packet.control,sizeof(main_packet));
-		error = send_packet_sd (sd,&main_packet.control,sizeof(main_packet));
-		printf("%i",error);
+		send_packet_sd (sd,&main_packet.control,sizeof(main_packet));
 	}
 }
