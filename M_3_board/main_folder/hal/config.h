@@ -128,6 +128,13 @@ Pressure    | OSS = 11 | CSO = 1 | 10100 | 11110100 = 0xF4 | 25,5 mc |12 mA | 0,
 #define DS18B20_DEFECTIVE_VALUE -2200
 
 // ========================================================
+//SD
+// ========================================================
+#define SD_DDR DDRA
+#define SD_PORT PORTA
+#define SD_PIN (1 << 6)
+
+// ========================================================
 //INIT_TRY
 // ========================================================
 #define INIT_TRY_BMP180 10
@@ -135,7 +142,7 @@ Pressure    | OSS = 11 | CSO = 1 | 10100 | 11110100 = 0xF4 | 25,5 mc |12 mA | 0,
 #define INIT_TRY_ADXL345 10
 #define INIT_TRY_DS18B20 10
 #define INIT_TRY_CO 5
-#define TRY_SD 10
+#define INIT_TRY_SD 50
 
 // ========================================================
 //PORSH

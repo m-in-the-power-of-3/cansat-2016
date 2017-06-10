@@ -17,7 +17,7 @@
 //PACKETS
 //============================================================================
 typedef struct {
-	const uint8_t control;
+	uint8_t control;
 	uint16_t number;
 	int16_t DS18B20_temperature;
 	uint32_t BMP180_pressure;
@@ -38,7 +38,7 @@ typedef struct {
 } packet_t;
 
 typedef struct {
-	const uint8_t control;
+	uint8_t control;
 	uint16_t number;
 	uint16_t HC_SR04;
 	uint16_t time_h;
@@ -106,5 +106,11 @@ typedef enum {
 	STATE_MAIN_PART,
 	STATE_FATAL_ERROR
 } state_t;
+
+typedef struct {
+	uint16_t number;
+	uint8_t buffer[512];
+	uint16_t busy_bytes;
+} buffer_for_sd_t;
 
 #endif /* STRUCT_H_ */
