@@ -45,24 +45,20 @@ int main (){
 //============================================================================
 //BEFORE INIT
 //============================================================================
-  //CONST
-	const time_data_t time_for_porsh = TIME_FOR_PORSH;
-
   //VARIABLE
 	state_mission_t state_mission_now = STATE_IN_FIRST_MEASURE;
 	state_t state_now = STATE_FATAL_ERROR;
-
-	state_porsh_t porsh_1 = {{0,0},false,1};
-	state_porsh_t porsh_2 = {{0,0},false,2};
-	state_porsh_t porsh_3 = {{0,0},false,3};
 
 	uint32_t pressure_at_start = 0;
 
 	important_heights_t heights = {0,0,0,0};
 
+	float height_now;
+
 //============================================================================
 //INIT
 //============================================================================
+	init_status ();
 	init_low_hardware();
 	init_hardware();
 	init_sensors();
@@ -115,9 +111,60 @@ while (1){
 	//MAIN PART
 	//============================================================================
 	case STATE_MAIN_PART:
-		//TODO: Собрать всю волю в кулак и доделать.
+	  //DATA
+		take_data_for_packet();
+	  //INTAKE
+		if (count_height(&height_now,pressure_at_start) == RSCS_E_NONE){
+			switch (state_mission_now) {
+		  //FIRST INTAKE
+			case STATE_IN_FIRST_MEASURE:
+				if (height_now <= heights.height_1){
+					intake(1);
+					state_now = STATE_IN_SECOND_MEASURE;
+					}
+				break;
+		  //SECOND INTAKE
+			case STATE_IN_SECOND_MEASURE:
+				if (height_now <= heights.height_2){
+					intake(2);
+					state_now = STATE_IN_THIRD_MEASURE;
+				}
+				if (main_packet.CO >= CO_INTAKE_VALUE){
+					intake(2);
+					STATUS_BECOME_ALL_RIGHT(STATUS_INTAKECO_1)
+					state_now = STATE_IN_THIRD_MEASURE;
+				}
+		  //THIRD INTAKE
+			break;
+				break;
+			case STATE_IN_THIRD_MEASURE:
+				if (height_now <= heights.height_3) {
+					intake(3);
+					state_now = STATE_AFTER_THIRD_MEASURE;
+				}
+				if (main_packet.CO >= CO_INTAKE_VALUE){
+					intake(3);
+					STATUS_BECOME_ALL_RIGHT(STATUS_INTAKECO_2)
+					state_now = STATE_IN_THIRD_MEASURE;
+				}
+				break;
+			case STATE_AFTER_THIRD_MEASURE:
+				update_packet_extra();
+				take_data_for_packet_extra();
+				send_packet(&packet_extra.number,sizeof(packet_extra));
+				break;
+			};
+		  //DEACTIVATION
+			porsh_check(&porsh_1);
+			porsh_check(&porsh_2);
+			porsh_check(&porsh_3);
+		}
+	  //SEND DATA
+		update_packet();
+		send_packet(&main_packet.number,sizeof(main_packet));
+
 	//============================================================================
-	//FTAL ERROR
+	//FATAL ERROR
 	//============================================================================
 	case STATE_FATAL_ERROR:
 		take_data_for_packet();
