@@ -49,11 +49,11 @@ void update_packet_extra (){
 	packet_extra.sum = count_sum(&packet_extra,sizeof(packet_extra) - 2);
 }
 
-void send_packet_uart (rscs_uart_bus_t * bus,uint8_t * packet,size_t size_of_packet){
-	rscs_uart_write(bus,packet,size_of_packet);
+void send_packet_uart (uint8_t * packet,size_t size_of_packet){
+	rscs_uart_write(uart_1,packet,size_of_packet);
 }
 
-rscs_e send_packet_sd (rscs_sdcard_t * sd,uint8_t * packet,size_t size_of_packet){
+rscs_e send_packet_sd (uint8_t * packet,size_t size_of_packet){
 	if ((512 - buffer_for_sd.busy_bytes) >= size_of_packet){
 		for (int i = 0; i < size_of_packet;i++)
 			buffer_for_sd.buffer[buffer_for_sd.busy_bytes + i] = *(packet + i);
@@ -79,9 +79,10 @@ rscs_e send_packet_sd (rscs_sdcard_t * sd,uint8_t * packet,size_t size_of_packet
 	}
 }
 
-rscs_e send_packet (rscs_uart_bus_t * bus,rscs_sdcard_t * sd,uint8_t * packet_ptr,size_t size_of_packet){
+rscs_e send_packet (uint16_t * packet_ptr,size_t size_of_packet){
+	uint8_t * ptr = (uint8_t *)packet_ptr;
 	rscs_e error;
-	send_packet_uart(bus,packet_ptr,size_of_packet);
-	error = send_packet_sd(sd,packet_ptr,size_of_packet);
+	send_packet_uart(ptr,size_of_packet);
+	error = send_packet_sd(ptr,size_of_packet);
 	return error;
 }
