@@ -21,6 +21,7 @@
 #include "init.h"
 #include "mechanics.h"
 #include "mq7.h"
+#include "send_packets.h"
 #include "hal/time.h"
 #include "hal/config.h"
 #include "hal/structs.h"
@@ -39,6 +40,20 @@ packet_extra_t packet_extra = {0xFE,0,0,0,0,0};
 rscs_uart_bus_t * uart_1;
 
 rscs_sdcard_t * sd;
+
+state_porsh_t porsh_1 = {{0,0},false,1};
+state_porsh_t porsh_2 = {{0,0},false,2};
+state_porsh_t porsh_3 = {{0,0},false,3};
+
+const time_data_t time_for_porsh = TIME_FOR_PORSH;
+
+void init_status (){
+	STATUS_BECOME_ERROR(STATUS_INTAKE_1)
+	STATUS_BECOME_ERROR(STATUS_INTAKE_2)
+	STATUS_BECOME_ERROR(STATUS_INTAKE_3)
+	STATUS_BECOME_ERROR(STATUS_INTAKECO_1)
+	STATUS_BECOME_ERROR(STATUS_INTAKECO_2)
+}
 
 void init_low_hardware (){
   //ONE WIRE
@@ -86,6 +101,7 @@ void init_hardware (){
 	trigger_init();
 
   //SD
+	buffer_for_sd_init ();
 	sd = rscs_sd_init(&SD_DDR,&SD_PORT,SD_PIN);
 	rscs_sd_set_timeout(sd,4000);
 	rscs_sd_spi_setup_slow();
