@@ -10,6 +10,7 @@
 #include "hal/config.h"
 #include "hal/structs.h"
 #include "hal/time.h"
+#include "init.h"
 
 //============================================================================
 //MOTOR
@@ -119,4 +120,30 @@ bool trigger (){
 	if ((TRIGGER_PPIN & (1<< TRIGGER_PIN)) == 0)
 		return true;
 	else return false;
+}
+
+//============================================================================
+//INTAKE
+//============================================================================
+void intake (uint8_t number){
+	motor_on (number);
+	switch (number) {
+	case 1:
+		porsh_1.time_krit = time_sum(time_service_get(),time_for_porsh);
+		porsh_1.end = true;
+		STATUS_BECOME_ALL_RIGHT(STATUS_INTAKE_1)
+		break;
+	case 2:
+		porsh_2.time_krit = time_sum(time_service_get(),time_for_porsh);
+		porsh_2.end = true;
+		STATUS_BECOME_ALL_RIGHT(STATUS_INTAKE_2)
+		break;
+	case 3:
+		porsh_3.time_krit = time_sum(time_service_get(),time_for_porsh);
+		porsh_3.end = true;
+		STATUS_BECOME_ALL_RIGHT(STATUS_INTAKE_3)
+		break;
+	};
+
+
 }

@@ -21,4 +21,6 @@ bool separation_sensors_state ();
 void trigger_init ();
 bool trigger ();
 
+void intake (uint8_t number);
+
 #endif /* MECHANICS_H_ */
