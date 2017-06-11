@@ -79,8 +79,8 @@ int main (){
 		case STATE_WAIT_SIGNAL:
 			if (!trigger()){
 				take_data_for_packet();
-				//TODO: Добавить функцию для отправки пакета по uart.
-				//TODO: Добавить функцию для отправки пакета на sd.
+				update_packet();
+				send_packet(&main_packet.number,sizeof(main_packet));
 				//TODO: Чем-нибуть помигать. Показать, что мы ждем.
 			}
 			else state_now = STATE_WAIT_SEPARATION;
@@ -91,8 +91,8 @@ int main (){
 		case STATE_WAIT_SEPARATION:
 			if (!separation_sensors_state()){
 				take_data_for_packet();
-				//TODO: Добавить функцию для отправки пакета по uart.
-				//TODO: Добавить функцию для отправки пакета на sd.
+				update_packet();
+				send_packet(&main_packet.number,sizeof(main_packet));
 				//TODO: Чем-нибуть помигать. Показать, что мы ждем, но подругому.
 			}
 			else state_now = STATE_AFTER_SEPARATION;
@@ -166,8 +166,11 @@ int main (){
 		//============================================================================
 		case STATE_FATAL_ERROR:
 			take_data_for_packet();
-			//TODO: Добавить функцию для отправки пакета по uart.
-			//TODO: Добавить функцию для отправки пакета на sd.
+			take_data_for_packet_extra();
+			update_packet();
+			update_packet_extra();
+			send_packet(&main_packet.number,sizeof(main_packet));
+			send_packet(&packet_extra.number,sizeof(packet_extra));
 			//TODO: Чем-нибуть помигать. В общем, показать, что все плохо.
 			break;
 		};
