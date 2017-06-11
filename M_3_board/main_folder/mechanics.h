@@ -9,9 +9,10 @@
 #define MECHANICS_H_
 
 #include <stdbool.h>
-#include <hal/structs.h>
 
-void motor_init();
+#include "hal/structs.h"
+
+void motor_init ();
 void motor_on (uint8_t motor_number);
 void porsh_check (state_porsh_t * state);
 

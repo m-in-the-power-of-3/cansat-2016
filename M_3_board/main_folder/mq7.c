@@ -1,27 +1,12 @@
-#include <avr/io.h>
-#include <stdbool.h>
-#include <util/delay.h>
-#include <stdio.h>
 #include <math.h>
+#include <stdbool.h>
 #include <stdint.h>
+#include <util/delay.h>
 
-#include <rscs/error.h>
-#include <rscs/adc.h>
+#include "rscs/adc.h"
+#include "rscs/error.h"
 
 #include "hal/config.h"
-#include "mq7.h"
-
-// канал ацп на котором сидит датчик
-#define ADC_CHANNEL RSCS_ADC_SINGLE_0
-
-// номинал резистора установленный на плату в КОм
-#define nominal_resis 10
-
-// коеффициент чистого воздуха
-#define getRoInCleanAir 27
-
-#define MQ_SAMPLE_TIMES 5
-#define MQ_SAMPLE_INTERVAL 20
 
 float calculateResistance(int32_t rawAdc);
 rscs_e analogRead(int32_t * result);
@@ -42,7 +27,7 @@ rscs_e mq7_calibrate(float * ro){
 		_delay_ms(MQ_SAMPLE_INTERVAL);
 	}
 	*ro = *ro/MQ_SAMPLE_TIMES;
-	*ro = *ro/getRoInCleanAir;
+	*ro = *ro/GET_RO_IN_CLEAN_AIR;
 	end:
 	return error;
 }
@@ -56,7 +41,6 @@ bool mq7_digital_read(){
 }
 
 // узнаем-ка значение СО
-
 rscs_e analogRead(int32_t * result){
 	rscs_e error = RSCS_E_NONE;
 	GO_TO_END_IF_ERROR(rscs_adc_start_single_conversion(ADC_CHANNEL))
@@ -70,7 +54,7 @@ rscs_e analogRead(int32_t * result){
 
 float calculateResistance(int32_t rawAdc){
 	float vrl = rawAdc*(5.0 / 1023);
-	float rsAir = (5.0 - vrl)/vrl* nominal_resis;
+	float rsAir = (5.0 - vrl)/vrl* NOMINAL_RESIS;
 	return rsAir;
 }
 
@@ -99,4 +83,3 @@ rscs_e mq7_read_co(float * CO, float RO){
 	end:
 	return error;
 }
-

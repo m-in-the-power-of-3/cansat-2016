@@ -4,7 +4,6 @@
  *  Created on: 05 июня 2017 г.
  *      Author: developer
  */
-#include <avr/io.h>
 #include <stdbool.h>
 
 #include "hal/config.h"
@@ -17,7 +16,7 @@
 //============================================================================
 void motor_off (uint8_t motor_number);
 
-void motor_init() {
+void motor_init (){
 	MOTOR_DDR |= (1 << MOTOR_1_PIN);
 	MOTOR_DDR |= (1 << MOTOR_2_PIN);
 	MOTOR_DDR |= (1 << MOTOR_3_PIN);
@@ -104,8 +103,7 @@ bool separation_sensors_state (){
 		(separation_sensor_3 && separation_sensor_1))
 
 		return true;
-	else
-		return false;
+	else return false;
 }
 
 //============================================================================

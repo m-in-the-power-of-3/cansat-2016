@@ -4,18 +4,14 @@
  *  Created on: 22 мая 2016 г.
  *      Author: developer
  */
-#include <stddef.h>
 #include <stdint.h>
 
-#include <rscs/uart.h>
-#include <rscs/sdcard.h>
-
-#include "init.h"
-
-#include <rscs/stdext/stdio.h>
+#include "rscs/sdcard.h"
+#include "rscs/uart.h"
 
 #include "hal/structs.h"
 #include "hal/time.h"
+#include "init.h"
 
 buffer_for_sd_t buffer_for_sd;
 
@@ -82,7 +78,9 @@ rscs_e send_packet_sd (uint8_t * packet,size_t size_of_packet){
 rscs_e send_packet (uint16_t * packet_ptr,size_t size_of_packet){
 	uint8_t * ptr = (uint8_t *)packet_ptr;
 	rscs_e error;
+
 	send_packet_uart(ptr,size_of_packet);
 	error = send_packet_sd(ptr,size_of_packet);
+
 	return error;
 }

@@ -117,6 +117,18 @@ Pressure    | OSS = 11 | CSO = 1 | 10100 | 11110100 = 0xF4 | 25,5 mc |12 mA | 0,
 // ========================================================
 //MQ7
 // ========================================================
+// канал ацп на котором сидит датчик
+#define ADC_CHANNEL RSCS_ADC_SINGLE_0
+
+// номинал резистора установленный на плату в КОм
+#define NOMINAL_RESIS 10
+
+// коеффициент чистого воздуха
+#define GET_RO_IN_CLEAN_AIR 27
+
+#define MQ_SAMPLE_TIMES 5
+#define MQ_SAMPLE_INTERVAL 20
+
 #define MQ7_DDR DDRA
 #define MQ7_PORT PORTA
 #define MQ7_PIN 0
