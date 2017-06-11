@@ -24,4 +24,8 @@ bool trigger ();
 
 void intake (uint8_t number);
 
+void led_init ();
+void led_on (uint8_t number);
+void led_off (uint8_t number);
+
 #endif /* MECHANICS_H_ */

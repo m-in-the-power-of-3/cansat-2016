@@ -87,7 +87,7 @@ void init_low_hardware (){
 	time_service_init();
 
   //LED
-	LED_INIT
+	LED_MK_INIT
 }
 
 void init_hardware (){
@@ -115,6 +115,9 @@ void init_hardware (){
 	}
 
 	rscs_sd_spi_setup();
+
+  //LED
+	led_init();
 }
 
 void init_extra_sensors (){

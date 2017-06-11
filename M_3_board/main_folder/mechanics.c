@@ -145,3 +145,39 @@ void intake (uint8_t number){
 
 
 }
+
+//============================================================================
+//LED
+//============================================================================
+void led_init (){
+	LED_RED_DDR |= (1 << LED_RED_PIN);
+	LED_BLUE_DDR |= (1 << LED_BLUE_PIN);
+}
+
+void led_on (uint8_t number){
+	/* Список лампочек:
+	 * 1 - Красная лампочка
+	 * 2 - Синяя лампочка */
+	switch (number){
+	case 1:
+		LED_RED_PORT |= (1 << LED_RED_PIN);
+		break;
+	case 2:
+		LED_BLUE_PORT |= (1 << LED_BLUE_PIN);
+		break;
+	};
+}
+
+void led_off (uint8_t number){
+	/* Список лампочек:
+	 * 1 - Красная лампочка
+	 * 2 - Синяя лампочка */
+	switch (number){
+	case 1:
+		LED_RED_PORT &= ~(1 << LED_RED_PIN);
+		break;
+	case 2:
+		LED_BLUE_PORT &= ~(1 << LED_BLUE_PIN);
+		break;
+	};
+}
