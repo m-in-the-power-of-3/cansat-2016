@@ -29,6 +29,13 @@ extern rscs_uart_bus_t * uart_1;
 
 extern 	rscs_sdcard_t * sd;
 
+extern 	state_porsh_t porsh_1;
+extern 	state_porsh_t porsh_2;
+extern 	state_porsh_t porsh_3;
+
+extern const time_data_t time_for_porsh;
+
+void init_status ();
 void init_low_hardware ();
 void init_hardware ();
 void init_sensors ();

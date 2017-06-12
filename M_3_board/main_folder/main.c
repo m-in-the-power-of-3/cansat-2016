@@ -55,12 +55,12 @@ int main (){
 //TEST
 //============================================================================
 	while(1){
-		LED_BLINK(100);
+		LED_MK_BLINK(100);
 		take_data_for_packet();
 		take_data_for_packet_extra();
 		update_packet_extra();
 		update_packet();
-		send_packet_uart (uart_1,&main_packet.control,sizeof(main_packet));
-		send_packet_sd (sd,&main_packet.control,sizeof(main_packet));
+		send_packet(&main_packet.control,sizeof(main_packet));
+		send_packet(&packet_extra.control,sizeof(packet_extra));
 	}
 }

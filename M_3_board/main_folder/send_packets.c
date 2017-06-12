@@ -4,18 +4,14 @@
  *  Created on: 22 мая 2016 г.
  *      Author: developer
  */
-#include <stddef.h>
 #include <stdint.h>
 
-#include <rscs/uart.h>
-#include <rscs/sdcard.h>
-
-#include "init.h"
-
-#include <rscs/stdext/stdio.h>
+#include "rscs/sdcard.h"
+#include "rscs/uart.h"
 
 #include "hal/structs.h"
 #include "hal/time.h"
+#include "init.h"
 
 buffer_for_sd_t buffer_for_sd;
 
@@ -49,11 +45,11 @@ void update_packet_extra (){
 	packet_extra.sum = count_sum(&packet_extra,sizeof(packet_extra) - 2);
 }
 
-void send_packet_uart (rscs_uart_bus_t * bus,uint8_t * packet,size_t size_of_packet){
-	rscs_uart_write(bus,packet,size_of_packet);
+void send_packet_uart (uint8_t * packet,size_t size_of_packet){
+	rscs_uart_write(uart_1,packet,size_of_packet);
 }
 
-rscs_e send_packet_sd (rscs_sdcard_t * sd,uint8_t * packet,size_t size_of_packet){
+rscs_e send_packet_sd (uint8_t * packet,size_t size_of_packet){
 	if ((512 - buffer_for_sd.busy_bytes) >= size_of_packet){
 		for (int i = 0; i < size_of_packet;i++)
 			buffer_for_sd.buffer[buffer_for_sd.busy_bytes + i] = *(packet + i);
@@ -62,7 +58,6 @@ rscs_e send_packet_sd (rscs_sdcard_t * sd,uint8_t * packet,size_t size_of_packet
 		return RSCS_E_NONE;
 	}
 	else {
-		//printf("packet sd = %u",buffer_for_sd.number);
 		rscs_e error;
 		error = rscs_sd_block_write(sd,buffer_for_sd.number,&buffer_for_sd.buffer,1);
 		if (error != RSCS_E_NONE)
@@ -80,9 +75,11 @@ rscs_e send_packet_sd (rscs_sdcard_t * sd,uint8_t * packet,size_t size_of_packet
 	}
 }
 
-rscs_e send_packet (rscs_uart_bus_t * bus,rscs_sdcard_t * sd,uint8_t * packet_ptr,size_t size_of_packet){
+rscs_e send_packet (uint8_t * packet_ptr,size_t size_of_packet){
 	rscs_e error;
-	send_packet_uart(bus,packet_ptr,size_of_packet);
-	error = send_packet_sd(sd,packet_ptr,size_of_packet);
+
+	send_packet_uart(packet_ptr,size_of_packet);
+	error = send_packet_sd(packet_ptr,size_of_packet);
+
 	return error;
 }

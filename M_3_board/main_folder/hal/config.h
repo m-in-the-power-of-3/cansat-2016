@@ -117,9 +117,23 @@ Pressure    | OSS = 11 | CSO = 1 | 10100 | 11110100 = 0xF4 | 25,5 mc |12 mA | 0,
 // ========================================================
 //MQ7
 // ========================================================
+// канал ацп на котором сидит датчик
+#define ADC_CHANNEL RSCS_ADC_SINGLE_0
+
+// номинал резистора установленный на плату в КОм
+#define NOMINAL_RESIS 10
+
+// коеффициент чистого воздуха
+#define GET_RO_IN_CLEAN_AIR 27
+
+#define MQ_SAMPLE_TIMES 5
+#define MQ_SAMPLE_INTERVAL 20
+
 #define MQ7_DDR DDRA
 #define MQ7_PORT PORTA
 #define MQ7_PIN 0
+
+#define CO_INTAKE_VALUE 50.0
 
 // ========================================================
 //DS18B20
@@ -181,14 +195,22 @@ Pressure    | OSS = 11 | CSO = 1 | 10100 | 11110100 = 0xF4 | 25,5 mc |12 mA | 0,
 // ========================================================
 //LED
 // ========================================================
-#define LED_INIT DDRG |= (1 << 3);
-#define LED_ON PORTG |= (1 << 3);
-#define LED_OFF PORTG &= ~(1 << 3);
+#define LED_RED_DDR DDRC
+#define LED_RED_PORT PORTC
+#define LED_RED_PIN 1
+
+#define LED_BLUE_DDR DDRC
+#define LED_BLUE_PORT PORTC
+#define LED_BLUE_PIN 2
+
+#define LED_MK_INIT DDRG |= (1 << 3);
+#define LED_MK_ON PORTG |= (1 << 3);
+#define LED_MK_OFF PORTG &= ~(1 << 3);
 #define                   \
-	LED_BLINK(TIME)       \
-	LED_ON                \
+	LED_MK_BLINK(TIME)    \
+	LED_MK_ON             \
 	_delay_ms (TIME);     \
-	LED_OFF               \
+	LED_MK_OFF            \
 	_delay_ms (TIME);
 
 #endif /* DEFINES_H_ */

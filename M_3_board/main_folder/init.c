@@ -21,6 +21,7 @@
 #include "init.h"
 #include "mechanics.h"
 #include "mq7.h"
+#include "send_packets.h"
 #include "hal/time.h"
 #include "hal/config.h"
 #include "hal/structs.h"
@@ -39,6 +40,20 @@ packet_extra_t packet_extra = {0xFE,0,0,0,0,0};
 rscs_uart_bus_t * uart_1;
 
 rscs_sdcard_t * sd;
+
+state_porsh_t porsh_1 = {{0,0},false,1};
+state_porsh_t porsh_2 = {{0,0},false,2};
+state_porsh_t porsh_3 = {{0,0},false,3};
+
+const time_data_t time_for_porsh = TIME_FOR_PORSH;
+
+void init_status (){
+	STATUS_BECOME_ERROR(STATUS_INTAKE_1)
+	STATUS_BECOME_ERROR(STATUS_INTAKE_2)
+	STATUS_BECOME_ERROR(STATUS_INTAKE_3)
+	STATUS_BECOME_ERROR(STATUS_INTAKECO_1)
+	STATUS_BECOME_ERROR(STATUS_INTAKECO_2)
+}
 
 void init_low_hardware (){
   //ONE WIRE
@@ -72,7 +87,7 @@ void init_low_hardware (){
 	time_service_init();
 
   //LED
-	LED_INIT
+	LED_MK_INIT
 }
 
 void init_hardware (){
@@ -86,6 +101,7 @@ void init_hardware (){
 	trigger_init();
 
   //SD
+	buffer_for_sd_init ();
 	sd = rscs_sd_init(&SD_DDR,&SD_PORT,SD_PIN);
 	rscs_sd_set_timeout(sd,4000);
 	rscs_sd_spi_setup_slow();
@@ -99,6 +115,9 @@ void init_hardware (){
 	}
 
 	rscs_sd_spi_setup();
+
+  //LED
+	led_init();
 }
 
 void init_extra_sensors (){
@@ -163,7 +182,7 @@ void init_standart_sensors (){
 	adxl345 = rscs_adxl345_initi2c (RSCS_ADXL345_ADDR_ALT);
 	for (uint8_t i = 1;i <= INIT_TRY_ADXL345;i++){
 		if (rscs_adxl345_startup(adxl345) == RSCS_E_NONE){
-			if ((rscs_adxl345_set_range(adxl345,RSCS_ADXL345_RANGE_2G) == RSCS_E_NONE) &&
+			if ((rscs_adxl345_set_range(adxl345,RSCS_ADXL345_RANGE_16G) == RSCS_E_NONE) &&
 				(rscs_adxl345_set_rate(adxl345,RSCS_ADXL345_RATE_200HZ) == RSCS_E_NONE)){
 
 				STATUS_BECOME_ALL_RIGHT(STATUS_ADXL345_INIT)
