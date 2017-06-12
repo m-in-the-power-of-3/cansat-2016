@@ -66,6 +66,8 @@ int main (){
 	take_data_for_packet();
 	take_data_for_packet_extra();
 	pressure_at_start = count_average_pressure();
+	send_packet(&main_packet.control,sizeof(main_packet));
+	send_packet(&packet_extra.control,sizeof(packet_extra));
 	if (pressure_at_start == 0)
 		state_now = STATE_FATAL_ERROR;
 	else
@@ -80,7 +82,7 @@ int main (){
 			if (!trigger()){
 				take_data_for_packet();
 				update_packet();
-				send_packet(&main_packet.number,sizeof(main_packet));
+				send_packet(&main_packet.control,sizeof(main_packet));
 				//TODO: Чем-нибуть помигать. Показать, что мы ждем.
 			}
 			else state_now = STATE_WAIT_SEPARATION;
@@ -92,7 +94,7 @@ int main (){
 			if (!separation_sensors_state()){
 				take_data_for_packet();
 				update_packet();
-				send_packet(&main_packet.number,sizeof(main_packet));
+				send_packet(&main_packet.control,sizeof(main_packet));
 				//TODO: Чем-нибуть помигать. Показать, что мы ждем, но подругому.
 			}
 			else state_now = STATE_AFTER_SEPARATION;
@@ -150,7 +152,7 @@ int main (){
 				case STATE_AFTER_THIRD_MEASURE:
 					update_packet_extra();
 					take_data_for_packet_extra();
-					send_packet(&packet_extra.number,sizeof(packet_extra));
+					send_packet(&packet_extra.control,sizeof(packet_extra));
 					break;
 				};
 			  //DEACTIVATION
@@ -160,7 +162,7 @@ int main (){
 			}
 		  //SEND DATA
 			update_packet();
-			send_packet(&main_packet.number,sizeof(main_packet));
+			send_packet(&main_packet.control,sizeof(main_packet));
 
 		//============================================================================
 		//FATAL ERROR
@@ -170,8 +172,8 @@ int main (){
 			take_data_for_packet_extra();
 			update_packet();
 			update_packet_extra();
-			send_packet(&main_packet.number,sizeof(main_packet));
-			send_packet(&packet_extra.number,sizeof(packet_extra));
+			send_packet(&main_packet.control,sizeof(main_packet));
+			send_packet(&packet_extra.control,sizeof(packet_extra));
 			//TODO: Чем-нибуть помигать. В общем, показать, что все плохо.
 			break;
 		};

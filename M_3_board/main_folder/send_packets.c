@@ -75,12 +75,11 @@ rscs_e send_packet_sd (uint8_t * packet,size_t size_of_packet){
 	}
 }
 
-rscs_e send_packet (uint16_t * packet_ptr,size_t size_of_packet){
-	uint8_t * ptr = (uint8_t *)packet_ptr;
+rscs_e send_packet (uint8_t * packet_ptr,size_t size_of_packet){
 	rscs_e error;
 
-	send_packet_uart(ptr,size_of_packet);
-	error = send_packet_sd(ptr,size_of_packet);
+	send_packet_uart(packet_ptr,size_of_packet);
+	error = send_packet_sd(packet_ptr,size_of_packet);
 
 	return error;
 }
