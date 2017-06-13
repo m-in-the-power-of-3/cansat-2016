@@ -130,10 +130,12 @@ int main (){
 						intake(2);
 						state_now = STATE_IN_THIRD_MEASURE;
 					}
-					if (main_packet.CO >= CO_INTAKE_VALUE){
-						intake(2);
-						STATUS_BECOME_ALL_RIGHT(STATUS_INTAKECO_1)
-						state_now = STATE_IN_THIRD_MEASURE;
+					else {
+						if (main_packet.CO >= CO_INTAKE_VALUE){
+							intake(2);
+							STATUS_BECOME_ALL_RIGHT(STATUS_INTAKECO_1)
+							state_now = STATE_IN_THIRD_MEASURE;
+						}
 					}
 			  //THIRD INTAKE
 				break;
@@ -143,15 +145,17 @@ int main (){
 						intake(3);
 						state_now = STATE_AFTER_THIRD_MEASURE;
 					}
-					if (main_packet.CO >= CO_INTAKE_VALUE){
-						intake(3);
-						STATUS_BECOME_ALL_RIGHT(STATUS_INTAKECO_2)
-						state_now = STATE_IN_THIRD_MEASURE;
+					else {
+						if (main_packet.CO >= CO_INTAKE_VALUE){
+							intake(3);
+							STATUS_BECOME_ALL_RIGHT(STATUS_INTAKECO_2)
+							state_now = STATE_IN_THIRD_MEASURE;
+						}
 					}
 					break;
 				case STATE_AFTER_THIRD_MEASURE:
-					update_packet_extra();
 					take_data_for_packet_extra();
+					update_packet_extra();
 					send_packet(&packet_extra.control,sizeof(packet_extra));
 					break;
 				};
@@ -163,7 +167,7 @@ int main (){
 		  //SEND DATA
 			update_packet();
 			send_packet(&main_packet.control,sizeof(main_packet));
-
+			break;
 		//============================================================================
 		//FATAL ERROR
 		//============================================================================
