@@ -168,15 +168,17 @@ void init_standart_sensors (){
 	bmp280.parameters.temperature_oversampling = RSCS_BMP280_OVERSAMPLING_X2;
 
 	for (uint8_t i = 1;i <= INIT_TRY_BMP280;i++){
-		if ((rscs_bmp280_setup(bmp280.descriptor,&bmp280.parameters) == RSCS_E_NONE) &&
-			(rscs_bmp280_changemode (bmp280.descriptor,RSCS_BMP280_MODE_NORMAL) == RSCS_E_NONE)){
-
-			STATUS_BECOME_ALL_RIGHT(STATUS_BMP280)
-			break;
+		if (rscs_bmp280_setup(bmp280.descriptor,&bmp280.parameters) == RSCS_E_NONE){
+			if (rscs_bmp280_changemode (bmp280.descriptor,RSCS_BMP280_MODE_NORMAL) == RSCS_E_NONE){
+				STATUS_BECOME_ALL_RIGHT(STATUS_BMP280)
+				break;
+			}
+			else STATUS_BECOME_ERROR(STATUS_BMP280)
 		}
-		else
-			STATUS_BECOME_ERROR(STATUS_BMP280)
+		else STATUS_BECOME_ERROR(STATUS_BMP280)
 	}
+
+	bmp280.calibration_values = rscs_bmp280_get_calibration_values(bmp280.descriptor);
 
   //ADXL345
 	adxl345 = rscs_adxl345_initi2c (RSCS_ADXL345_ADDR_ALT);

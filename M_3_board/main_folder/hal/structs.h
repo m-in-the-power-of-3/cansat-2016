@@ -59,7 +59,7 @@ typedef struct {
 
 typedef struct {
 	rscs_bmp280_descriptor_t * descriptor;
-	rscs_bmp280_calibration_values_t * calibration_values;
+	const rscs_bmp280_calibration_values_t * calibration_values;
 	rscs_bmp280_parameters_t parameters;
 	int32_t raw_press;
 	int32_t raw_temp;
