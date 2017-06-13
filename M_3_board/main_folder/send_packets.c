@@ -69,7 +69,7 @@ rscs_e send_packet_sd (uint8_t * packet,size_t size_of_packet){
 		for (int i = 0; i < size_of_packet;i++)
 			buffer_for_sd.buffer[buffer_for_sd.busy_bytes + i] = *(packet + i);
 
-		buffer_for_sd.busy_bytes += size_of_packet;
+		buffer_for_sd.busy_bytes += size_of_packet; // NOTE: Эта строчка выглядит ОЧЕНЬ подозрительно
 
 		return RSCS_E_NONE;
 	}

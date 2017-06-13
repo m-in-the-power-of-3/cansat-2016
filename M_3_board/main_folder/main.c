@@ -80,9 +80,11 @@ int main (){
 		//============================================================================
 		case STATE_WAIT_SIGNAL:
 			if (!trigger()){
+				// NOTE: Если эти операции выполняется на каждом такте внезависимости от режима, имеет смысл вынести их из свича
 				take_data_for_packet();
 				update_packet();
 				send_packet(&main_packet.control,sizeof(main_packet));
+				// NOTE: /end
 				//TODO: Чем-нибуть помигать. Показать, что мы ждем.
 			}
 			else state_now = STATE_WAIT_SEPARATION;
@@ -92,9 +94,11 @@ int main (){
 		//============================================================================
 		case STATE_WAIT_SEPARATION:
 			if (!separation_sensors_state()){
+				// NOTE: Если эти операции выполняется на каждом такте внезависимости от режима, имеет смысл вынести их из свича
 				take_data_for_packet();
 				update_packet();
 				send_packet(&main_packet.control,sizeof(main_packet));
+				// NOTE: /end
 				//TODO: Чем-нибуть помигать. Показать, что мы ждем, но подругому.
 			}
 			else state_now = STATE_AFTER_SEPARATION;
@@ -119,6 +123,9 @@ int main (){
 				switch (state_mission_now) {
 			  //FIRST INTAKE
 				case STATE_IN_FIRST_MEASURE:
+					// NOTE: тут идет проверка только на высоту. Не нужно ли добавить еще и срабатывание по таймеру на всякий случай?
+					// или это будет уже слишком сложно и перегружено
+					// Если этот автомат становится слишком сложным - его следует вынести в отдельную фунцию
 					if (height_now <= heights.height_1){
 						intake(1);
 						state_now = STATE_IN_SECOND_MEASURE;
@@ -129,7 +136,7 @@ int main (){
 					if (height_now <= heights.height_2){
 						intake(2);
 						state_now = STATE_IN_THIRD_MEASURE;
-					}
+					} // NOTE: тут бы нужен ELSE, иначе есть шанс включить intake(2) дважды, когда выполняются оба условия
 					if (main_packet.CO >= CO_INTAKE_VALUE){
 						intake(2);
 						STATUS_BECOME_ALL_RIGHT(STATUS_INTAKECO_1)
@@ -142,7 +149,7 @@ int main (){
 					if (height_now <= heights.height_3) {
 						intake(3);
 						state_now = STATE_AFTER_THIRD_MEASURE;
-					}
+					} // NOTE: тут бы нужен ELSE, иначе есть шанс включить intake(3) дважды, когда выполняются оба условия
 					if (main_packet.CO >= CO_INTAKE_VALUE){
 						intake(3);
 						STATUS_BECOME_ALL_RIGHT(STATUS_INTAKECO_2)
@@ -151,8 +158,8 @@ int main (){
 					break;
 				case STATE_AFTER_THIRD_MEASURE:
 					update_packet_extra();
-					take_data_for_packet_extra();
-					send_packet(&packet_extra.control,sizeof(packet_extra));
+					take_data_for_packet_extra(); // NOTE: кажется тут должно быть сперва take_data а потом update?
+					send_packet(&packet_extra.control,sizeof(packet_extra)); // NOTE: опять таки на каждом такте
 					break;
 				};
 			  //DEACTIVATION
@@ -163,6 +170,7 @@ int main (){
 		  //SEND DATA
 			update_packet();
 			send_packet(&main_packet.control,sizeof(main_packet));
+			// NOTE: забыт брейк? Даже эклипс подсказывает
 
 		//============================================================================
 		//FATAL ERROR
