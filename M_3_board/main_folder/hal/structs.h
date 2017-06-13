@@ -16,6 +16,7 @@
 //============================================================================
 //PACKETS
 //============================================================================
+#pragma pack(push,1)
 typedef struct {
 	uint8_t control;
 	uint16_t number;
@@ -45,6 +46,7 @@ typedef struct {
 	uint16_t time_l;
 	uint16_t sum;
 } packet_extra_t;
+#pragma pack(pop)
 
 //============================================================================
 //DATA
@@ -59,7 +61,7 @@ typedef struct {
 
 typedef struct {
 	rscs_bmp280_descriptor_t * descriptor;
-	rscs_bmp280_calibration_values_t * calibration_values;
+	const rscs_bmp280_calibration_values_t * calibration_values;
 	rscs_bmp280_parameters_t parameters;
 	int32_t raw_press;
 	int32_t raw_temp;
