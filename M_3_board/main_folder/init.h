@@ -35,6 +35,8 @@ extern 	state_porsh_t porsh_3;
 
 extern const time_data_t time_for_porsh;
 
+extern uint8_t blink;
+
 void init_status ();
 void init_low_hardware ();
 void init_hardware ();

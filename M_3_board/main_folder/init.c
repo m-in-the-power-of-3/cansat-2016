@@ -47,6 +47,8 @@ state_porsh_t porsh_3 = {{0,0},false,3};
 
 const time_data_t time_for_porsh = TIME_FOR_PORSH;
 
+uint8_t blink = 0;
+
 void init_status (){
 	STATUS_BECOME_ERROR(STATUS_INTAKE_1)
 	STATUS_BECOME_ERROR(STATUS_INTAKE_2)

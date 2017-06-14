@@ -149,35 +149,77 @@ void intake (uint8_t number){
 //============================================================================
 //LED
 //============================================================================
+void led_red (bool trigger){
+	if (trigger)
+		LED_RED_PORT |= (1 << LED_RED_PIN);
+	else LED_RED_PORT &= ~(1 << LED_RED_PIN);
+}
+
+void led_blue (bool trigger){
+	if (trigger)
+		LED_BLUE_PORT |= (1 << LED_BLUE_PIN);
+	else LED_BLUE_PORT &= ~(1 << LED_BLUE_PIN);
+}
+
 void led_init (){
 	LED_RED_DDR |= (1 << LED_RED_PIN);
 	LED_BLUE_DDR |= (1 << LED_BLUE_PIN);
+
+	led_red(false);
+	led_blue(false);
 }
 
-void led_on (uint8_t number){
-	/* Список лампочек:
-	 * 1 - Красная лампочка
-	 * 2 - Синяя лампочка */
-	switch (number){
-	case 1:
-		LED_RED_PORT |= (1 << LED_RED_PIN);
-		break;
-	case 2:
-		LED_BLUE_PORT |= (1 << LED_BLUE_PIN);
-		break;
-	};
+//============================================================================
+//SIGNALS
+//============================================================================
+void signal_fatal_error (){
+	led_red(true);
+	led_blue(false);
 }
 
-void led_off (uint8_t number){
-	/* Список лампочек:
-	 * 1 - Красная лампочка
-	 * 2 - Синяя лампочка */
-	switch (number){
-	case 1:
-		LED_RED_PORT &= ~(1 << LED_RED_PIN);
+void signal_actions (){
+	led_red(false);
+	led_blue(true);
+}
+
+void signal_wait_trigger (){
+	if (((blink / 5) % 2) == 0)
+		led_blue(true);
+	else led_blue (false);
+
+	switch(blink){
+	case 0:
+		led_red(true);
 		break;
-	case 2:
-		LED_BLUE_PORT &= ~(1 << LED_BLUE_PIN);
+	case 20:
+		if (!(STATUS_IS_ALL_RIGHT(STATUS_BMP180)))
+			led_red(true);
+		break;
+	case 30:
+		led_blue(true);
+		if (!(STATUS_IS_ALL_RIGHT(STATUS_BMP280)))
+			led_red(true);
+		break;
+	case 40:
+		if (!(STATUS_IS_ALL_RIGHT(STATUS_ADXL345_INIT)))
+			led_red(true);
+		break;
+	case 50:
+		if (!(STATUS_IS_ALL_RIGHT(STATUS_SD)))
+			led_red(true);
+		break;
+	case 15:
+	case 25:
+	case 35:
+	case 45:
+	case 55:
+		led_red(false);
+		break;
+	default:
 		break;
 	};
+
+	blink++;
+	if (blink >= 60)
+		blink = 0;
 }

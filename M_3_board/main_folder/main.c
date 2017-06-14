@@ -45,22 +45,28 @@ int main (){
 	init_low_hardware();
 	init_hardware();
 	init_sensors();
-	DDRC |= (1 << 2);
-	DDRC |= (1 << 1);
-
-	PORTC |= (1 << 2);
-	PORTC |= (1 << 1);
 
 //============================================================================
 //TEST
 //============================================================================
 	while(1){
-		LED_MK_BLINK(100);
 		take_data_for_packet();
-		take_data_for_packet_extra();
-		update_packet_extra();
-		update_packet();
-		send_packet(&main_packet.control,sizeof(main_packet));
-		send_packet(&packet_extra.control,sizeof(packet_extra));
+		if (trigger())
+			STATUS_BECOME_ALL_RIGHT(STATUS_BMP180)
+		else STATUS_BECOME_ERROR(STATUS_BMP180)
+
+		if (separation_sensor(1))
+			STATUS_BECOME_ALL_RIGHT(STATUS_BMP280)
+		else STATUS_BECOME_ERROR(STATUS_BMP280)
+
+		if (separation_sensor(2))
+			STATUS_BECOME_ALL_RIGHT(STATUS_ADXL345_INIT)
+		else STATUS_BECOME_ERROR(STATUS_ADXL345_INIT)
+
+		if (separation_sensor(3))
+			STATUS_BECOME_ALL_RIGHT(STATUS_SD)
+		else STATUS_BECOME_ERROR(STATUS_SD)
+
+		signal_wait_trigger();
 	}
 }
