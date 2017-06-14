@@ -168,6 +168,10 @@ int main (){
 		//FATAL ERROR
 		//============================================================================
 		case STATE_FATAL_ERROR:
+			if (count_height(&heights.height_separation,pressure_at_start) == RSCS_E_NONE){
+				count_height_points(&heights);
+				state_now = STATE_MAIN_PART;
+			}
 			take_data_for_packet_extra();
 			update_packet_extra();
 			send_packet(&packet_extra.control,sizeof(packet_extra));
