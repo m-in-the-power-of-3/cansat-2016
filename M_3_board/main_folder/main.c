@@ -148,7 +148,7 @@ int main (){
 						if (main_packet.CO >= CO_INTAKE_VALUE){
 							intake(3);
 							STATUS_BECOME_ALL_RIGHT(STATUS_INTAKECO_2)
-							state_now = STATE_IN_THIRD_MEASURE;
+							state_now = STATE_AFTER_THIRD_MEASURE;
 						}
 					}
 					break;
