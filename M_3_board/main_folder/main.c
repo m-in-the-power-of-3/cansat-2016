@@ -65,9 +65,15 @@ int main (){
 //============================================================================
 	take_data_for_packet();
 	take_data_for_packet_extra();
+
 	pressure_at_start = count_average_pressure();
+
+	update_packet();
+	update_packet_extra();
+
 	send_packet(&main_packet.control,sizeof(main_packet));
 	send_packet(&packet_extra.control,sizeof(packet_extra));
+
 	if (pressure_at_start == 0)
 		state_now = STATE_FATAL_ERROR;
 	else
@@ -75,14 +81,12 @@ int main (){
 
 	while (1){
 		switch(state_now) {
+		take_data_for_packet();
 		//============================================================================
 		//WAIT SIGNAL
 		//============================================================================
 		case STATE_WAIT_SIGNAL:
 			if (!trigger()){
-				take_data_for_packet();
-				update_packet();
-				send_packet(&main_packet.control,sizeof(main_packet));
 				//TODO: Чем-нибуть помигать. Показать, что мы ждем.
 			}
 			else state_now = STATE_WAIT_SEPARATION;
@@ -92,9 +96,6 @@ int main (){
 		//============================================================================
 		case STATE_WAIT_SEPARATION:
 			if (!separation_sensors_state()){
-				take_data_for_packet();
-				update_packet();
-				send_packet(&main_packet.control,sizeof(main_packet));
 				//TODO: Чем-нибуть помигать. Показать, что мы ждем, но подругому.
 			}
 			else state_now = STATE_AFTER_SEPARATION;
@@ -112,8 +113,6 @@ int main (){
 		//MAIN PART
 		//============================================================================
 		case STATE_MAIN_PART:
-		  //DATA
-			take_data_for_packet();
 		  //INTAKE
 			if (count_height(&height_now,pressure_at_start) == RSCS_E_NONE){
 				switch (state_mission_now) {
@@ -164,22 +163,18 @@ int main (){
 				porsh_check(&porsh_2);
 				porsh_check(&porsh_3);
 			}
-		  //SEND DATA
-			update_packet();
-			send_packet(&main_packet.control,sizeof(main_packet));
 			break;
 		//============================================================================
 		//FATAL ERROR
 		//============================================================================
 		case STATE_FATAL_ERROR:
-			take_data_for_packet();
 			take_data_for_packet_extra();
-			update_packet();
 			update_packet_extra();
-			send_packet(&main_packet.control,sizeof(main_packet));
 			send_packet(&packet_extra.control,sizeof(packet_extra));
 			//TODO: Чем-нибуть помигать. В общем, показать, что все плохо.
 			break;
 		};
+		update_packet();
+		send_packet(&main_packet.control,sizeof(main_packet));
 	}
 }
