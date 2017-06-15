@@ -102,6 +102,7 @@ void init_hardware (){
 
   //SD
 	buffer_for_sd_init ();
+
 	sd = rscs_sd_init(&SD_DDR,&SD_PORT,SD_PIN);
 	rscs_sd_set_timeout(sd,4000);
 	rscs_sd_spi_setup_slow();

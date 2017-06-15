@@ -65,9 +65,15 @@ int main (){
 //============================================================================
 	take_data_for_packet();
 	take_data_for_packet_extra();
+
 	pressure_at_start = count_average_pressure();
+
+	update_packet();
+	update_packet_extra();
+
 	send_packet(&main_packet.control,sizeof(main_packet));
 	send_packet(&packet_extra.control,sizeof(packet_extra));
+
 	if (pressure_at_start == 0)
 		state_now = STATE_FATAL_ERROR;
 	else
@@ -75,16 +81,12 @@ int main (){
 
 	while (1){
 		switch(state_now) {
+		take_data_for_packet();
 		//============================================================================
 		//WAIT SIGNAL
 		//============================================================================
 		case STATE_WAIT_SIGNAL:
 			if (!trigger()){
-				// NOTE: Если эти операции выполняется на каждом такте внезависимости от режима, имеет смысл вынести их из свича
-				take_data_for_packet();
-				update_packet();
-				send_packet(&main_packet.control,sizeof(main_packet));
-				// NOTE: /end
 				//TODO: Чем-нибуть помигать. Показать, что мы ждем.
 			}
 			else state_now = STATE_WAIT_SEPARATION;
@@ -94,11 +96,6 @@ int main (){
 		//============================================================================
 		case STATE_WAIT_SEPARATION:
 			if (!separation_sensors_state()){
-				// NOTE: Если эти операции выполняется на каждом такте внезависимости от режима, имеет смысл вынести их из свича
-				take_data_for_packet();
-				update_packet();
-				send_packet(&main_packet.control,sizeof(main_packet));
-				// NOTE: /end
 				//TODO: Чем-нибуть помигать. Показать, что мы ждем, но подругому.
 			}
 			else state_now = STATE_AFTER_SEPARATION;
@@ -116,16 +113,11 @@ int main (){
 		//MAIN PART
 		//============================================================================
 		case STATE_MAIN_PART:
-		  //DATA
-			take_data_for_packet();
 		  //INTAKE
 			if (count_height(&height_now,pressure_at_start) == RSCS_E_NONE){
 				switch (state_mission_now) {
 			  //FIRST INTAKE
 				case STATE_IN_FIRST_MEASURE:
-					// NOTE: тут идет проверка только на высоту. Не нужно ли добавить еще и срабатывание по таймеру на всякий случай?
-					// или это будет уже слишком сложно и перегружено
-					// Если этот автомат становится слишком сложным - его следует вынести в отдельную фунцию
 					if (height_now <= heights.height_1){
 						intake(1);
 						state_now = STATE_IN_SECOND_MEASURE;
@@ -136,11 +128,13 @@ int main (){
 					if (height_now <= heights.height_2){
 						intake(2);
 						state_now = STATE_IN_THIRD_MEASURE;
-					} // NOTE: тут бы нужен ELSE, иначе есть шанс включить intake(2) дважды, когда выполняются оба условия
-					if (main_packet.CO >= CO_INTAKE_VALUE){
-						intake(2);
-						STATUS_BECOME_ALL_RIGHT(STATUS_INTAKECO_1)
-						state_now = STATE_IN_THIRD_MEASURE;
+					}
+					else {
+						if (main_packet.CO >= CO_INTAKE_VALUE){
+							intake(2);
+							STATUS_BECOME_ALL_RIGHT(STATUS_INTAKECO_1)
+							state_now = STATE_IN_THIRD_MEASURE;
+						}
 					}
 			  //THIRD INTAKE
 				break;
@@ -149,17 +143,19 @@ int main (){
 					if (height_now <= heights.height_3) {
 						intake(3);
 						state_now = STATE_AFTER_THIRD_MEASURE;
-					} // NOTE: тут бы нужен ELSE, иначе есть шанс включить intake(3) дважды, когда выполняются оба условия
-					if (main_packet.CO >= CO_INTAKE_VALUE){
-						intake(3);
-						STATUS_BECOME_ALL_RIGHT(STATUS_INTAKECO_2)
-						state_now = STATE_IN_THIRD_MEASURE;
+					}
+					else {
+						if (main_packet.CO >= CO_INTAKE_VALUE){
+							intake(3);
+							STATUS_BECOME_ALL_RIGHT(STATUS_INTAKECO_2)
+							state_now = STATE_AFTER_THIRD_MEASURE;
+						}
 					}
 					break;
 				case STATE_AFTER_THIRD_MEASURE:
+					take_data_for_packet_extra();
 					update_packet_extra();
-					take_data_for_packet_extra(); // NOTE: кажется тут должно быть сперва take_data а потом update?
-					send_packet(&packet_extra.control,sizeof(packet_extra)); // NOTE: опять таки на каждом такте
+					send_packet(&packet_extra.control,sizeof(packet_extra));
 					break;
 				};
 			  //DEACTIVATION
@@ -167,23 +163,22 @@ int main (){
 				porsh_check(&porsh_2);
 				porsh_check(&porsh_3);
 			}
-		  //SEND DATA
-			update_packet();
-			send_packet(&main_packet.control,sizeof(main_packet));
-			// NOTE: забыт брейк? Даже эклипс подсказывает
-
+			break;
 		//============================================================================
 		//FATAL ERROR
 		//============================================================================
 		case STATE_FATAL_ERROR:
-			take_data_for_packet();
+			if (count_height(&heights.height_separation,pressure_at_start) == RSCS_E_NONE){
+				count_height_points(&heights);
+				state_now = STATE_MAIN_PART;
+			}
 			take_data_for_packet_extra();
-			update_packet();
 			update_packet_extra();
-			send_packet(&main_packet.control,sizeof(main_packet));
 			send_packet(&packet_extra.control,sizeof(packet_extra));
 			//TODO: Чем-нибуть помигать. В общем, показать, что все плохо.
 			break;
 		};
+		update_packet();
+		send_packet(&main_packet.control,sizeof(main_packet));
 	}
 }
