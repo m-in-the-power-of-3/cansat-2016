@@ -115,7 +115,7 @@ void trigger_init (){
 }
 
 bool trigger (){
-	if ((TRIGGER_PPIN & (1<< TRIGGER_PIN)) == 0)
+	if ((TRIGGER_PPIN & (1<< TRIGGER_PIN)) != 0)
 		return true;
 	else return false;
 }
