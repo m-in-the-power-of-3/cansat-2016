@@ -74,10 +74,11 @@ int main (){
 	send_packet(&main_packet.control,sizeof(main_packet));
 	send_packet(&packet_extra.control,sizeof(packet_extra));
 
-	if (pressure_at_start == 0)
+	if (pressure_at_start == 0){
+		signal_fatal_error();
 		state_now = STATE_FATAL_ERROR;
-	else
-		state_now = STATE_WAIT_SIGNAL;
+	}
+	else state_now = STATE_WAIT_SIGNAL;
 
 	while (1){
 		take_data_for_packet();
@@ -87,19 +88,19 @@ int main (){
 		//WAIT SIGNAL
 		//============================================================================
 		case STATE_WAIT_SIGNAL:
-			if (!trigger()){
-				//TODO: Чем-нибуть помигать. Показать, что мы ждем.
+			if (!trigger())
+				signal_wait_trigger();
+			else {
+				signal_actions();
+				state_now = STATE_WAIT_SEPARATION;
 			}
-			else state_now = STATE_WAIT_SEPARATION;
 			break;
 		//============================================================================
 		//WAIT SEPARATION
 		//============================================================================
 		case STATE_WAIT_SEPARATION:
-			if (!separation_sensors_state()){
-				//TODO: Чем-нибуть помигать. Показать, что мы ждем, но подругому.
-			}
-			else state_now = STATE_AFTER_SEPARATION;
+			if (separation_sensors_state())
+				state_now = STATE_AFTER_SEPARATION;
 			//break прорущен намеренно
 		//============================================================================
 		//AFTER SEPARATION
@@ -109,7 +110,10 @@ int main (){
 				count_height_points(&heights);
 				state_now = STATE_MAIN_PART;
 			}
-			else state_now = STATE_FATAL_ERROR;
+			else {
+				signal_fatal_error();
+				state_now = STATE_FATAL_ERROR;
+			}
 			break;
 		//============================================================================
 		//MAIN PART
@@ -172,12 +176,12 @@ int main (){
 		case STATE_FATAL_ERROR:
 			if (count_height(&heights.height_separation,pressure_at_start) == RSCS_E_NONE){
 				count_height_points(&heights);
+				signal_actions();
 				state_now = STATE_MAIN_PART;
 			}
 			take_data_for_packet_extra();
 			update_packet_extra();
 			send_packet(&packet_extra.control,sizeof(packet_extra));
-			//TODO: Чем-нибуть помигать. В общем, показать, что все плохо.
 			break;
 		};
 		update_packet();
