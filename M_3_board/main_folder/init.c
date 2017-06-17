@@ -47,6 +47,8 @@ state_porsh_t porsh_3 = {{0,0},false,3};
 
 const time_data_t time_for_porsh = TIME_FOR_PORSH;
 
+uint8_t blink = 0;
+
 void init_status (){
 	STATUS_BECOME_ERROR(STATUS_INTAKE_1)
 	STATUS_BECOME_ERROR(STATUS_INTAKE_2)
@@ -185,7 +187,7 @@ void init_standart_sensors (){
 	adxl345 = rscs_adxl345_initi2c (RSCS_ADXL345_ADDR_ALT);
 	for (uint8_t i = 1;i <= INIT_TRY_ADXL345;i++){
 		if (rscs_adxl345_startup(adxl345) == RSCS_E_NONE){
-			if ((rscs_adxl345_set_range(adxl345,RSCS_ADXL345_RANGE_2G) == RSCS_E_NONE) &&
+			if ((rscs_adxl345_set_range(adxl345,RSCS_ADXL345_RANGE_16G) == RSCS_E_NONE) &&
 				(rscs_adxl345_set_rate(adxl345,RSCS_ADXL345_RATE_200HZ) == RSCS_E_NONE)){
 
 				STATUS_BECOME_ALL_RIGHT(STATUS_ADXL345_INIT)

@@ -28,4 +28,8 @@ void led_init ();
 void led_on (uint8_t number);
 void led_off (uint8_t number);
 
+void signal_fatal_error ();
+void signal_actions ();
+void signal_wait_trigger ();
+
 #endif /* MECHANICS_H_ */
