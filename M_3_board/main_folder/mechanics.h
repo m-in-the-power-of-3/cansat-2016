@@ -24,9 +24,9 @@ bool trigger ();
 
 void intake (uint8_t number);
 
+void led_red (bool trigger);
+void led_blue (bool trigger);
 void led_init ();
-void led_on (uint8_t number);
-void led_off (uint8_t number);
 
 void signal_fatal_error ();
 void signal_actions ();

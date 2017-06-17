@@ -101,7 +101,7 @@ int main (){
 		case STATE_WAIT_SEPARATION:
 			if (separation_sensors_state())
 				state_now = STATE_AFTER_SEPARATION;
-			//break прорущен намеренно
+			break;
 		//============================================================================
 		//AFTER SEPARATION
 		//============================================================================
@@ -126,20 +126,20 @@ int main (){
 				case STATE_IN_FIRST_MEASURE:
 					if (height_now <= heights.height_1){
 						intake(1);
-						state_now = STATE_IN_SECOND_MEASURE;
+						state_mission_now = STATE_IN_SECOND_MEASURE;
 						}
 					break;
 			  //SECOND INTAKE
 				case STATE_IN_SECOND_MEASURE:
 					if (height_now <= heights.height_2){
 						intake(2);
-						state_now = STATE_IN_THIRD_MEASURE;
+						state_mission_now = STATE_IN_THIRD_MEASURE;
 					}
 					else {
 						if (main_packet.CO >= CO_INTAKE_VALUE){
 							intake(2);
 							STATUS_BECOME_ALL_RIGHT(STATUS_INTAKECO_1)
-							state_now = STATE_IN_THIRD_MEASURE;
+							state_mission_now = STATE_IN_THIRD_MEASURE;
 						}
 					}
 			  //THIRD INTAKE
@@ -148,13 +148,13 @@ int main (){
 				case STATE_IN_THIRD_MEASURE:
 					if (height_now <= heights.height_3) {
 						intake(3);
-						state_now = STATE_AFTER_THIRD_MEASURE;
+						state_mission_now = STATE_AFTER_THIRD_MEASURE;
 					}
 					else {
 						if (main_packet.CO >= CO_INTAKE_VALUE){
 							intake(3);
 							STATUS_BECOME_ALL_RIGHT(STATUS_INTAKECO_2)
-							state_now = STATE_AFTER_THIRD_MEASURE;
+							state_mission_now = STATE_AFTER_THIRD_MEASURE;
 						}
 					}
 					break;
