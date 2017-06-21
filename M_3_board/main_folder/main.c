@@ -151,7 +151,7 @@ int main (){
 						state_mission_now = STATE_AFTER_THIRD_MEASURE;
 					}
 					else {
-						if (main_packet.CO >= CO_INTAKE_VALUE){
+						if ((main_packet.CO >= CO_INTAKE_VALUE) && (!(STATUS_IS_ALL_RIGHT(STATUS_INTAKECO_1)))){
 							intake(3);
 							STATUS_BECOME_ALL_RIGHT(STATUS_INTAKECO_2)
 							state_mission_now = STATE_AFTER_THIRD_MEASURE;
