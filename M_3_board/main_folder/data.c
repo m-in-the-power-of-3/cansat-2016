@@ -122,9 +122,9 @@ rscs_e count_height (float * height,const uint32_t pressure_at_start){
 	return RSCS_E_NULL;
 }
 
-void count_height_points (important_heights_t * heights){
-	heights->height_1 = (3 * heights->height_separation) / 4;
-	heights->height_2 = heights->height_separation / 2;
-	heights->height_3 = heights->height_separation / 4;
+void count_height_points (){
+	packet_mission.height_1 = (3 * packet_mission.height_separation) / 4;
+	packet_mission.height_2 = packet_mission.height_separation / 2;
+	packet_mission.height_3 = packet_mission.height_separation / 4;
 }
 

@@ -49,6 +49,8 @@ const time_data_t time_for_porsh = TIME_FOR_PORSH;
 
 uint8_t blink = 0;
 
+packet_mission_t packet_mission = {0xFD,0,0,0,0,0,0,0,0};
+
 void init_status (){
 	STATUS_BECOME_ERROR(STATUS_INTAKE_1)
 	STATUS_BECOME_ERROR(STATUS_INTAKE_2)

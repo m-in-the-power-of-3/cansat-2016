@@ -47,10 +47,6 @@ int main (){
 	state_mission_t state_mission_now = STATE_IN_FIRST_MEASURE;
 	state_t state_now = STATE_FATAL_ERROR;
 
-	uint32_t pressure_at_start = 0;
-
-	important_heights_t heights = {0,0,0,0};
-
 	float height_now;
 
 //============================================================================
@@ -66,7 +62,7 @@ int main (){
 	take_data_for_packet();
 	take_data_for_packet_extra();
 
-	pressure_at_start = count_average_pressure();
+	packet_mission.pressure_at_start = count_average_pressure();
 
 	update_packet();
 	update_packet_extra();
@@ -74,7 +70,7 @@ int main (){
 	send_packet(&main_packet.control,sizeof(main_packet));
 	send_packet(&packet_extra.control,sizeof(packet_extra));
 
-	if (pressure_at_start == 0){
+	if (packet_mission.pressure_at_start == 0){
 		signal_fatal_error();
 		state_now = STATE_FATAL_ERROR;
 	}
@@ -106,8 +102,9 @@ int main (){
 		//AFTER SEPARATION
 		//============================================================================
 		case STATE_AFTER_SEPARATION:
-			if (count_height(&heights.height_separation,pressure_at_start) == RSCS_E_NONE){
-				count_height_points(&heights);
+			if (count_height(&packet_mission.height_separation,packet_mission.pressure_at_start) == RSCS_E_NONE){
+				count_height_points();
+				send_packet_mission ();
 				state_now = STATE_MAIN_PART;
 			}
 			else {
@@ -120,18 +117,18 @@ int main (){
 		//============================================================================
 		case STATE_MAIN_PART:
 		  //INTAKE
-			if (count_height(&height_now,pressure_at_start) == RSCS_E_NONE){
+			if (count_height(&height_now,packet_mission.pressure_at_start) == RSCS_E_NONE){
 				switch (state_mission_now) {
 			  //FIRST INTAKE
 				case STATE_IN_FIRST_MEASURE:
-					if (height_now <= heights.height_1){
+					if (height_now <= packet_mission.height_1){
 						intake(1);
 						state_mission_now = STATE_IN_SECOND_MEASURE;
 						}
 					break;
 			  //SECOND INTAKE
 				case STATE_IN_SECOND_MEASURE:
-					if (height_now <= heights.height_2){
+					if (height_now <= packet_mission.height_2){
 						intake(2);
 						state_mission_now = STATE_IN_THIRD_MEASURE;
 					}
@@ -146,7 +143,7 @@ int main (){
 				break;
 					break;
 				case STATE_IN_THIRD_MEASURE:
-					if (height_now <= heights.height_3) {
+					if (height_now <= packet_mission.height_3) {
 						intake(3);
 						state_mission_now = STATE_AFTER_THIRD_MEASURE;
 					}
@@ -160,8 +157,13 @@ int main (){
 					break;
 				case STATE_AFTER_THIRD_MEASURE:
 					take_data_for_packet_extra();
-					update_packet_extra();
-					send_packet(&packet_extra.control,sizeof(packet_extra));
+					if (packet_extra.HC_SR04 != 0){
+						update_packet_extra();
+						send_packet(&packet_extra.control,sizeof(packet_extra));
+					}
+					else {
+						send_packet_mission ();
+					}
 					break;
 				};
 			  //DEACTIVATION
@@ -174,9 +176,10 @@ int main (){
 		//FATAL ERROR
 		//============================================================================
 		case STATE_FATAL_ERROR:
-			if (count_height(&heights.height_separation,pressure_at_start) == RSCS_E_NONE){
-				count_height_points(&heights);
+			if (count_height(&packet_mission.height_separation,packet_mission.pressure_at_start) == RSCS_E_NONE){
+				count_height_points();
 				signal_actions();
+				send_packet_mission();
 				state_now = STATE_MAIN_PART;
 			}
 			take_data_for_packet_extra();

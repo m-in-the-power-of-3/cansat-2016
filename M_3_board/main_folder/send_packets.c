@@ -83,3 +83,16 @@ rscs_e send_packet (uint8_t * packet_ptr,size_t size_of_packet){
 
 	return error;
 }
+
+rscs_e send_packet_mission (){
+	rscs_e error;
+
+	time_data_t time_now = time_service_get();
+	packet_mission.time_h = time_now.seconds;
+	packet_mission.time_l = time_now.subseconds;
+	packet_mission.sum = count_sum(&packet_mission.control,sizeof(packet_mission) - 2);
+
+	error = send_packet(&packet_mission.control,sizeof(packet_mission));
+
+	return error;
+}

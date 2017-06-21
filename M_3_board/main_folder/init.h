@@ -37,6 +37,8 @@ extern const time_data_t time_for_porsh;
 
 extern uint8_t blink;
 
+extern packet_mission_t packet_mission;
+
 void init_status ();
 void init_low_hardware ();
 void init_hardware ();

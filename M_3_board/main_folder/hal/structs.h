@@ -46,6 +46,18 @@ typedef struct {
 	uint16_t time_l;
 	uint16_t sum;
 } packet_extra_t;
+
+typedef struct {
+	uint8_t control;
+	uint32_t pressure_at_start;
+	float height_separation;
+	float height_1;
+	float height_2;
+	float height_3;
+	uint16_t time_h;
+	uint16_t time_l;
+	uint16_t sum;
+} packet_mission_t;
 #pragma pack(pop)
 
 //============================================================================
@@ -76,13 +88,6 @@ typedef struct {
 	uint16_t seconds;
 	uint16_t subseconds;
 } time_data_t ;
-
-typedef struct {
-	float height_separation;
-	float height_1;
-	float height_2;
-	float height_3;
-} important_heights_t ;
 
 //============================================================================
 //STATE
