@@ -13,6 +13,7 @@ uint16_t count_sum (const void * value,size_t size);
 
 void update_packet ();
 void update_packet_extra ();
+void update_packet_mission ();
 
 void send_packet_uart (uint8_t * packet,size_t size_of_packet);
 rscs_e send_packet_sd (uint8_t * packet,size_t size_of_packet);
