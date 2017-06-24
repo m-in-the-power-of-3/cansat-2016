@@ -45,7 +45,6 @@ int main (){
 //============================================================================
   //VARIABLE
 	state_mission_t state_mission_now = STATE_IN_FIRST_MEASURE;
-	state_t state_now = STATE_FATAL_ERROR;
 
 	float height_now;
 
@@ -70,33 +69,30 @@ int main (){
 	send_packet(&main_packet.control,sizeof(main_packet));
 	send_packet(&packet_extra.control,sizeof(packet_extra));
 
-	if (packet_mission.pressure_at_start == 0){
-		signal_fatal_error();
-		state_now = STATE_FATAL_ERROR;
-	}
-	else state_now = STATE_WAIT_SIGNAL;
+	if (packet_mission.pressure_at_start == 0)
+		change_state(STATE_FATAL_ERROR);
+	else
+		change_state(STATE_WAIT_SIGNAL);
 
 	while (1){
 		take_data_for_packet();
-		switch(state_now) {
 
+		switch(state_now) {
 		//============================================================================
 		//WAIT SIGNAL
 		//============================================================================
 		case STATE_WAIT_SIGNAL:
 			if (!trigger())
 				signal_wait_trigger();
-			else {
-				signal_actions();
-				state_now = STATE_WAIT_SEPARATION;
-			}
+			else
+				change_state(STATE_WAIT_SEPARATION);
 			break;
 		//============================================================================
 		//WAIT SEPARATION
 		//============================================================================
 		case STATE_WAIT_SEPARATION:
 			if (separation_sensors_state())
-				state_now = STATE_AFTER_SEPARATION;
+				change_state(STATE_AFTER_SEPARATION);
 			break;
 		//============================================================================
 		//AFTER SEPARATION
@@ -104,13 +100,10 @@ int main (){
 		case STATE_AFTER_SEPARATION:
 			if (count_height(&packet_mission.height_separation,packet_mission.pressure_at_start) == RSCS_E_NONE){
 				count_height_points();
-				send_packet_mission ();
-				state_now = STATE_MAIN_PART;
+				update_packet_mission();
+				change_state(STATE_MAIN_PART);
 			}
-			else {
-				signal_fatal_error();
-				state_now = STATE_FATAL_ERROR;
-			}
+			else change_state(STATE_FATAL_ERROR);
 			break;
 		//============================================================================
 		//MAIN PART
@@ -161,9 +154,7 @@ int main (){
 						update_packet_extra();
 						send_packet(&packet_extra.control,sizeof(packet_extra));
 					}
-					else {
-						send_packet_mission ();
-					}
+					else send_packet_mission ();
 					break;
 				};
 			  //DEACTIVATION
@@ -178,13 +169,14 @@ int main (){
 		case STATE_FATAL_ERROR:
 			if (count_height(&packet_mission.height_separation,packet_mission.pressure_at_start) == RSCS_E_NONE){
 				count_height_points();
-				signal_actions();
-				send_packet_mission();
-				state_now = STATE_MAIN_PART;
+				update_packet_mission();
+				change_state(STATE_MAIN_PART);
 			}
-			take_data_for_packet_extra();
-			update_packet_extra();
-			send_packet(&packet_extra.control,sizeof(packet_extra));
+			else {
+				take_data_for_packet_extra();
+				update_packet_extra();
+				send_packet(&packet_extra.control,sizeof(packet_extra));
+			}
 			break;
 		};
 		update_packet();

@@ -39,9 +39,13 @@ extern uint8_t blink;
 
 extern packet_mission_t packet_mission;
 
+extern state_t state_now;
+
 void init_status ();
 void init_low_hardware ();
 void init_hardware ();
 void init_sensors ();
+
+void change_state (state_t state);
 
 #endif /* INIT_H_ */

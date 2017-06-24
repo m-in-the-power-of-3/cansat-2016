@@ -172,20 +172,22 @@ Pressure    | OSS = 11 | CSO = 1 | 10100 | 11110100 = 0xF4 | 25,5 mc |12 mA | 0,
 // ========================================================
 //STATUS
 // ========================================================
-#define STATUS_BMP180 1
-#define STATUS_BMP280 2
-#define STATUS_ADXL345_INIT 3
-#define STATUS_ADXL345_DATA 4
-#define STATUS_DS18B20 5
-#define STATUS_CO_INIT 6
-#define STATUS_CO_DATA 7
-#define STATUS_SD 8
-#define STATUS_GPS 9
-#define STATUS_INTAKE_1 10
-#define STATUS_INTAKE_2 11
-#define STATUS_INTAKE_3 12
-#define STATUS_INTAKECO_1 13
-#define STATUS_INTAKECO_2 14
+#define STATUS_BMP180 0
+#define STATUS_BMP280 1
+#define STATUS_ADXL345_INIT 2
+#define STATUS_ADXL345_DATA 3
+#define STATUS_DS18B20 4
+#define STATUS_CO_INIT 5
+#define STATUS_CO_DATA 6
+#define STATUS_SD 7
+#define STATUS_GPS 8
+#define STATUS_INTAKE_1 9
+#define STATUS_INTAKE_2 10
+#define STATUS_INTAKE_3 11
+#define STATUS_INTAKECO_1 12
+#define STATUS_INTAKECO_2 13
+#define STATUS_MAIN_1 14
+#define STATUS_MAIN_2 15
 
 #define STATUS_BECOME_ERROR(STATUS) main_packet.status |= (1 << STATUS);
 #define STATUS_BECOME_ALL_RIGHT(STATUS) main_packet.status &= ~(1 << STATUS);

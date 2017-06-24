@@ -51,6 +51,8 @@ uint8_t blink = 0;
 
 packet_mission_t packet_mission = {0xFD,0,0,0,0,0,0,0,0};
 
+state_t state_now = STATE_FATAL_ERROR;
+
 void init_status (){
 	STATUS_BECOME_ERROR(STATUS_INTAKE_1)
 	STATUS_BECOME_ERROR(STATUS_INTAKE_2)
@@ -204,4 +206,32 @@ void init_standart_sensors (){
 void init_sensors() {
 	init_extra_sensors();
 	init_standart_sensors();
+}
+
+void change_state (state_t state){
+	state_now = state;
+	switch(state){
+	case STATE_WAIT_SIGNAL:
+		STATUS_BECOME_ERROR(STATUS_MAIN_1)
+		STATUS_BECOME_ALL_RIGHT(STATUS_MAIN_2)
+		break;
+	case STATE_WAIT_SEPARATION:
+		signal_actions();
+		STATUS_BECOME_ALL_RIGHT(STATUS_MAIN_1)
+		STATUS_BECOME_ERROR(STATUS_MAIN_2)
+		break;
+	case STATE_AFTER_SEPARATION:
+		break;
+	case STATE_MAIN_PART:
+		signal_actions();
+		send_packet_mission ();
+		STATUS_BECOME_ALL_RIGHT(STATUS_MAIN_1)
+		STATUS_BECOME_ALL_RIGHT(STATUS_MAIN_2)
+		break;
+	case STATE_FATAL_ERROR:
+		signal_fatal_error();
+		STATUS_BECOME_ERROR(STATUS_MAIN_1)
+		STATUS_BECOME_ERROR(STATUS_MAIN_2)
+		break;
+	};
 }
