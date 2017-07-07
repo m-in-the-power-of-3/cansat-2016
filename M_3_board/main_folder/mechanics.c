@@ -208,11 +208,16 @@ void signal_wait_trigger (){
 		if (!(STATUS_IS_ALL_RIGHT(STATUS_SD)))
 			led_red(true);
 		break;
+	case 60:
+		if (main_packet.CO <= 7.0)
+			led_red(true);
+		break;
 	case 15:
 	case 25:
 	case 35:
 	case 45:
 	case 55:
+	case 65:
 		led_red(false);
 		break;
 	default:
@@ -220,6 +225,6 @@ void signal_wait_trigger (){
 	};
 
 	blink++;
-	if (blink >= 60)
+	if (blink >= 70)
 		blink = 0;
 }

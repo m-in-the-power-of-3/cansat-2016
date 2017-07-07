@@ -12,7 +12,7 @@
 // настройки GPS
 // ========================================================
 // размер буфера для накопления сообщения
-#define RSCS_GPS_BUFFER_SIZE (100)
+#define RSCS_GPS_BUFFER_SIZE (200)
 // очевидные настройки уарта
 #define RSCS_GPS_UART_BAUD_RATE (9600)
 #define RSCS_GPS_UART_STOP_BITS (1)
@@ -111,7 +111,7 @@
 // ========================================================
 // Использовать ли буферизацию
 #define RSCS_UART_USEBUFFERS // Добавить код для поддержки циклических буферов в UART
-#define RSCS_UART_BUFSIZE_RX 50 // размер буфера на RX
+#define RSCS_UART_BUFSIZE_RX 200 // размер буфера на RX
 #define RSCS_UART_BUFSIZE_TX 50 // размер буфера на TX
 
 

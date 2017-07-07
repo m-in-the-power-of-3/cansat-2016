@@ -84,8 +84,9 @@ rscs_e send_packet_sd (uint8_t * packet,size_t size_of_packet){
 
 rscs_e send_packet (uint8_t * packet_ptr,size_t size_of_packet){
 	rscs_e error;
+	if ((main_packet.number % 3) == 0)
+		send_packet_uart(packet_ptr,size_of_packet);
 
-	send_packet_uart(packet_ptr,size_of_packet);
 	error = send_packet_sd(packet_ptr,size_of_packet);
 
 	return error;
